@@ -79,32 +79,33 @@
     "missing": []
   },
   "patches": {
-    "0001-enigma-oxp.patch": "9411b6c0b5e9f8e9bc8f0d9506160ab4f8711b44c9956eb5bcf4717e3b5a9f8c"
+    "0001-enigma-oxp.patch": "4691768d4c4035636d8897f6b80138959726aec64b8aa1568a08d7b49b7fb355"
   },
   "configure_command": [
     "cmake",
     "-S",
-    "/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-final-20261031/source",
+    "/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-score-20261031/source",
     "-B",
-    "/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-final-20261031/cmake",
+    "/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-score-20261031/cmake",
     "-DCMAKE_TOOLCHAIN_FILE=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/ports/enigma/amigaos3.cmake",
     "-DAMIGA_STOVE=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-stove",
     "-DAMIGA_SDK_OVERLAYS=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-sdk",
-    "-DAMIGA_CPU_FLAGS=-m68040 -specs=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-final-20261031/oxp-source/toolchain/m68k-soft-m68040.specs",
+    "-DAMIGA_CPU_FLAGS=-m68040 -specs=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-score-20261031/oxp-source/toolchain/m68k-soft-m68040.specs",
     "-DAMIGA_RUNTIME=-mcrt=nix20",
-    "-DOXP_SOURCE_DIR=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-final-20261031/oxp-source/oxp",
-    "-DTOLUA_EXECUTABLE=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-final-20261031/host-tools/build/tolua",
+    "-DOXP_SOURCE_DIR=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-score-20261031/oxp-source/oxp",
+    "-DTOLUA_EXECUTABLE=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-score-20261031/host-tools/build/tolua",
     "-DCMAKE_BUILD_TYPE=Release",
     "-DHAVE_SDL=ON",
-    "-DCMAKE_C_FLAGS=-m68040 -specs=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-final-20261031/oxp-source/toolchain/m68k-soft-m68040.specs -mcrt=nix20 -pthread -fno-delete-null-pointer-checks -fno-tree-loop-distribute-patterns -fno-late-combine-instructions -isystem \"/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-sdk/include\" -ffile-prefix-map=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-final-20261031=/enigma-build",
-    "-DCMAKE_CXX_FLAGS=-m68040 -specs=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-final-20261031/oxp-source/toolchain/m68k-soft-m68040.specs -mcrt=nix20 -pthread -fno-delete-null-pointer-checks -fno-tree-loop-distribute-patterns -fno-late-combine-instructions -isystem \"/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-sdk/include\" -ffile-prefix-map=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-final-20261031=/enigma-build",
+    "-DCMAKE_C_FLAGS=-m68040 -specs=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-score-20261031/oxp-source/toolchain/m68k-soft-m68040.specs -mcrt=nix20 -pthread -fno-delete-null-pointer-checks -fno-tree-loop-distribute-patterns -fno-late-combine-instructions -isystem \"/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-sdk/include\" -ffile-prefix-map=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-score-20261031=/enigma-build",
+    "-DCMAKE_CXX_FLAGS=-m68040 -specs=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-score-20261031/oxp-source/toolchain/m68k-soft-m68040.specs -mcrt=nix20 -pthread -fno-delete-null-pointer-checks -fno-tree-loop-distribute-patterns -fno-late-combine-instructions -isystem \"/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-sdk/include\" -ffile-prefix-map=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-score-20261031=/enigma-build",
     "-DCMAKE_C_FLAGS_RELEASE=-O2 -DNDEBUG",
     "-DCMAKE_CXX_FLAGS_RELEASE=-O2 -DNDEBUG",
-    "-DCMAKE_EXE_LINKER_FLAGS=-Wl,-Map,/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-final-20261031/enigma.map"
+    "-DCMAKE_EXE_LINKER_FLAGS=-Wl,-Map,/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-score-20261031/enigma.map"
   ],
   "state": "compiled",
-  "runtime": "not tested",
-  "executable_sha256": "0c192fe49eadd58eb2b40ee7468e8f4025ebdfa95bb982b084d3033493626658",
+  "runtime": "AROS 68040 FPU-disabled: --check-xml fresh profile and second-process reload both exit 0; GUI qualification incomplete",
+  "executable_sha256": "7c578f09944ea322804a891d84b5fc7c788b6c9d3d591ce6841724a586ae8f8c",
   "xerces_symbols": false,
-  "configure_build_seconds": 150.52
+  "configure_build_seconds": 160.355,
+  "executable_bytes": 7924200
 }

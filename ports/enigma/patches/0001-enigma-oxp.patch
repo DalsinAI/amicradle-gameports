@@ -785,6 +785,28 @@
  
  namespace enigma::lev {
  
+@@ -416,7 +409,7 @@
+                 XMLString::release(&XMLString); 
+                 if (j==1)
+                     (app.domSer)->setFilter(nullptr);
+-                contents.replace(contents.find("UTF-16"), 6, "UTF-8"); // adapt encoding info
++                // OXP already declares the UTF-8 bytes produced above.
+ 
+                 // We need to allocate enough memory to save the
+                 // deflated (compressed) xml-file.
+@@ -545,8 +538,10 @@
+                 }
+             }
+             cerr << XMLtoLocal(Utf8ToXML(errMessage.c_str()).x_str()).c_str();
+-            gui::ErrorMenu m(errMessage, N_("Continue"));
+-            m.manage();          
++            if (!app.isXmlCheck) {
++                gui::ErrorMenu m(errMessage, N_("Continue"));
++                m.manage();
++            }          
+         } else
+             Log << "Score save o.k.\n";
+         
 --- a/src/lev/ScoreManager.hh
 +++ b/src/lev/ScoreManager.hh
 @@ -27,7 +27,7 @@
@@ -836,7 +858,60 @@
  #include "SDL_main.h"
  #include <SDL_image.h>
  #include <SDL_ttf.h>
-@@ -333,7 +330,7 @@
+@@ -120,6 +117,7 @@
+     printf("Usage: %s [OPTION]... [levelfile.xml]...\n\n"
+            "Available options :\n\n"
+            "    --assert       Evaluate all debugging assertions\n"
++           "    --check-xml    Check XML persistence without opening video\n"
+            "    --data -d path Load data from additional directory\n"
+            "    --help -h      Show this help\n"
+            "    --lang -l lang Set game language\n"
+@@ -148,7 +146,7 @@
+ 
+         // Variables.
+         bool nosound, nomusic, show_help, show_version, do_log, do_assert, force_window;
+-        bool dumpinfo, makepreview, measureperformance, show_fps, redirect;
++        bool dumpinfo, makepreview, measureperformance, show_fps, redirect, check_xml;
+         std::string gamename;
+         std::string datapath;
+         std::string preffilename;
+@@ -173,7 +171,7 @@
+ AP::AP() : ArgParser (app.args.begin(), app.args.end())
+ {
+     nosound  = nomusic = show_help = show_version = do_log = do_assert = force_window = false;
+-    dumpinfo = makepreview = measureperformance = show_fps = redirect = false;
++    dumpinfo = makepreview = measureperformance = show_fps = redirect = check_xml = false;
+     gamename = "";
+     datapath = "";
+     preffilename = PREFFILENAME;
+@@ -191,6 +189,7 @@
+     def (&measureperformance,   "measureperformance");
+     def (&show_fps,             "showfps");
+     def (&redirect,             "redirect");
++    def (&check_xml,            "check-xml");
+     def (&Robinson,             "robinson");
+     def (&force_window,         "window", 'w');
+     def (OPT_GAME,              "game", true);
+@@ -236,7 +235,7 @@
+ 
+ Application::Application() : wizard_mode(false), nograb(false),
+         errorInit(false), isMakePreviews(false),
+-        isMeasurePerformance(false), bossKeyPressed(false) {
++        isMeasurePerformance(false), isXmlCheck(false), bossKeyPressed(false) {
+ }
+ 
+ void Application::init(int argc, char **argv)
+@@ -288,6 +287,9 @@
+         isMeasurePerformance = true;
+     }
+ 
++    isXmlCheck = ap.check_xml;
++    if (isXmlCheck) Robinson = true;
++
+     // initialize assertion stop flag
+     if (ap.do_assert)
+         enigma::noAssert = false;
+@@ -333,7 +335,7 @@
      Log << "prefPath = \"" << prefPath << "\"\n";
  
      // initialize XML -- needs log, datapaths
@@ -845,7 +920,7 @@
  
      // initialize LUA - Run initialization scripts
      lua_State *L = lua::GlobalState();
-@@ -364,17 +361,25 @@
+@@ -364,17 +366,44 @@
      initUserDatapaths();
  
      // set message language
@@ -857,6 +932,25 @@
 +    Log << "Startup: state start\n" << std::flush;
      state = StateManager::instance();
 +    Log << "Startup: state complete\n" << std::flush;
++
++    // A diagnostic mode exercises the real score reader/writer without SDL.
++    if (isXmlCheck) {
++        enigma::Randomize(false);
++        enigma::Randomize(true);
++        const std::string scoreFile = userPath + "/enigma.score";
++        const bool existed = ecl::FileExists(scoreFile);
++        lev::ScoreManager *scores = lev::ScoreManager::instance();
++        scores->markModified();
++        bool ok = scores->save();
++        scores->shutdown();
++        state->save();
++        prefs->save();
++        std::ifstream persisted(scoreFile.c_str(), std::ios::binary);
++        ok = ok && persisted.good() && persisted.peek() != EOF;
++        std::printf("Enigma OXP XML persistence: %s existing=%d\n", ok ? "PASS" : "FAIL", existed ? 1 : 0);
++        std::exit(ok ? 0 : 2);
++    }
++
  
      // ----- Object declarations
      ObjectValidator::didInitXML();  // enable initialization
@@ -871,7 +965,7 @@
      if (ap.dumpinfo) {
          DumpObjectInfo();
          exit(0);
-@@ -423,23 +428,25 @@
+@@ -423,23 +452,25 @@
  
      // ----- Initialize sound subsystem
      sound::Init(!ap.nomusic, !ap.nosound);
@@ -899,7 +993,7 @@
  
      // ----- Load level packs -- needs state
      lev::Index::initGroups();
-@@ -462,6 +469,7 @@
+@@ -462,6 +493,7 @@
      }
      lev::Index::deleteEmptyGroups();
      lev::Proxy::countLevels();
@@ -907,7 +1001,7 @@
  
      // ----- Initialize sound tables -- needs sound, oxyd, video (error messages!)
      sound::InitSoundSets();
-@@ -489,6 +497,7 @@
+@@ -489,6 +521,7 @@
  
      // initialize score -- needs random init
      lev::ScoreManager::instance();
@@ -915,7 +1009,7 @@
  }
  
  std::string Application::getVersionInfo() {
-@@ -513,6 +522,19 @@
+@@ -513,6 +546,19 @@
      std::string progName;         // filename part of args[0]
      std::string systemPath = SYSTEM_DATA_DIR; // substituted by configure.ac
      bool haveHome = (getenv("HOME") != nullptr);
@@ -935,7 +1029,7 @@
  
  
  #ifdef __MINGW32__
-@@ -611,8 +633,8 @@
+@@ -611,8 +657,8 @@
      }
  }
  
@@ -946,7 +1040,7 @@
      // init XML
      try {
          // Initialize to en_US - we don't know the user prefs yet.
-@@ -644,8 +666,8 @@
+@@ -644,8 +690,8 @@
          DOMConfiguration *config = domParser->getDomConfig();
  
          config->setParameter(XMLUni::fgDOMNamespaces, true);
@@ -957,7 +1051,7 @@
          config->setParameter(XMLUni::fgDOMValidate, true);
          config->setParameter(XMLUni::fgDOMDatatypeNormalization, true);
          config->setParameter(XMLUni::fgDOMErrorHandler, domParserErrorHandler);
-@@ -654,7 +676,7 @@
+@@ -654,7 +700,7 @@
          //the same document, which causes it to be deleted twice. Adopting documents
          //prevents Xerces from releasing them, as they will be released by
          //Enigma in the destructors anyway.
@@ -966,7 +1060,7 @@
  
          domSer = domImplementationLS->createLSSerializer();
          config = domSer->getDomConfig();
-@@ -852,6 +874,13 @@
+@@ -852,6 +898,13 @@
          }
      }
  
@@ -980,7 +1074,7 @@
      l10nFS = new GameFS();
      l10nFS->append_dir(l10nPath);
      nls::theDictionaryManager.reset(new tinygettext::DictionaryManager(std::make_unique<nls::TinyGetTextFileSystem>(), "UTF-8"));
-@@ -939,14 +968,19 @@
+@@ -939,14 +992,19 @@
      app.errorInit = false;
      VideoShutdown();
      sound::Shutdown();
@@ -1015,11 +1109,15 @@
  
  namespace enigma {
  /* -------------------- Application services -------------------- */
-@@ -168,22 +166,22 @@
+@@ -166,24 +164,24 @@
+         StateManager* state;
+ 
          /**
-          * A xerces transcoder for utf-8.
-          */
+-         * A xerces transcoder for utf-8.
+-         */
 -        xercesc::XMLTranscoder* xmlUtf8Transcoder;
++         * An OXP adapter transcoder for utf-8.
++         */
 +        oxpcompat::XMLTranscoder* xmlUtf8Transcoder;
          
          /**
@@ -1051,7 +1149,15 @@
          /**
           * The error handler attached to the domSer
           */
-@@ -214,7 +212,7 @@
+@@ -205,6 +203,7 @@
+         bool errorInit;
+         bool isMakePreviews;
+         bool isMeasurePerformance;
++        bool isXmlCheck;
+         FullscreenMode selectedFullscreenMode = VM_NONE;
+         VideoTilesetId selectedFullscreenTilesetId = VTS_NONE;
+         VideoTilesetId selectedWindowTilesetId = VTS_NONE;
+@@ -214,7 +213,7 @@
  
      private:
          void initSysDatapaths(const std::string &prefFilename);

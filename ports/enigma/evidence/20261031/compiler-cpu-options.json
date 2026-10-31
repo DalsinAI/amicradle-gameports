@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-stove/prefix/bin/m68k-amigaos-gcc",
+    "-m68040",
+    "-specs=/run/media/da1ek/WorkingSpace/AmigaChrome/enigma-completion-20261031/build/enigma-open4-final-20261031/oxp-source/toolchain/m68k-soft-m68040.specs",
+    "-mcrt=nix20",
+    "-Q",
+    "--help=target",
+    "-x",
+    "c",
+    "-c",
+    "/dev/null",
+    "-o",
+    "/dev/null"
+  ],
+  "target_options": [
+    "-m68881                     \t\t[disabled]",
+    "-mhard-float                \t\t[disabled]",
+    "-msoft-float                \t\t[enabled]"
+  ],
+  "asan_symbols": false,
+  "ubsan_symbols": false,
+  "libfuzzer_entry": false
+}

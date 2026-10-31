@@ -70,6 +70,7 @@ int main(int argc, char **argv) {
       DOMLSSerializer ser;
       XMLCh *s = ser.writeToString(d);
       std::string xml = utf8(s);
+      CHECK(xml.find("encoding=\"UTF-8\"") != std::string::npos);
       XMLString::release(&s);
       oxp_doc *plain = oxp_dom_parse(xml.data(), xml.size(), 0, nullptr,
                                      nullptr, 0, nullptr, nullptr);

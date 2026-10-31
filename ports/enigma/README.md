@@ -52,20 +52,35 @@ default attributes, preserving the score checksum/reload semantics.
 See OpenAmigaXML `oxp/SCHEMA.md` for the deliberately bounded XSD subset.
 
 Checks recorded on 31 October 2026: 72 parser fixtures plus API checks,
-148 mutation/schema checks, 28 adapter checks, and all 1,634 supplied Enigma XML
-files validate against the seven schemas. The isolated AROS native tests also pass with the new Open4 soft-float
-build and FPU disabled: 96 schema checks and 28 adapter checks, both exit 0.
-These results qualify the XML paths. The clean full executable renders its
-loading screen and loads actor models; menu/gameplay remain unqualified.
-Test sources are in `tests/`; native logs and build receipts are in `evidence/`.
+148 mutation/schema checks, 29 host adapter checks under ASan/UBSan, and all
+1,634 supplied Enigma XML files validate against the seven schemas. Native
+AROS tests pass with Open4 soft-float and the FPU disabled: 148 schema checks
+and 28 adapter checks, both exit 0. Sanitizers and libFuzzer are host test tools;
+the Amiga executable contains none of their runtime symbols.
 
-An earlier experimental executable reached SDL video/audio initialization and
-loaded state, object definitions and 787 objects, then failed network setup in
-the isolated AROS lab. `--robinson` now skips network initialization for offline
-play. Native paths use `PROGDIR:data` and `PROGDIR:User`.
+The full engine builds without Xerces. Fixing the upstream CMake omission of
+`stones/InkwellStone.cc` registers 791 objects and permits the tutorial previews
+and animated Enigma intro to render. In the isolated 320x240 software lab it
+loads 5,626 models and 2,697 level entries. Cold startup is slow; overload messages
+and presentation/input issues remain. Player-controlled gameplay is unqualified.
 
-Remaining qualification: Open4 soft-float runtime, instruction audit, rendered
-level/input, save/reload, audio and normal exit, then the intended ROM/hardware.
-The selected SDK currently includes static curl, zlib and SDL_ttf dependencies;
+The first GUI exit exposed an obsolete assumption that serialized XML declared
+UTF-16. OXP already emits UTF-8; removing that replacement fixes score saving.
+`--check-xml --robinson --lang en --log --redirect` exercises the real score,
+state and preferences paths before graphics initialization. Two native FPU-disabled
+processes pass: fresh profile creation, then saved-score reload/save, both exit 0.
+The resulting XOR-encoded ZIP score files pass CRC checks and contain well-formed
+XML; state and preferences are also well-formed. Normal GUI exit after this fix
+has not been repeated. This diagnostic does not test saving a completed level.
+Test sources, native logs and build receipts are in `tests/` and `evidence/`.
+
+`--robinson` skips network initialization for offline play. Native paths use
+`PROGDIR:data` and `PROGDIR:User`. `--nosound --nomusic` selects muted startup.
+
+Remaining qualification: rendered level input, performance/presentation, completed
+level save/reload, audio, normal GUI exit, instruction audit and intended ROM/hardware.
+The selected SDK includes static curl, zlib and SDL_ttf/FreeType dependencies;
 the project module/OpenFont/z.library policy must be satisfied before release.
+Linker COMDAT section-size warnings also require review. The larger isolated lab
+avoids the original 72 MiB memory exhaustion; it does not qualify that smaller setup.
 This integration is a draft, not a release or a claim of playable Enigma.
