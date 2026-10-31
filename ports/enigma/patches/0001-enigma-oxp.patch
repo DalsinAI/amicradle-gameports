@@ -82,7 +82,15 @@
      actors/Balls.cc
      actors/Balls.hh
      actors/BugActor.cc
-@@ -448,7 +449,7 @@
+@@ -216,6 +217,7 @@
+     stones/GreenBrownStone.hh
+     stones/IceBlock.cc
+     stones/IceBlock.hh
++    stones/InkwellStone.cc
+     stones/InkwellStone.hh
+     stones/JambStone.cc
+     stones/JambStone.hh
+@@ -448,7 +450,7 @@
      SDL2::Mixer
      SDL2::TTF
      ZLIB::ZLIB
@@ -91,7 +99,7 @@
      CURL::libcurl
      tinygettext
      enet
-@@ -458,3 +459,7 @@
+@@ -458,3 +460,7 @@
  )
  
  install(TARGETS enigma DESTINATION bin)
@@ -1054,7 +1062,7 @@
          void createPreviews();
 --- /dev/null
 +++ b/src/oxp_enigma.cc
-@@ -0,0 +1,612 @@
+@@ -0,0 +1,613 @@
 +/* Enigma/OXP adapter. MIT, Copyright (c) 2026 AmigaChrome Team. */
 +#include "oxp_enigma.hh"
 +#include <cerrno>
@@ -1066,6 +1074,7 @@
 +#include <functional>
 +#include <iterator>
 +#include <sstream>
++#include <cstdint>
 +namespace oxpcompat {
 +namespace {
 +std::string str(const char *s) { return s ? s : ""; }
@@ -1441,7 +1450,7 @@
 +}
 +DOMNodeList *DOMDocument::childList(oxp_node *n) {
 +  std::string key =
-+      "children:" + std::to_string(reinterpret_cast<uintptr_t>(n));
++      "children:" + std::to_string(reinterpret_cast<std::uintptr_t>(n));
 +  auto &i = queries[key];
 +  if (!i)
 +    i.reset(new DOMNodeList(this, n, "", "", true, false));

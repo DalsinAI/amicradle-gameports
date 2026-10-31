@@ -26,5 +26,14 @@
     "zlib": "71756-byte static archive, 16 members"
   },
   "72mb_run": "loads XML, video, actor and floor models; fails at st_plaster.png with out-of-memory; not playable",
-  "large_ram_run": "328 MiB registered Fast RAM, original model Lua restored; passes former failure point and reaches stone-model loading; menu/gameplay pending"
+  "large_ram_run": "328 MiB registered Fast RAM, original model Lua restored; passes former failure point and reaches stone-model loading; menu/gameplay pending",
+  "latest_executable_bytes": 7922788,
+  "latest_executable_sha256": "0c192fe49eadd58eb2b40ee7468e8f4025ebdfa95bb982b084d3033493626658",
+  "cmake_source_audit": {
+    "omitted_before": [
+      "stones/InkwellStone.cc"
+    ],
+    "omitted_after": []
+  },
+  "latest_runtime": "pending"
 }

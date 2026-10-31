@@ -31,7 +31,7 @@ nice -n 19 sh ports/enigma/build-amiga.sh \
   --source build/game-ports/sources/enigma \
   --stove build/enigma-open4-stove --sdk-overlay /path/to/target-overlay \
   --oxp-source /path/to/openamigaxml \
-  --oxp-ref 303deba5a9ed6d7d38b9cac524b8bd91c080ff67 \
+  --oxp-ref 64f280125aae462b7ff93dd068cae5b8fe99a7e0 \
   --out build/enigma-open4-soft --jobs 4
 ```
 
@@ -52,7 +52,7 @@ default attributes, preserving the score checksum/reload semantics.
 See OpenAmigaXML `oxp/SCHEMA.md` for the deliberately bounded XSD subset.
 
 Checks recorded on 31 October 2026: 72 parser fixtures plus API checks,
-96 mutation/schema checks, 28 adapter checks, and all 1,634 supplied Enigma XML
+148 mutation/schema checks, 28 adapter checks, and all 1,634 supplied Enigma XML
 files validate against the seven schemas. The isolated AROS native tests also pass with the new Open4 soft-float
 build and FPU disabled: 96 schema checks and 28 adapter checks, both exit 0.
 These results qualify the XML paths. The clean full executable renders its
