@@ -2,7 +2,7 @@
   "executable_bytes": 7914768,
   "xml_fixtures": 1634,
   "sdk_tests": 3,
-  "native_open4_schema_checks": 96,
+  "native_open4_schema_checks": 148,
   "native_open4_schema_failures": 0,
   "native_open4_schema_fpu": "disabled",
   "gameplay": "unverified",
@@ -35,5 +35,6 @@
     ],
     "omitted_after": []
   },
-  "latest_runtime": "pending"
+  "latest_runtime": "pending",
+  "latest_native_xml": "148 schema checks and 28 adapter checks, FPU disabled, exit 0"
 }
