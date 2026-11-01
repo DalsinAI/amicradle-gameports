@@ -25,7 +25,11 @@ the cores and the GPU where the system offers it.
   copy into the board is done by the cores; on a real Amiga with Picasso96 it is
   the RTG system's own code. `acgame_platform_get_info()` says which.
 - `LoadRGB32` updates the 256-colour palette only when it changes.
-- `WaitTOF` is the presentation boundary.
+- On a planar screen frames are double-buffered through Intuition's
+  ScreenBuffers (two Chip RAM bitmaps): C2P writes the hidden one and
+  `ChangeScreenBuffer` shows it with its palette at the next vertical blank,
+  so no half-converted frame is seen. Without Chip RAM for the second buffer,
+  and on RTG screens, `WaitTOF` is the presentation boundary.
 
 ## Input
 
@@ -83,6 +87,4 @@ the same three source files with `-I include` and nothing else (the game ports'
 
 ## Current limitations
 
-- direct write into the displayed BitMap rather than ScreenBuffer double
-  buffering;
 - PCM audio and HAM8 presentation are still stubs.
