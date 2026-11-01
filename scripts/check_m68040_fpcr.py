@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Reject GCC 16's unsafe 68040 FPCR-indexed float stores.
 
-Adapted from OpenRTG's MIT-licensed fpcr_check.py so every Neverball release
-build runs the SDK-mandated final-binary gate without relying on an external
-source checkout.
+Adapted from OpenRTG's MIT-licensed fpcr_check.py so GamePorts builds can run
+the SDK-mandated final-binary gate without relying on an external source
+checkout.
 """
 from __future__ import annotations
 

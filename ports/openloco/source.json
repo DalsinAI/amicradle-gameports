@@ -1,8 +1,0 @@
-{
-  "name": "Amiga OpenLoco",
-  "url": "https://github.com/DalsinAI/amigaopenloco.git",
-  "commit": "0e1c1835b7704b0412e5c1673fb31d31228144a8",
-  "status": "standalone AmigaOS 3.x port; canonical build and runtime work lives in amigaopenloco",
-  "target": "AmigaOS 3.x, 68040 with FPU, OpenRTG SDL3 and OpenAL over AHI",
-  "contentPolicy": "Original Locomotion data remains external to git and public release artifacts."
-}

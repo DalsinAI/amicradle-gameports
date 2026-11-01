@@ -1,8 +1,0 @@
-{
-  "name": "Amiga fheroes2",
-  "url": "https://github.com/DalsinAI/amigafheroes2.git",
-  "commit": "dff6f8b08f2436b9093fba8ccb2b5293cdb65468",
-  "status": "standalone AmigaOS 3.x port; canonical build and runtime work lives in amigafheroes2",
-  "target": "AmigaOS 3.x, 68040 soft-float with OpenRTG SDL2 modules and OpenZlib",
-  "contentPolicy": "Original Heroes of Might and Magic II data remains external to git and public release artifacts."
-}

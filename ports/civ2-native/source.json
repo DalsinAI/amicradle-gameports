@@ -1,8 +1,0 @@
-{
-  "name": "AmigaCivII",
-  "url": "https://github.com/DalsinAI/amigacivii.git",
-  "commit": "0525bf926b250a2581ded380c921705ba71cb8fa",
-  "status": "experimental standalone port; not a release",
-  "target": "AmigaOS 3.x, 68040 + FPU with optional OpenGPU acceleration",
-  "contentPolicy": "Original Civilization II data and generated payloads remain outside git."
-}

@@ -81,27 +81,6 @@
         "manifest": "gameports/runtime-data.json"
       }
     },
-    "neverball": {
-      "order": 6,
-      "title": "Neverball / Neverputt",
-      "source": {
-        "kind": "git",
-        "url": "https://github.com/Neverball/neverball.git",
-        "commit": "a1ed09911dca262d80049c12a2824d683af494d6",
-        "submodules": false
-      },
-      "contentPolicy": "GPL-2.0-or-later. Release bundle carries upstream data, fonts and notices exactly as licensed by upstream.",
-      "releaseData": {
-        "url": "https://neverball.org/neverball-1.6.0.zip",
-        "sha256": "865391cc041208e526401a8eb1f14fba44323f17d7e818c5e65e82393ff747fb",
-        "member": "neverball-1.6.0/data/data-1.6.0.pk3",
-        "memberSha256": "b2eddfbe05443e36719541639cb6246c5dd81260bce67a053d0d2c0ad34bc58c"
-      },
-      "runtimeData": {
-        "mode": "bundled",
-        "source": "releaseData"
-      }
-    },
     "assaultcube": {
       "order": 7,
       "title": "AssaultCube",
@@ -112,17 +91,6 @@
         "submodules": false
       },
       "contentPolicy": "Source code is zlib-like. The shipped media uses mixed per-asset licences; do not redistribute game data until its individual/package licence has been checked."
-    },
-    "serious-sam-classic": {
-      "order": 8,
-      "title": "Serious Sam Classic (TFE/TSE)",
-      "source": {
-        "kind": "git",
-        "url": "https://github.com/tx00100xt/SeriousSamClassic.git",
-        "commit": "80b9893e5b74e5a2160eaf63e6d6b3f3981dfbbd",
-        "submodules": false
-      },
-      "contentPolicy": "Engine source is GPL-2.0. Original Serious Sam game data is not open and must be supplied by the user; do not commit or redistribute it."
     },
     "warzone2100": {
       "order": 9,
@@ -274,22 +242,6 @@
         "mode": "source-tree",
         "directory": "data",
         "packaging": "audit-before-bundle"
-      }
-    },
-    "fheroes2": {
-      "order": 20,
-      "title": "fheroes2 (Heroes of Might and Magic II engine)",
-      "source": {
-        "kind": "git",
-        "url": "https://github.com/ihhub/fheroes2.git",
-        "commit": "c0e8128701b29c46ad4f7f63dd31f874439981cd",
-        "submodules": false
-      },
-      "contentPolicy": "GPL-2.0-or-later engine; Heroes II demo or full data is fetched or supplied locally, never committed.",
-      "runtimeData": {
-        "mode": "auto-fetch",
-        "dataset": "homm2-demo",
-        "manifest": "gameports/runtime-data.json"
       }
     }
   }

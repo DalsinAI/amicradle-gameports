@@ -34,7 +34,7 @@ die() { echo "FATAL: $*" >&2; exit 1; }
   "$PREFIX/bin/sdl2-config" --version || true
 } | tee "$CAMPAIGN/BUILD_IDENTITY.txt"
 
-echo "=== 1/8 GCC16 + 0009 hard qualification gate ==="
+echo "=== 1/7 GCC16 + 0009 hard qualification gate ==="
 GCCSRC="$ROOT/build/campaign/openamigagcc"
 rm -rf "$GCCSRC"
 git init -q "$GCCSRC"
@@ -50,7 +50,7 @@ fi
 echo PASS > "$STATUS/00-compiler-proof"
 
 echo "=== Preparing exact pinned source inputs ==="
-for game in openomf cdogs-sdl neverball uqm chocolate-doom openjazz sdlpop assaultcube nxengine-evo astromenace; do
+for game in openomf cdogs-sdl uqm chocolate-doom openjazz sdlpop assaultcube nxengine-evo astromenace; do
   python3 scripts/game_port_prepare.py prepare --root "$ROOT" --game "$game" --allow-network     2>&1 | tee "$LOGS/prepare-$game.log" || die "source preparation failed for $game"
   python3 scripts/game_port_prepare.py verify --root "$ROOT" --game "$game"     2>&1 | tee -a "$LOGS/prepare-$game.log" || die "source verification failed for $game"
 done
@@ -89,7 +89,7 @@ copy_if() {
 
 set -e
 
-run_port "2/8" "01-openomf" env STOVE="$STOVE" GUEST_PORT_LAYER="$GUEST"   sh ports/openomf/build-amigaos3.sh
+run_port "2/7" "01-openomf" env STOVE="$STOVE" GUEST_PORT_LAYER="$GUEST"   sh ports/openomf/build-amigaos3.sh
 if grep -q "^PASS$" "$STATUS/01-openomf"; then
   copy_if build/os3/openomf/openomf "$PAYLOAD/OpenOMF/openomf"
   copy_if build/os3/openomf/OPENOMF_RUN.txt "$PAYLOAD/OpenOMF/OPENOMF_RUN.txt"
@@ -99,13 +99,7 @@ if grep -q "^PASS$" "$STATUS/01-openomf"; then
   fi
 fi
 
-rm -rf build/os3/neverball-release
-run_port "3/8" "02-neverball" env STOVE="$PREFIX" OPENUP_SDK="$PREFIX" CPU=68040   sh ports/neverball/build.sh build/game-ports/sources/neverball build/os3/neverball-release
-if grep -q "^PASS$" "$STATUS/02-neverball"; then
-  copy_if build/os3/neverball-release/package/Neverball "$PAYLOAD/Neverball"
-fi
-
-run_port "4/8" "03-cdogs" env STOVE="$STOVE"   sh ports/cdogs-sdl/build-amigaos3.sh
+run_port "3/7" "03-cdogs" env STOVE="$STOVE"   sh ports/cdogs-sdl/build-amigaos3.sh
 if grep -q "^PASS$" "$STATUS/03-cdogs"; then
   copy_if build/os3/cdogs/src/cdogs-sdl "$PAYLOAD/C-Dogs/cdogs-sdl"
   for asset in data dogfights missions graphics music sounds; do
@@ -116,27 +110,27 @@ if grep -q "^PASS$" "$STATUS/03-cdogs"; then
   done
 fi
 
-run_port "5/8" "04-uqm" env STOVE="$STOVE"   sh ports/uqm/build-amigaos3.sh
+run_port "4/7" "04-uqm" env STOVE="$STOVE"   sh ports/uqm/build-amigaos3.sh
 UQM_BIN=$(find build/os3/uqm -type f -name 'uqm*' -perm -111 2>/dev/null | head -1 || true)
 [ -z "$UQM_BIN" ] || copy_if "$UQM_BIN" "$PAYLOAD/UQM/uqm"
 
-run_port "6/8a" "05-chocolate-doom" env STOVE="$STOVE"   sh ports/chocolate-doom/build-amigaos3.sh
+run_port "5/7a" "05-chocolate-doom" env STOVE="$STOVE"   sh ports/chocolate-doom/build-amigaos3.sh
 copy_if build/os3/chocolate-doom/src/chocolate-doom "$PAYLOAD/ChocolateDoom/chocolate-doom"
 
-run_port "6/8b" "06-openjazz" env STOVE="$STOVE"   sh ports/openjazz/build-amigaos3.sh
+run_port "5/7b" "06-openjazz" env STOVE="$STOVE"   sh ports/openjazz/build-amigaos3.sh
 copy_if build/os3/openjazz/OpenJazz "$PAYLOAD/OpenJazz/OpenJazz"
 
-run_port "6/8c" "07-sdlpop" env STOVE="$STOVE"   sh ports/sdlpop/build-amigaos3.sh
+run_port "5/7c" "07-sdlpop" env STOVE="$STOVE"   sh ports/sdlpop/build-amigaos3.sh
 copy_if build/game-ports/sources/sdlpop/prince "$PAYLOAD/SDLPoP/prince"
 copy_if build/game-ports/sources/sdlpop/data "$PAYLOAD/SDLPoP/data"
 copy_if build/game-ports/sources/sdlpop/SDLPoP.ini "$PAYLOAD/SDLPoP/SDLPoP.ini"
 
-run_port "6/8d" "08-nxengine-evo" env STOVE="$STOVE" JOBS="${JOBS:-4}" \
+run_port "5/7d" "08-nxengine-evo" env STOVE="$STOVE" JOBS="${JOBS:-4}" \
   sh ports/nxengine-evo/build-amigaos3.sh
 copy_if build/os3/nxengine-evo/nxengine-evo "$PAYLOAD/NXEngine-evo/nxengine-evo"
 copy_if build/os3/nxengine-evo/NXENGINE_RUN.txt "$PAYLOAD/NXEngine-evo/NXENGINE_RUN.txt"
 
-run_port "6/8e" "09-astromenace" env STOVE="$STOVE" JOBS="${JOBS:-4}" \
+run_port "5/7e" "09-astromenace" env STOVE="$STOVE" JOBS="${JOBS:-4}" \
   sh ports/astromenace/build-amigaos3.sh
 if grep -q "^PASS$" "$STATUS/09-astromenace"; then
   if [ -d build/os3/astromenace/package/AstroMenace ]; then
@@ -154,10 +148,10 @@ fi
 if git -C "$ACROOT" apply --check "$ROOT/ports/assaultcube/patches/0002-opengpu-sdk-client-first-light.patch" >/dev/null 2>&1; then
   git -C "$ACROOT" apply "$ROOT/ports/assaultcube/patches/0002-opengpu-sdk-client-first-light.patch"
 fi
-run_port "7/8a" "10-assaultcube-server" env STOVE="$STOVE"   sh ports/assaultcube/build-amiga-server.sh
+run_port "6/7a" "10-assaultcube-server" env STOVE="$STOVE"   sh ports/assaultcube/build-amiga-server.sh
 copy_if "$ACROOT/source/src/ac_server" "$PAYLOAD/AssaultCube/ac_server"
 
-run_port "7/8b" "11-assaultcube-client" env STOVE="$STOVE"   sh ports/assaultcube/build-amiga-client.sh
+run_port "6/7b" "11-assaultcube-client" env STOVE="$STOVE"   sh ports/assaultcube/build-amiga-client.sh
 copy_if "$ACROOT/source/src/ac_client" "$PAYLOAD/AssaultCube/ac_client"
 
 cat > "$CAMPAIGN/FIRST_LIGHT_TEST_PLAN.txt" <<'EOF'
@@ -171,41 +165,36 @@ Use one clean AC090 / AmigaOS 3.x / 68040 + FPU instance and this exact payload.
    Gate: launch -> native indexed AGA frame -> arena -> keyboard/pad -> clean exit.
    Audio is intentionally NULL for this first-light build.
 
-2. Neverball / Neverputt
-   Gate A: softpipe title/menu/gameplay.
-   Gate B: accelerated OpenGPU/virgl title/menu/gameplay.
-   Record whether the old black-frame symptom is gone. Exercise keyboard/pad and clean exit.
-
-3. C-Dogs
+2. C-Dogs
    Gate: launch -> usable first frame -> gameplay/input -> audio -> clean exit.
    Specifically record whether old-stove alert 0x80000005 (divide by zero) is absent.
 
-4. UQM
+3. UQM
    Supply official UQM 0.8 content.
    Gate: launch -> menu -> solar system/combat -> input -> audio status -> clean exit.
 
-5. Chocolate Doom
+4. Chocolate Doom
    Supply a compatible IWAD (Freedoom is suitable for qualification).
    Gate: menu -> E1M1 -> input -> audio -> config/save -> clean exit.
 
-6. OpenJazz
+5. OpenJazz
    Supply Jazz Jackrabbit data.
    Gate: title/menu -> gameplay -> input -> audio -> clean exit.
 
-7. SDLPoP
+6. SDLPoP
    Use the staged project runtime data.
    Gate: level one -> animation -> input -> audio -> clean exit.
 
-8. NXEngine-evo
+7. NXEngine-evo
    Supply Cave Story freeware data locally.
    Gate: opening room -> map/sprites -> movement -> input -> audio -> clean exit.
 
-9. AstroMenace
+8. AstroMenace
    Use the pinned upstream data/artwork under its published licences.
    Gate: title -> ship/menu -> first mission -> input -> audio -> rendered 3D scene -> clean exit.
    Cross-build deliberately does not run the target binary to generate gamedata.vfs.
 
-10. AssaultCube
+9. AssaultCube
    Use authorised game data.
    Server: launch/listen/clean stop.
    Client: menu -> offline bot map -> movement -> textured 3D scene -> input -> clean exit.
@@ -227,7 +216,7 @@ EOF
 ) > "$CAMPAIGN/SHA256SUMS"
 find "$CAMPAIGN" -maxdepth 3 -type f -printf '%P\n' | sort > "$CAMPAIGN/CONTENTS.txt"
 
-echo "=== 8/8 campaign complete ==="
+echo "=== 7/7 campaign complete ==="
 cat "$CAMPAIGN/CAMPAIGN_STATUS.txt"
 
 if grep -Rqs '^FAIL' "$STATUS"; then

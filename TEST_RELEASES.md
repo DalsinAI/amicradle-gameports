@@ -23,7 +23,6 @@ The machine-readable source of truth is:
 
 | Port | Engine/build state | Runtime data | Test experience |
 |---|---|---|---|
-| Neverball / Neverputt | built/package path established | **BUNDLED** | self-contained package |
 | AstroMenace | GCC16/0009 AmigaOS build PASS | **BUNDLED** | self-contained package; first launch creates `gamedata.vfs` from bundled licensed `gamedata/` |
 | Chocolate Doom | fixed-GCC build lane | **AUTO-FETCH / BUNDLE-OK** Freedoom 0.13.0 | staging fetches verified Freedoom and installs `freedoom1.wad` |
 | NXEngine-evo | GCC16/0009 AmigaOS build PASS | **AUTO-FETCH** Cave Story freeware data | staging fetches public NXEngine-compatible data and installs it beside the engine |
