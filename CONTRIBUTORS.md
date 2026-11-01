@@ -2,11 +2,11 @@
 
 ## Creator and maintainer
 
-- **SacredTrees** ([@SacredTrees](https://github.com/SacredTrees)): created AmigaChrome Game Ports, designs it and maintains it.
+- **SacredTrees** ([@SacredTrees](https://github.com/SacredTrees)): created AmiCradle Game Ports, designs it and maintains it.
 
-## The AmigaChrome team
+## The AmiCradle team
 
-We are The AmigaChrome Team, who build AmigaChrome alongside SacredTrees:
+We are The AmiCradle Team, who build AmiCradle alongside SacredTrees:
 
 - **Agnus**, our coordinator, who keeps every thread moving.
 - **Thufir**, **Kynes** and **Galen**, who started the work on SacredTrees's x86 cores. Thufir also made the AROS game ports in this repository.

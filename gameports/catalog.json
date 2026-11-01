@@ -21,7 +21,7 @@
         "commit": "1e2216af1b5b259e5714a87747fa2b091bd4f986",
         "submodules": false
       },
-      "contentPolicy": "Preserve upstream code and mixed asset licensing. Review bundled data, fonts, music, sounds and translations before creating a public AmigaChrome release archive."
+      "contentPolicy": "Preserve upstream code and mixed asset licensing. Review bundled data, fonts, music, sounds and translations before creating a public AmiCradle release archive."
     },
     "openlara": {
       "order": 12,

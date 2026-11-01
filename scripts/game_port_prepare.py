@@ -20,7 +20,7 @@ from pathlib import Path, PurePosixPath
 
 CATALOG_REL = Path("gameports/catalog.json")
 WORK_REL = Path("build/game-ports")
-PREPARED_SCHEMA = "amigachrome-aga-game-ports-prepared"
+PREPARED_SCHEMA = "amicradle-aga-game-ports-prepared"
 
 
 def sha256_file(path: Path) -> str:

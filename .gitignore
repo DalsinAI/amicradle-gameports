@@ -30,7 +30,7 @@ packages/
 *.iso
 
 # Local instance/state
-AmigaChromeInstances/
+AmiCradleInstances/
 state/
 logs/
 reports/

@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
            info.planar ? "AGA planar" : "RTG chunky", info.screen_width, info.screen_height,
            (unsigned)frame->width, (unsigned)frame->height,
            info.planar ? " through ACGame's C2P" :
-           info.opengfx ? " through OpenGfx (WriteChunkyPixels on the cores)" :
+           info.opengfx ? " through GFOpenGfx (WriteChunkyPixels on the cores)" :
                           " through WriteChunkyPixels");
     make_palette(frame);
     memset(&input, 0, sizeof(input));

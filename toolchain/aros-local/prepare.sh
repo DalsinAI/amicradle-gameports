@@ -43,7 +43,7 @@ if [ ! -d "$AROS_SRC" ]; then
     git clone --recursive "$AROS_REPOSITORY" "$AROS_SRC"
     git -C "$AROS_SRC" checkout --detach "$AROS_REF"
     git -C "$AROS_SRC" submodule update --init --recursive
-    printf '%s\n' "$AROS_REF" > "$AROS_SRC/.amigachrome-source-ref"
+    printf '%s\n' "$AROS_REF" > "$AROS_SRC/.amicradle-source-ref"
   fi
 fi
 check_source_ref
@@ -86,13 +86,13 @@ if ! check_toolchain_marker >/dev/null 2>&1; then
   "$TOOLS_DIR/snapshot-toolchain.sh"
 fi
 
-# Configure needs every AmigaChrome module description present in the AROS make graph.
+# Configure needs every AmiCradle module description present in the AROS make graph.
 # Stage the complete guest stack before configure; build.sh stages it again so source
 # changes made after preparation are still picked up without rebuilding the toolchain.
 python3 "$ROOT/vendor/amigachrome-guest/scripts/stage_aros_module.py" "$AROS_SRC"
 
 fingerprint="$(build_config_fingerprint)"
-fingerprint_file="$AROS_BUILD/.amigachrome-config-fingerprint"
+fingerprint_file="$AROS_BUILD/.amicradle-config-fingerprint"
 current_fingerprint=""
 [ -f "$fingerprint_file" ] && current_fingerprint="$(tr -d '\r\n' < "$fingerprint_file")"
 if [ ! -f "$AROS_BUILD/config.status" ] || [ "$current_fingerprint" != "$fingerprint" ]; then

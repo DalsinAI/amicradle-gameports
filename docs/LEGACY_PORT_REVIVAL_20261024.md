@@ -3,7 +3,7 @@
 The owner selected OpenTyrian and Enigma for active intake. The live order is
 in [PORT_BACKLOG.md](../PORT_BACKLOG.md); this review preserves the evidence
 and does not create a second queue. Fresh AC090 builds target 68040 + FPU,
-AmigaOS 3.x, current open3 and the Open-family APIs.
+AmigaOS 3.x, current open3 and the GFOpen-family APIs.
 
 ## Existing-port references
 

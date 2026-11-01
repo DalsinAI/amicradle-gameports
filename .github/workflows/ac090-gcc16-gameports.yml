@@ -32,10 +32,10 @@ jobs:
           uname -a
           echo "HOME=$HOME"
           git rev-parse HEAD
-          test -x "$HOME/AmigaChrome/stoves/os32-gcc16/prefix/bin/m68k-amigaos-gcc"
-          "$HOME/AmigaChrome/stoves/os32-gcc16/prefix/bin/m68k-amigaos-gcc" --version | head -1
-          test -x "$HOME/AmigaChrome/stoves/os32-gcc16/prefix/bin/sdl2-config"
-          "$HOME/AmigaChrome/stoves/os32-gcc16/prefix/bin/sdl2-config" --version
+          test -x "$HOME/AmiCradle/stoves/os32-gcc16/prefix/bin/m68k-amigaos-gcc"
+          "$HOME/AmiCradle/stoves/os32-gcc16/prefix/bin/m68k-amigaos-gcc" --version | head -1
+          test -x "$HOME/AmiCradle/stoves/os32-gcc16/prefix/bin/sdl2-config"
+          "$HOME/AmiCradle/stoves/os32-gcc16/prefix/bin/sdl2-config" --version
           command -v qemu-m68k
 
       - name: Validate runtime-data tooling

@@ -1,10 +1,10 @@
 # ACGame Amiga backend (AmigaOS 3.x and AROS m68k)
 
 One backend, `src/platform_aros_aga.c`, builds for AmigaOS 3.x with the
-`os32-gcc16` stove (GCC 16.2 with the Team's fixes, libnix, the OpenGPU SDK
+`os32-gcc16` stove (GCC 16.2 with the Team's fixes, libnix, the GFOpenGPU SDK
 0.7: `make -f Makefile.amigaos STOVE=...`) and for AROS m68k with the AROS
 toolchain. It needs only the operating system, so it runs on a real Amiga with
-no OpenGPU and no OpenInput; on AmigaChrome the same program hands its work to
+no GFOpenGPU and no GFOpenInput; on AmiCradle the same program hands its work to
 the cores and the GPU where the system offers it.
 
 ## Display
@@ -17,11 +17,11 @@ the cores and the GPU where the system offers it.
 - On a planar 8-plane screen (native AGA) `acgame_c2p8_fast` converts the frame
   into the screen's planes: an 8x8 bit transpose in 32-bit registers, about 30
   instructions for eight pixels where the reference converter takes 64 tests.
-  OpenGfx has no planar path for `WriteChunkyPixels` yet, so this stays
+  GFOpenGfx has no planar path for `WriteChunkyPixels` yet, so this stays
   ACGame's own work on every machine.
-- On any other 8-bit screen (OpenRTG, or another RTG system) the frame goes
+- On any other 8-bit screen (GFOpenRTG, or another RTG system) the frame goes
   through graphics.library's `WriteChunkyPixels` (V40, OS 3.1 and later).
-  OpenGfx (opengpu.library 0.8 and later) owns that call, so on AmigaChrome the
+  GFOpenGfx (gfopengpu.library 0.8 and later) owns that call, so on AmiCradle the
   copy into the board is done by the cores; on a real Amiga with Picasso96 it is
   the RTG system's own code. `acgame_platform_get_info()` says which.
 - `LoadRGB32` updates the 256-colour palette only when it changes.
@@ -31,23 +31,23 @@ the cores and the GPU where the system offers it.
 
 - A borderless backdrop window supplies keyboard, mouse buttons and relative
   mouse movement.
-- Pads come through **OpenInput** (openinput.library 1.2 or later) when it is
+- Pads come through **GFOpenInput** (gfopeninput.library 1.2 or later) when it is
   there: hot-plug, analogue sticks and triggers, every pad in SDL 2's
   GameController layout. ACGame takes one pad, a plugged-in one (USB, or a pad
-  on AmigaChrome's cores) before the Amiga's own joystick port, and opens it
+  on AmiCradle's cores) before the Amiga's own joystick port, and opens it
   with `OIT_Exclusive` while the game runs, so the pad stops driving its Amiga
   port for older programs until the game closes. When the pad goes, the next
   one that comes is taken.
-- When openinput.library is missing, or is the 1.1 skeleton, or
-  `ENV:ACGame/OpenInput` is `0`, a joystick or CD32 pad in port 2 comes through
+- When gfopeninput.library is missing, or is the 1.1 skeleton, or
+  `ENV:ACGame/GFOpenInput` is `0`, a joystick or CD32 pad in port 2 comes through
   lowlevel.library's `ReadJoyPort`, as before.
 - `acgame_input_state.pad` has the pad in full (buttons as
   `ACGAME_PAD_BIT(ACGAME_PAD_A)` and so on, the six axes, where it came from
   and its name). The d-pad or left stick, A, B, X and Start are also ORed into
   the keyboard's `UP`, `DOWN`, `LEFT`, `RIGHT`, `FIRE1`, `FIRE2`, `FIRE3` and
   `START`, so a game that reads only `key[]` gets the pad too.
-- OpenInput's frozen header is copied unchanged into
-  `include/acgame/openinput/` (from openamigainput `include/`), so ACGame
+- GFOpenInput's frozen header is copied unchanged into
+  `include/acgame/gfopeninput/` (from openamigainput `include/`), so ACGame
   builds with nothing else installed. The library bases have ACGame's own
   names (`acgame_LowLevelBase`, `acgame_OpenInputBase`, `acgame_OpenGPUBase`),
   so a game that also links SDL 2 has no clash.
@@ -55,7 +55,7 @@ the cores and the GPU where the system offers it.
 ## Threads
 
 ACGame has no threads of its own. Everything it does runs on the game's task,
-so there is nothing to move to OpenMulticore under the Team's Threading Rule.
+so there is nothing to move to GFOpenMulticore under the Team's Threading Rule.
 
 ## Programs
 
@@ -64,7 +64,7 @@ so there is nothing to move to OpenMulticore under the Team's Threading Rule.
   checker, says which screen and which path it got, and how many frames a second.
 - `acgame-joy` (`examples/joy_test.c`): `[AGA|RTG|AUTO] [FRAMES]`. A lamp for
   each standard button, the two sticks and the two triggers; the top strip is
-  green for OpenInput, yellow for lowlevel.library, red for no pad. Changes are
+  green for GFOpenInput, yellow for lowlevel.library, red for no pad. Changes are
   printed too.
 
 Escape quits each of them.
@@ -72,7 +72,7 @@ Escape quits each of them.
 ## Building
 
 ```sh
-make -f Makefile.amigaos STOVE=~/AmigaChrome/stoves/os32-gcc16/prefix
+make -f Makefile.amigaos STOVE=~/AmiCradle/stoves/os32-gcc16/prefix
 sh tests/run_tests.sh          # the converters and HAM8 encoder on the host
 ```
 

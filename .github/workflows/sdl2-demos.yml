@@ -1,4 +1,4 @@
-name: OpenUp SDL2 Demos
+name: GFOpenUp SDL2 Demos
 
 on:
   push:
@@ -23,16 +23,16 @@ jobs:
           clean: true
           fetch-depth: 1
 
-      - name: Verify daletop OpenGPU SDK and Instance-32
+      - name: Verify daletop GFOpenGPU SDK and Instance-32
         shell: bash
         run: |
           set -eux
           test "$(hostname)" = daletop
-          test -x "$HOME/AmigaChrome/stoves/os32-gcc16/prefix/bin/m68k-amigaos-gcc"
-          test -x "$HOME/AmigaChrome/stoves/os32-gcc16/prefix/bin/sdl2-config"
-          test -d "${AC_INSTANCE:-$HOME/AmigaChromeInstances/Instance-32}/devices/harddisks/DH1"
-          "$HOME/AmigaChrome/stoves/os32-gcc16/prefix/bin/m68k-amigaos-gcc" --version | head -1
-          "$HOME/AmigaChrome/stoves/os32-gcc16/prefix/bin/sdl2-config" --version
+          test -x "$HOME/AmiCradle/stoves/os32-gcc16/prefix/bin/m68k-amigaos-gcc"
+          test -x "$HOME/AmiCradle/stoves/os32-gcc16/prefix/bin/sdl2-config"
+          test -d "${AC_INSTANCE:-$HOME/AmiCradleInstances/Instance-32}/devices/harddisks/DH1"
+          "$HOME/AmiCradle/stoves/os32-gcc16/prefix/bin/m68k-amigaos-gcc" --version | head -1
+          "$HOME/AmiCradle/stoves/os32-gcc16/prefix/bin/sdl2-config" --version
 
       - name: Build phase one then phase two and deploy each completed demo
         shell: bash
@@ -42,7 +42,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: OpenUp-SDL2-Demos-${{ github.run_id }}
+          name: GFOpenUp-SDL2-Demos-${{ github.run_id }}
           path: build/sdl2-demos
           if-no-files-found: warn
           retention-days: 90

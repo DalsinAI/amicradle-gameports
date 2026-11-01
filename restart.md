@@ -1,10 +1,10 @@
-# Restart: AmigaChrome Game Ports
+# Restart: AmiCradle Game Ports
 
 _Written 6 October 2026 at about 23:55 UTC, while all work is paused on @SacredTrees's word (23:28 UTC). Read this first when work resumes; the newest capsule and the live PR list win if they disagree._
 
 ## What this repo is
 
-Open-source games ported to 68k AROS and AmigaOS on AmigaChrome: UQM, Chocolate Doom, SDLPoP, OpenJazz, NXEngine-evo and more, with upstream sources fetched at build time.
+Open-source games ported to 68k AROS and AmigaOS on AmiCradle: UQM, Chocolate Doom, SDLPoP, OpenJazz, NXEngine-evo and more, with upstream sources fetched at build time.
 
 ## Where it stands
 

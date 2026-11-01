@@ -1,4 +1,4 @@
-# AmigaOS 3.x / OpenGPU SDK cross toolchain.
+# AmigaOS 3.x / GFOpenGPU SDK cross toolchain.
 # Canonical revival target: 68040 + FPU, libnix, GCC 16.
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR m68k)
@@ -18,7 +18,7 @@ if(NOT DEFINED AMIGA_STOVE OR AMIGA_STOVE STREQUAL "")
   elseif(DEFINED ENV{STOVE} AND NOT "$ENV{STOVE}" STREQUAL "")
     set(AMIGA_STOVE "$ENV{STOVE}")
   else()
-    set(AMIGA_STOVE "$ENV{HOME}/AmigaChrome/stoves/os32-gcc16")
+    set(AMIGA_STOVE "$ENV{HOME}/AmiCradle/stoves/os32-gcc16")
   endif()
 endif()
 

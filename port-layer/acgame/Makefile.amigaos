@@ -1,9 +1,9 @@
 # ACGame for AmigaOS 3.x with the os32-gcc16 stove (GCC 16.2 with the Team's
-# fixes, libnix, the OpenGPU SDK 0.7).
+# fixes, libnix, the GFOpenGPU SDK 0.7).
 #   make -f Makefile.amigaos STOVE=/path/to/stoves/os32-gcc16/prefix
 #   make -f Makefile.amigaos CPU=-m68020  compatibility build
 # The build must stay clean: -Werror, and no warning switched off.
-STOVE   ?= $(HOME)/AmigaChrome/stoves/os32-gcc16/prefix
+STOVE   ?= $(HOME)/AmiCradle/stoves/os32-gcc16/prefix
 CC      = $(STOVE)/bin/m68k-amigaos-gcc
 AR      = $(STOVE)/bin/m68k-amigaos-ar
 CPU     = -m68040 -m68881

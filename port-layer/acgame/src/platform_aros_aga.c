@@ -4,11 +4,11 @@
 
 /* One backend for AmigaOS 3.x (GCC 16.2, libnix) and AROS m68k. The screen
  * is opened through Intuition; a planar 8-plane screen (native AGA) takes the
- * frame through ACGame's C2P, any other 8-bit screen (OpenRTG, or another RTG
- * system) through graphics.library's WriteChunkyPixels, which OpenGfx
- * (opengpu.library 0.8 and later) takes to the cores on AmigaChrome.
+ * frame through ACGame's C2P, any other 8-bit screen (GFOpenRTG, or another RTG
+ * system) through graphics.library's WriteChunkyPixels, which GFOpenGfx
+ * (gfopengpu.library 0.8 and later) takes to the cores on AmiCradle.
  *
- * Pads: openinput.library 1.2 or later when it is there (hot-plug, analogue
+ * Pads: gfopeninput.library 1.2 or later when it is there (hot-plug, analogue
  * sticks and triggers, the pad opened exclusively while the game runs), and
  * lowlevel.library's ReadJoyPort on port 2 when it is missing or is the 1.1
  * skeleton. No library is needed: without both, keyboard and mouse remain. */
@@ -39,13 +39,13 @@
 #include <string.h>
 #include <sys/time.h>
 
-/* OpenInput's frozen header (openamigainput include/, copied unchanged into
- * include/acgame/openinput so ACGame builds with nothing else installed). */
+/* GFOpenInput's frozen header (openamigainput include/, copied unchanged into
+ * include/acgame/gfopeninput so ACGame builds with nothing else installed). */
 #ifndef ACGAME_OPENINPUT
 #define ACGAME_OPENINPUT 1
 #endif
 #if ACGAME_OPENINPUT
-#include "acgame/openinput/libraries/openinput.h"
+#include "acgame/gfopeninput/libraries/gfopeninput.h"
 #ifdef __AROS__
 /* AROS m68k calls the same library with its own macros (LVO / 6). */
 #include <aros/libcall.h>
@@ -72,15 +72,15 @@
 #else
 #define OPENINPUT_BASE_NAME OpenInputBase
 #define NO_INLINE_STDARG
-#include "acgame/openinput/inline/openinput.h"
+#include "acgame/gfopeninput/inline/gfopeninput.h"
 #endif
 #endif
 
-/* OpenGPU SDK 0.7 (the os32-gcc16 stove): only to ask whether OpenGfx has
+/* GFOpenGPU SDK 0.7 (the os32-gcc16 stove): only to ask whether GFOpenGfx has
  * the drawing calls. Builds without the SDK (AROS) leave it out. */
 #ifndef ACGAME_OPENGPU
 #if defined(__has_include) && !defined(__AROS__)
-#if __has_include(<proto/opengpu.h>)
+#if __has_include(<proto/gfopengpu.h>)
 #define ACGAME_OPENGPU 1
 #endif
 #endif
@@ -90,9 +90,9 @@
 #endif
 #if ACGAME_OPENGPU
 #define OPENGPU_BASE_NAME OpenGPUBase
-#include <opengpu/opengpu.h>
-#include <opengpu/gfx.h>
-#include <inline/opengpu.h>
+#include <gfopengpu/gfopengpu.h>
+#include <gfopengpu/gfx.h>
+#include <inline/gfopengpu.h>
 #endif
 
 /* Opened here, not by the startup code, so a machine without them still
@@ -108,7 +108,7 @@ struct Library *OpenGPUBase = NULL;
 #if ACGAME_OPENINPUT
 #define ACGAME_OI_MAX 8
 typedef struct {
-    struct MsgPort *port;           /* OpenInput's ADDED and REMOVED messages */
+    struct MsgPort *port;           /* GFOpenInput's ADDED and REMOVED messages */
     APTR notify;
     APTR handle;                    /* the pad in use, opened exclusively when it could be */
     ULONG id;
@@ -179,14 +179,14 @@ static void oi_close(acgame_openinput *oi) {
     }
 }
 
-/* openinput.library 1.2 or later; the 1.1 skeleton lists nothing, so it
- * counts as missing. ENV:ACGame/OpenInput 0 leaves it alone (lowlevel only). */
+/* gfopeninput.library 1.2 or later; the 1.1 skeleton lists nothing, so it
+ * counts as missing. ENV:ACGame/GFOpenInput 0 leaves it alone (lowlevel only). */
 static void oi_open(acgame_openinput *oi) {
     char value[8];
     ULONG tags[3];
     struct Library *lib;
     memset(oi, 0, sizeof(*oi));
-    if (env_value("ACGame/OpenInput", value, sizeof(value)) && value[0] == '0') {
+    if (env_value("ACGame/GFOpenInput", value, sizeof(value)) && value[0] == '0') {
         return;
     }
     lib = OpenLibrary((CONST_STRPTR)OPENINPUT_NAME, OPENINPUT_VERSION);
@@ -209,7 +209,7 @@ static void oi_open(acgame_openinput *oi) {
 }
 
 /* Which pad to take: a plugged-in pad (one that can go away: USB, or a pad on
- * AmigaChrome's cores) before the Amiga's own joystick port, and port 2 (the
+ * AmiCradle's cores) before the Amiga's own joystick port, and port 2 (the
  * joystick port) before the others. One another program has exclusively is
  * passed over. */
 static int oi_rank(const struct OIControllerInfo *info) {
@@ -280,7 +280,7 @@ static void oi_pick(acgame_openinput *oi) {
     }
 }
 
-/* 1 when the pad came through OpenInput; 0 leaves it to lowlevel.library. */
+/* 1 when the pad came through GFOpenInput; 0 leaves it to lowlevel.library. */
 static int oi_read(acgame_openinput *oi, acgame_pad_state *pad) {
     struct OIState st;
     struct OIMessage *msg;
@@ -402,10 +402,10 @@ static void close_display(void) {
 #endif
 }
 
-/* Whether OpenGfx has graphics.library's drawing calls (opengpu.library 0.8
+/* Whether GFOpenGfx has graphics.library's drawing calls (gfopengpu.library 0.8
  * and later, patches in): then WriteChunkyPixels on an RTG screen is done by
  * the cores, not the 68k. A planar screen still takes ACGame's own C2P, as
- * OpenGfx has no planar path for WriteChunkyPixels yet. */
+ * GFOpenGfx has no planar path for WriteChunkyPixels yet. */
 static int opengfx_active(void) {
 #if ACGAME_OPENGPU
     if (!OpenGPUBase) {
@@ -451,7 +451,7 @@ static ULONG pick_mode(const acgame_video_config *config, acgame_display_kind ki
                       TAG_END);
 }
 
-/* The PropertyFlags bit Picasso96 and OpenRTG set on a board's modes. */
+/* The PropertyFlags bit Picasso96 and GFOpenRTG set on a board's modes. */
 #define ACGAME_DIPF_BOARD 0x02000000UL
 
 static int is_board_mode(ULONG mode) {
@@ -463,7 +463,7 @@ static int is_board_mode(ULONG mode) {
     return (info.PropertyFlags & (ACGAME_DIPF_BOARD | DIPF_IS_FOREIGN)) != 0;
 }
 
-/* BestModeID passes over OpenRTG's modes (OpenRTG 0.7, 6 Oct 2026), and a
+/* BestModeID passes over GFOpenRTG's modes (GFOpenRTG 0.7, 6 Oct 2026), and a
  * board may have no mode of the frame's own size, so walk the database for
  * the smallest 8-bit board mode that holds the frame. */
 static ULONG find_board_mode(const acgame_video_config *config, unsigned *width, unsigned *height) {

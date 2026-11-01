@@ -1,7 +1,7 @@
 /* Copyright (c) 2026 AmigaChrome Team. OpenInput, MIT licence (LICENSE).
  * SPDX-License-Identifier: MIT
  *
- * openinput.library: one way for Amiga programs to get game controllers
+ * gfopeninput.library: one way for Amiga programs to get game controllers
  * (Design-OpenInput.md). Version 1.
  *
  * FROZEN for 0.1 on 8 October 2026: from here on this file changes only
@@ -11,7 +11,7 @@
  *
  * Every controller, whatever it is and wherever it comes from (an Amiga
  * joystick port, a CD32 pad, a USB pad through Poseidon, a pad on
- * AmigaChrome's x86 or ARM64 cores, the A1200's own ports under a PiStorm),
+ * AmiCradle's x86 or ARM64 cores, the A1200's own ports under a PiStorm),
  * is offered in one standard layout, the one SDL 2's GameController API
  * uses: A, B, X, Y, Back, Guide, Start, the stick clicks, the shoulders,
  * the d-pad, two sticks and two triggers. The raw buttons, axes and hats
@@ -30,7 +30,7 @@
 #include <utility/tagitem.h>
 #endif
 
-#define OPENINPUT_NAME    "openinput.library"
+#define OPENINPUT_NAME    "gfopeninput.library"
 #define OPENINPUT_VERSION 1
 /* The first working library is version 1 revision 2 (1.2). Revision 1
  * (1.1) was the skeleton: it lists nothing and opens nothing. A client
@@ -79,8 +79,8 @@
 
 /* ---- Where a controller comes from (oci_Source) ---------------------------- */
 #define OISRC_AMIGAPORT    1    /* an Amiga joystick port, read as lowlevel.library does */
-#define OISRC_POSEIDON     2    /* a USB HID pad through Poseidon (OpenUSB) */
-#define OISRC_AMIGACHROME  3    /* a pad on AmigaChrome's x86 or ARM64 cores, mapped there */
+#define OISRC_POSEIDON     2    /* a USB HID pad through Poseidon (GFOpenUSB) */
+#define OISRC_AMICRADLE    3    /* a pad on AmiCradle's x86 or ARM64 cores, mapped there */
 #define OISRC_PISTORMPORT  4    /* the A1200's own port, read by the core under a PiStorm */
 
 /* ---- What it is (oci_Type) -------------------------------------------------- */
@@ -179,7 +179,7 @@ struct OILegacyPort {
     ULONG olp_Reserved[4];
 };
 #define OILPW_HARDWARE  0   /* only the port's own hardware */
-#define OILPW_CORE      1   /* on AmigaChrome's cores, at the chip registers: every game sees it */
+#define OILPW_CORE      1   /* on AmiCradle's cores, at the chip registers: every game sees it */
 #define OILPW_LOWLEVEL  2   /* on a real Amiga, through lowlevel.library's ReadJoyPort: opt-in, see OPENINPUT_LOWLEVELPATCH */
 #define OILPW_GAMEPORT  3   /* on a real Amiga, through gameport.device too */
 
@@ -207,7 +207,7 @@ struct OIMessage {
 #define OIMC_STATE     (1UL << 2)   /* an opened controller's state changed */
 #define OIMC_MAPPING   (1UL << 3)   /* a controller's mapping or legacy feed changed */
 
-/* ---- The functions, in short (library/openinput_lib.sfd has the registers)
+/* ---- The functions, in short (library/gfopeninput_lib.sfd has the registers)
  * OIN_ListControllers(buf, max, size)  copies up to max entries, returns how many there are
  * OIN_GetControllerInfo(id, info, size) OIERR_OK or OIERR_NOSUCH
  * OIN_OpenControllerA(id, tags)        a handle, or NULL (no such controller, or
@@ -259,14 +259,14 @@ struct OIMessage {
 #define OIERR_OFF       -9      /* the ReadJoyPort feed is switched off (the default on a real Amiga) */
 
 /* ---- Settings ----------------------------------------------------------------- */
-#define OPENINPUT_ENVDIR     "OpenInput"             /* in ENV: and ENVARC: */
-#define OPENINPUT_MAPPINGS   "OpenInput/mappings.txt" /* the user's own lines, in SDL's GameControllerDB format,
+#define OPENINPUT_ENVDIR     "GFOpenInput"             /* in ENV: and ENVARC: */
+#define OPENINPUT_MAPPINGS   "GFOpenInput/mappings.txt" /* the user's own lines, in SDL's GameControllerDB format,
                                                         over the built-in ones (Xbox, PlayStation, Switch,
                                                         8BitDo, CD32-style) */
-#define OPENINPUT_PORTS      "OpenInput/ports.prefs"  /* which pad feeds which port */
-/* The ReadJoyPort feed on a real Amiga is opt-in: openinput.library patches
- * lowlevel.library only while this variable is "1", which OpenPrefs'
+#define OPENINPUT_PORTS      "GFOpenInput/ports.prefs"  /* which pad feeds which port */
+/* The ReadJoyPort feed on a real Amiga is opt-in: gfopeninput.library patches
+ * lowlevel.library only while this variable is "1", which GFOpenPrefs'
  * Gamepads page sets. Nothing is patched by default. */
-#define OPENINPUT_LOWLEVELPATCH "OpenInput/LowLevelPatch"
+#define OPENINPUT_LOWLEVELPATCH "GFOpenInput/LowLevelPatch"
 
 #endif /* LIBRARIES_OPENINPUT_H */
