@@ -149,12 +149,12 @@ AmigaChrome Game Ports is created and maintained by [SacredTrees](https://github
 These ports have their own canonical repositories and no longer have entries,
 source pins, recipes or integration pointers in GamePorts:
 
-- [OpenAlphaC](https://github.com/DalsinAI/openalphac)
+- [AmigaAlphaC](https://github.com/DalsinAI/amigaalphac)
 - [AmigaCivII](https://github.com/DalsinAI/amigacivii)
 - [Amiga fheroes2](https://github.com/DalsinAI/amigafheroes2)
 - [AmigaNeverBall](https://github.com/DalsinAI/amiganeverball)
 - [Amiga OpenLoco](https://github.com/DalsinAI/amigaopenloco)
-- [OpenSeriousSam](https://github.com/DalsinAI/openserioussam)
+- [Amiga Serious Sam](https://github.com/DalsinAI/amigaserioussam)
 - [Amiga AssaultCube](https://github.com/DalsinAI/amigaassaultcube)
 - [Amiga AstroMenace](https://github.com/DalsinAI/amigaastromenace)
 - [Amiga C-Dogs](https://github.com/DalsinAI/amigacdogs)
