@@ -27,7 +27,6 @@ OpenOMF profile take ACGame from here. amigachrome-gameports
 The platform layer is still to provide:
 
 - 320x200, 320x240 and 320x256 indexed AGA surfaces;
-- two Chip-RAM planar display buffers;
 - Fast-RAM chunky render surfaces;
 - HAM8 display setup and pre-encoded presentation frames;
 - Paula-first audio with an optional AHI backend;
