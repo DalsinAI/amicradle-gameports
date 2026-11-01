@@ -18,7 +18,7 @@ original asset is in Git.
 | `audio_mixer.*` | Integer-only mixer, 22050 Hz mono S16. Has 6 effect slots (the oldest is stolen when all are busy), one voice channel and a music ring buffer. Gains ramp to avoid clicks. Music ducks under voice. A muted music bus pauses the stream. |
 | `audio_music.*` | Streaming producer for music tracks. On AmigaOS it reads through dos.library; elsewhere through stdio. |
 | `audio_events.*` | Event catalog and settings file. Also holds the original preference bits, the voice-over paths and the faction music sets. |
-| `audio_service.*` | The SDL service: device, music feeder thread, effect cache (4 MB, least recently used out), voice, suspend and resume. |
+| `audio_service.*` | The SDL service: device, music feeder thread (which also reads and decodes voice lines, so the game's thread never waits for them), effect cache (4 MB, least recently used out), voice, suspend and resume. |
 | `audio_world.*` | Glue for the world view: entering and leaving, faction music, and the M/N/J keys. |
 | `../tools/prepare_alpha_audio.py` | Owner-side preparation of a private media directory. |
 
@@ -251,7 +251,7 @@ clips whose rate the conversion could not change.
 |---|---|
 | `python3 test_audio.py --out DIR` (host ASan+UBSan) | 129 checks pass. 6 ffmpeg-made fixtures (IMA and MS ADPCM, mono and stereo; u8 stereo 11025 Hz; s16 44100 Hz) decode bit-exactly against ffmpeg's own decode. |
 | `python3 test_audio.py --out DIR --cc m68k-linux-gnu-g++ --m68k-linux` | 129 checks pass on big-endian 68040 under qemu, including the same 6 oracles. |
-| `python3 test_audio_service.py --out DIR` (host ASan+UBSan, SDL disk driver) | 17 checks pass. |
+| `python3 test_audio_service.py --out DIR` (host ASan+UBSan, SDL disk driver) | 22 checks pass. |
 | `python3 test_audio_prepare.py --out DIR` | Synthetic tree. Copy, convert and strict-reject cases pass; 6 prepared WAVs load in the native reader. |
 | `python3 measure_audio_cost.py --out DIR` | Produces the table above. |
 

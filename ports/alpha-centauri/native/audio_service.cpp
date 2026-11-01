@@ -23,8 +23,12 @@ struct State {
  MusicPump pump;
  Clip clips[clip_slots];
  uint32_t clock=0;
- int16_t* voice=nullptr;
- unsigned missing=0, failures=0;
+ int16_t* voice=nullptr;    // the line the mixer plays; owned by the feeder thread
+ // Voice request for the feeder thread, under pump_lock. voice_serial counts
+ // requests and cancellations; a decoded line plays only if still current.
+ char voice_path[256]="";
+ uint32_t voice_serial=0, voice_wanted=0;
+ unsigned missing=0, failures=0, voice_failures=0;
  const char* error="closed";
 };
 State* state=nullptr;
@@ -32,12 +36,22 @@ State* state=nullptr;
 void lock_device(void* ctx){auto* s=(State*)ctx;if(s->device)SDL_LockAudioDevice(s->device);}
 void unlock_device(void* ctx){auto* s=(State*)ctx;if(s->device)SDL_UnlockAudioDevice(s->device);}
 void callback(void* ctx,Uint8* stream,int bytes){((State*)ctx)->mixer.render((int16_t*)stream,(size_t)bytes/2);}
+void pump_music(State* s){
+ SDL_LockMutex(s->pump_lock);
+ if(s->settings.levels.music_on)music_pump(s->pump,s->mixer,lock_device,unlock_device,s);
+ SDL_UnlockMutex(s->pump_lock);
+}
+void load_voice(State* s,const char* path,uint32_t serial);
 int feed(void* ctx){
  auto* s=(State*)ctx;
  while(SDL_AtomicGet(&s->running)){
+  pump_music(s);
+  char path[sizeof(s->voice_path)];uint32_t serial=0;
   SDL_LockMutex(s->pump_lock);
-  if(s->settings.levels.music_on)music_pump(s->pump,s->mixer,lock_device,unlock_device,s);
+  if(s->voice_wanted&&s->voice_wanted==s->voice_serial){serial=s->voice_wanted;memcpy(path,s->voice_path,sizeof(path));}
+  s->voice_wanted=0;
   SDL_UnlockMutex(s->pump_lock);
+  if(serial)load_voice(s,path,serial);
   SDL_Delay(30);
  }
  return 0;
@@ -53,9 +67,8 @@ uint8_t* read_file(const char* path,size_t& size,long minimum=12){
  auto* p=(uint8_t*)malloc((size_t)n);if(!p){fclose(f);return nullptr;}
  if(fread(p,1,(size_t)n,f)!=(size_t)n){free(p);p=nullptr;}else size=(size_t)n;fclose(f);return p;
 }
-// Decodes any supported WAV into a malloc'd mono buffer.
-int16_t* load_wav(const char* path,uint32_t& frames,uint32_t& rate,bool& missing){
- size_t n=0;uint8_t* raw=read_file(path,n);missing=!raw;if(!raw)return nullptr;
+// Decodes any supported WAV file image into a malloc'd mono buffer; frees raw.
+int16_t* decode_wav(uint8_t* raw,size_t n,uint32_t& frames,uint32_t& rate){
  WavInfo w;int16_t* pcm=nullptr;size_t count=0;
  if(parse_wav(raw,n,n,w)==WavError::ok&&(pcm=(int16_t*)malloc((size_t)w.frames*2))!=nullptr&&decode_wav_mono(raw,n,w,pcm,w.frames,count)==WavError::ok){frames=(uint32_t)count;rate=w.rate;}
  else{free(pcm);pcm=nullptr;}
@@ -67,6 +80,42 @@ int16_t* load_wav(const char* path,uint32_t& frames,uint32_t& rate,bool& missing
   else free(conv); // keep the original rate; the mixer resamples it live
  }
  return pcm;
+}
+int16_t* load_wav(const char* path,uint32_t& frames,uint32_t& rate,bool& missing){
+ size_t n=0;uint8_t* raw=read_file(path,n);missing=!raw;if(!raw)return nullptr;
+ return decode_wav(raw,n,frames,rate);
+}
+bool voice_current(State* s,uint32_t serial){
+ SDL_LockMutex(s->pump_lock);bool current=serial==s->voice_serial;SDL_UnlockMutex(s->pump_lock);return current;
+}
+// Feeder thread: reads, decodes and starts a voice line off the game's thread.
+// The music ring is topped up between file chunks, and a line cancelled or
+// replaced meanwhile is dropped. File access goes through the music streamer's
+// platform calls (dos.library on AmigaOS: this is the feeder process).
+void load_voice(State* s,const char* path,uint32_t serial){
+ long size=0;void* f=MusicStreamer::file_open(path,size);uint8_t* raw=nullptr;size_t got=0;
+ if(f&&size>=12&&(size_t)size<=max_file&&MusicStreamer::file_seek(f,0)&&(raw=(uint8_t*)malloc((size_t)size))!=nullptr){
+  const size_t chunk=32768;
+  while(got<(size_t)size&&voice_current(s,serial)){
+   size_t want=(size_t)size-got;if(want>chunk)want=chunk;
+   size_t n=MusicStreamer::file_read(f,raw+got,want);got+=n;if(n<want)break;
+   pump_music(s);
+  }
+ }
+ MusicStreamer::file_close(f);
+ uint32_t frames=0,rate=0;int16_t* pcm=nullptr;
+ if(raw&&got==(size_t)size&&voice_current(s,serial))pcm=decode_wav(raw,got,frames,rate);
+ else if(raw)free(raw);
+ SDL_LockMutex(s->pump_lock);
+ if(serial!=s->voice_serial){SDL_UnlockMutex(s->pump_lock);free(pcm);return;}
+ if(!pcm){++s->voice_failures;s->error="voice recording invalid";SDL_UnlockMutex(s->pump_lock);return;}
+ SDL_LockAudioDevice(s->device);s->mixer.stop_voice();AudioClip clip{pcm,frames,rate};s->mixer.play_voice(clip);SDL_UnlockAudioDevice(s->device);
+ SDL_UnlockMutex(s->pump_lock);
+ free(s->voice);s->voice=pcm;
+}
+// Drops a voice line that is queued or still loading.
+void cancel_voice(){
+ SDL_LockMutex(state->pump_lock);++state->voice_serial;state->voice_wanted=0;SDL_UnlockMutex(state->pump_lock);
 }
 size_t resident(){size_t b=0;for(auto& c:state->clips)if(c.samples)b+=(size_t)c.frames*2;return b;}
 void evict_for(size_t bytes){
@@ -104,13 +153,19 @@ const Clip* effect(const char* name){
  snprintf(c.name,sizeof(c.name),"%s",name);c.samples=pcm;c.frames=frames;c.rate=rate;c.missing=!pcm;c.last_use=++s.clock;
  return pcm?&c:nullptr;
 }
+// Queues a voice line for the feeder thread (a whole WAV of up to 8 MB is too
+// slow to read and decode here, on the game's thread). True when the recording
+// exists and was queued; a line that fails to decode is counted and stays silent.
 bool start_voice(const char* rel){
  auto& s=*state;if(!s.device||!s.settings.levels.voice_on)return false;
- char path[256];if(!join_audio_path(s.directory,rel,path,sizeof(path)))return false;
- uint32_t frames=0,rate=0;bool missing=false;int16_t* pcm=load_wav(path,frames,rate,missing);
- if(!pcm){if(missing)++s.missing;else ++s.failures;s.error=missing?"voice recording missing":"voice recording invalid";return false;}
- SDL_LockAudioDevice(s.device);s.mixer.stop_voice();AudioClip clip{pcm,frames,rate};s.mixer.play_voice(clip);SDL_UnlockAudioDevice(s.device);
- free(s.voice);s.voice=pcm;return true;
+ char path[sizeof(s.voice_path)];if(!join_audio_path(s.directory,rel,path,sizeof(path)))return false;
+ FILE* f=fopen(path,"rb");
+ if(!f){++s.missing;s.error="voice recording missing";return false;}
+ fclose(f);
+ SDL_LockMutex(s.pump_lock);
+ memcpy(s.voice_path,path,sizeof(path));s.voice_wanted=++s.voice_serial;
+ SDL_UnlockMutex(s.pump_lock);
+ return true;
 }
 bool open_device(){
  auto& s=*state;SDL_AudioSpec want{};want.freq=(int)AudioMixer::output_rate;want.format=AUDIO_S16SYS;want.channels=1;want.samples=1024;want.callback=callback;want.userdata=state;
@@ -121,6 +176,7 @@ bool open_device(){
 }
 void close_device(){
  auto& s=*state;
+ if(s.pump_lock)cancel_voice();
  if(s.feeder){SDL_AtomicSet(&s.running,0);SDL_WaitThread(s.feeder,nullptr);s.feeder=nullptr;}
  if(s.device)SDL_CloseAudioDevice(s.device);
  s.device=0;
@@ -188,7 +244,7 @@ bool audio_facility_complete(int id,bool first){
 }
 void audio_interlude(int){
  if(!state||!state->device)return;
- state->interlude=true;
+ state->interlude=true;cancel_voice();
  SDL_LockAudioDevice(state->device);state->mixer.fade_voice(2000);
  MixerLevels l=state->settings.levels;l.music=(uint8_t)(l.music*l.music_duck/100);state->mixer.set_levels(l);
  SDL_UnlockAudioDevice(state->device);
@@ -200,15 +256,15 @@ void audio_interlude_closed(){
 }
 void audio_popup_closed(){
  if(!state||!state->device||!state->settings.voice_stops_on_close)return;
- SDL_LockAudioDevice(state->device);state->mixer.fade_voice(2000);SDL_UnlockAudioDevice(state->device);
+ cancel_voice();SDL_LockAudioDevice(state->device);state->mixer.fade_voice(2000);SDL_UnlockAudioDevice(state->device);
 }
-void audio_stop_voice(){if(!state||!state->device)return;SDL_LockAudioDevice(state->device);state->mixer.stop_voice();SDL_UnlockAudioDevice(state->device);}
+void audio_stop_voice(){if(!state||!state->device)return;cancel_voice();SDL_LockAudioDevice(state->device);state->mixer.stop_voice();SDL_UnlockAudioDevice(state->device);}
 static const AudioSettings default_settings;
 const AudioSettings& audio_settings(){return state?state->settings:default_settings;}
 void audio_set_settings(const AudioSettings& settings){
  if(!state)return;
  auto& s=*state;
- SDL_LockMutex(s.pump_lock);s.settings=settings;SDL_UnlockMutex(s.pump_lock);
+ SDL_LockMutex(s.pump_lock);s.settings=settings;if(!settings.levels.voice_on){++s.voice_serial;s.voice_wanted=0;}SDL_UnlockMutex(s.pump_lock);
  if(s.device){SDL_LockAudioDevice(s.device);s.mixer.set_levels(settings.levels);if(!settings.levels.voice_on)s.mixer.stop_voice();if(!settings.levels.sfx_on)s.mixer.stop_sfx();SDL_UnlockAudioDevice(s.device);}
  if(s.interlude)audio_interlude(0);
 }
@@ -219,7 +275,11 @@ bool audio_save_settings(const char* path){
 }
 AudioServiceStatus audio_status(){
  AudioServiceStatus r{};if(!state){r.last_error="closed";return r;}auto& s=*state;
- r.ready=s.device!=0;r.last_error=s.error;r.missing_files=s.missing;r.decode_failures=s.failures;r.tracks_started=s.pump.tracks_started;
+ r.ready=s.device!=0;r.last_error=s.error;r.missing_files=s.missing;
+ if(s.pump_lock)SDL_LockMutex(s.pump_lock);
+ r.decode_failures=s.failures+s.voice_failures;
+ if(s.pump_lock)SDL_UnlockMutex(s.pump_lock);
+ r.tracks_started=s.pump.tracks_started;
  for(auto& c:s.clips)if(c.samples)++r.cached_clips;
  if(s.device)SDL_LockAudioDevice(s.device);
  r.voice_playing=s.mixer.voice_active();r.music_playing=s.pump.stream.active()||s.mixer.music_fill()>0;r.music_underruns=s.mixer.stats().music_underruns;

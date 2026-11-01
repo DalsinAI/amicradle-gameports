@@ -37,6 +37,13 @@ int main(int argc,char** argv){
  SDL_Delay(500);
  auto mid=audio_status();CHECK(mid.missing_files>=2&&mid.cached_clips==1&&mid.music_underruns==0);
  audio_interlude(3);SDL_Delay(2300);CHECK(!audio_status().voice_playing);audio_interlude_closed();
+ // A long recording (7 MB at 11025 Hz, resampled) is read and decoded on the
+ // feeder thread: the call returns before the line plays, then it starts.
+ CHECK(audio_tech_discovered(5,true));CHECK(!audio_status().voice_playing);
+ for(int i=0;i<200&&!audio_status().voice_playing;++i)SDL_Delay(20);
+ CHECK(audio_status().voice_playing&&audio_status().music_underruns==0);audio_stop_voice();
+ // A line stopped while it is still loading never starts.
+ CHECK(audio_tech_discovered(5,true));audio_stop_voice();SDL_Delay(1500);CHECK(!audio_status().voice_playing);
  AudioSettings off=audio_settings();off.levels.music_on=false;audio_set_settings(off);SDL_Delay(400);
  char saved[512];snprintf(saved,sizeof(saved),"%s/saved.cfg",argv[1]);CHECK(audio_save_settings(saved));
  audio_close();CHECK(!audio_ready());

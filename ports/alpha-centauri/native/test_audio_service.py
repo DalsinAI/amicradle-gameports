@@ -14,6 +14,7 @@ def wav(path,value,frames,rate=22050):
     path.write_bytes(b'RIFF'+struct.pack('<I',4+8+16+8+len(body))+b'WAVE'+b'fmt '+struct.pack('<I',16)+fmt+b'data'+struct.pack('<I',len(body))+body)
 wav(data/'fx'/'ok.wav',1000,2205)
 wav(data/'voices'/'gaians.wav',3000,11025)
+wav(data/'voices'/'tech5.wav',2000,3500000,11025)
 wav(data/'music'/'gset1.wav',500,22050*2)
 (data/'alpha-audio.cfg').write_text('music_volume=100\nmap.unit_move=missing.wav\n')
 cflags=subprocess.run(['sdl2-config','--cflags'],capture_output=True,text=True,check=True).stdout.split()
