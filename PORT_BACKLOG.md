@@ -61,7 +61,7 @@ the normal clean-build, provenance, packaging and AC090 runtime gates.
 | VVVVVV | CANDIDATE | SDL / OpenGPU | TBD | Mature SDL code and modest 2D workload. Review data packaging. |
 | Wolf4SDL | CANDIDATE | ACGame / SDL | TBD | Classic software renderer. Original Wolfenstein data external. |
 | Omnispeak | CANDIDATE | ACGame / SDL | TBD | Commander Keen reimplementation with a light software workload. |
-| fheroes2 | COMPILED - runtime pending | SDL2 / OpenRTG / z.library | P1 | Pinned c0e8128; 68040 soft-float build from GitHub-only inputs (OpenNDK, OpenRTG SDL2/SDL2_mixer). Demo data fetched at build time, never shipped. Next: AC090 lab with the demo. [Port](ports/fheroes2/README.md). |
+| fheroes2 | STANDALONE - runtime pending | SDL2 / OpenRTG / z.library | P1 | Canonical build, runtime-data staging and evidence live in [amigafheroes2](https://github.com/DalsinAI/amigafheroes2), pinned by the local [integration pointer](ports/fheroes2/source.json). Original game data is never shipped. |
 | Fallout Community Edition | CANDIDATE | SDL / OpenGPU | TBD | Constrained 2D workload and strong game value. Original Fallout data required. |
 | OpenXcom | CANDIDATE | SDL / OpenGPU | TBD | Mature turn-based 2D engine; dependency/YAML review required. |
 | JFDuke3D | CANDIDATE | SDL / OpenGPU | TBD | Mature Build-engine port and useful 040 stress case; commercial data external. |
@@ -80,7 +80,7 @@ the normal clean-build, provenance, packaging and AC090 runtime gates.
 | AstroMenace | SOURCE PINNED / INTAKE | SDL / OpenGPU / OpenAudio | P1 | Official `viewizard/astromenace` pinned at `bbdb3ac5af2774c92b85c4d9b2a238f606911e66` (6 Aug 2026), whose latest fix specifically resolves a GCC 16 startup hang. GPL-3.0-or-later source; SDL2/OpenGL/OpenAL/ALUT/Ogg/Vorbis/FreeType dependency surface. First gate: dependency audit against OpenGPU/OpenAudio/Open-family libraries, then clean AC090 build. |
 | JFShadowWarrior | CANDIDATE | SDL / OpenGPU | TBD | Build-engine sibling to JFDuke3D; commercial data external. |
 | CorsixTH | CANDIDATE | SDL / OpenGPU | TBD | Theme Hospital engine with SDL-era architecture; Lua and larger C++ dependency surface. |
-| OpenLoco | CANDIDATE | SDL / OpenGPU | TBD | Attractive management title and 2D workload; modern C++ requirements. |
+| OpenLoco | STANDALONE - build qualified | SDL3 / OpenGPU / OpenAL | P0 | Canonical port, Installer, probes and evidence live in [amigaopenloco](https://github.com/DalsinAI/amigaopenloco), pinned by the local [integration pointer](ports/openloco/source.json). Current receipt still needs target runtime qualification. |
 | OpenRCT2 | CANDIDATE | SDL / OpenGPU | TBD | Highly desirable and portable, but large/modern with meaningful memory footprint. |
 | DevilutionX | CANDIDATE | SDL / OpenGPU | TBD | Mature Diablo engine; modern C++ and original data required. |
 | ScummVM | REVIVAL CANDIDATE | SDL / OpenGPU / OpenAudio / OpenInput | P1 | AROS patches, classic 68k and modern OS4/MorphOS ports exist. Start with a deliberately small engine set and strongest Amiga-family backend. |
@@ -187,7 +187,7 @@ This is the live SDL3 intake queue. See [the wider SDL3 game and application rev
 | Port | State | Lane | Priority | Next gate |
 |---|---|---|---:|---|
 | LBA2 Classic Community | ACTIVE | SDL3 / OpenGPU / OpenAudio / OpenInput | P0 | Finish visual/runtime qualification on AC090. |
-| OpenLoco | ACTIVE | SDL3 / OpenGPU / networking | P0 | Clear S5/game-state endian barrier, then visible gameplay and audio. |
+| OpenLoco | STANDALONE / ACTIVE | SDL3 / OpenGPU / networking | P0 | Continue target qualification in [amigaopenloco](https://github.com/DalsinAI/amigaopenloco); the GamePorts tree retains only its immutable pointer. |
 
 ### P1 - next SDL3 intake
 
