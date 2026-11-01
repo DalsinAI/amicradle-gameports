@@ -802,8 +802,10 @@ static void set_key(unsigned raw, int down) {
 }
 
 int acgame_platform_init(const acgame_video_config *config) {
-    /* DELTAMOVE: relative mouse movement for games that steer with it. */
-    ULONG idcmp = IDCMP_RAWKEY | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_DELTAMOVE;
+    /* DELTAMOVE: relative mouse movement for games that steer with it.
+     * INACTIVEWINDOW: the key and button releases then go elsewhere. */
+    ULONG idcmp = IDCMP_RAWKEY | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_DELTAMOVE |
+                  IDCMP_INACTIVEWINDOW;
     acgame_display_kind kind;
     acgame_video_config screen_config;
     ULONG mode;
@@ -975,6 +977,11 @@ void acgame_platform_poll(acgame_input_state *state) {
                 } else if (message->Code == MENUUP) {
                     g_acgame_amiga.mouse_buttons &= (uint8_t)~2u;
                 }
+            } else if (message->Class == IDCMP_INACTIVEWINDOW) {
+                /* Another window has the input now and gets the releases of
+                 * what is held, so nothing stays held when the game is back. */
+                memset(g_acgame_amiga.keys, 0, sizeof(g_acgame_amiga.keys));
+                g_acgame_amiga.mouse_buttons = 0;
             }
             ReplyMsg((struct Message *)message);
         }

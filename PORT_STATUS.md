@@ -1,10 +1,34 @@
 # Port Status
 
-Latest review update: **24 October 2026 (local time)**. Earlier dated snapshots below are preserved as history.
+Latest review update: **1 November 2026 (local time)**. Earlier dated snapshots below are preserved as history.
+
+All implemented ports described below have moved to the standalone repositories
+linked from `README.md`. This file is retained as historical qualification
+evidence and is not a current GamePorts build inventory.
 
 Primary target: **AmigaChrome AC090 / AmigaOS 3.x / 68040 + FPU**
 
 **DONE means RELEASE.** A successful compile is intermediate evidence, not a release result.
+
+## Neverball consolidation and Open3 qualification - 1 November 2026
+
+Neverball and Neverputt now have one canonical recipe in
+[DalsinAI/amiganeverball](https://github.com/DalsinAI/amiganeverball). The
+historical GamePorts evidence below records the exact-pinned GCC 16.2.0-open3
+build and package-gate pass that preceded extraction.
+On the isolated AC090/OpenGPU lab, Neverball rendered its title, completed Level
+01, entered Level 02, accepted the native player name `dale`, paused/resumed and
+returned 0. Neverputt rendered its title and Hole 01 in fullscreen, accepted
+mouse strokes and menu input, opened and closed the enumerated joystick, and
+returned normally to Workbench.
+
+This is still **TESTING**, not RELEASE: a third Neverball level, a completed
+Neverputt hole, audible audio proof, controller-driven gameplay, restart
+persistence and a clean stock-instance repetition remain open. The package
+inventory bug found during consolidation is fixed in the recipe and verifier;
+the fixed package rebuild receipt is kept with the evidence.
+
+[Consolidated evidence, exact claims and remaining gates](evidence/neverball-open3-20261101/README.md).
 
 ## OpenJazz gameplay smoke test - 24 October 2026
 
@@ -15,7 +39,7 @@ builds from separate exports produce identical binaries. This advances OpenJazz
 to TESTING; process exit and pointer targeting remain open failures, alongside
 audio, save/load and the other release gates. Instance-32 was untouched.
 
-[Recipe, evidence and precise limits](ports/openjazz/GAMEPLAY.md).
+[Recipe, evidence and precise limits](https://github.com/DalsinAI/amigaopenjazz/blob/main/GAMEPLAY.md).
 
 ## Post-merge checks - 13 October 2026
 
@@ -102,15 +126,13 @@ valid engineering work unless a fixed-stove A/B test shows otherwise.
 
 | Port | Build / package | Runtime | Current evidence / next gate |
 |---|---|---|---|
-| Neverball / Neverputt 1.6.0 | COMPILED; package verifier PASS | TESTING | Mesa softpipe renders the Neverball title/menu. Virgl opens a valid GL context but the old-stove binary produces a black frame; retest with the fixed stove before assigning the defect to OpenGPU/virgl. |
 | C-Dogs SDL | COMPILED; 103 MB self-contained package staged | TESTING | AC090 launch reaches the executable, SDL2/OpenGPU module and bundled data. The old-stove binary then raises dead-end CPU alert **0x80000005 (divide by zero)** before a usable game frame. Preserve unchanged for fixed-stove A/B. |
 | Chocolate Doom | COMPILED; pristine rebuild PASS | PENDING | Exact pinned source rebuilt locally with no network. Provisional old-stove SHA-256 `d3ae7440920fe9bc2213a945c5aeec3576f7a4405147d86f9774d654a63b16b0`; runtime requires an authorised compatible IWAD and fixed-stove rebuild. |
 | OpenJazz | COMPILED; pristine rebuild PASS | PENDING | Exact pinned source + checked portability patch rebuilt locally with no network. Provisional old-stove SHA-256 `c6f48d76e5c42fc264e134cef0d41d2b6769fc2dbb0448429bff1aad311a934e`; runtime data remains external and fixed-stove rebuild is mandatory. |
 | SDLPoP | COMPILED; pristine rebuild PASS | PENDING | Exact pinned source + checked Amiga portability patch rebuilt locally with no network. Provisional old-stove SHA-256 `51097f931538140895659af40f021d58ff20c348751c174bd093881c23600f6a`; fixed-stove runtime qualification remains. |
-| UQM 0.8.0 | COMPILED open3 | TESTING | Native volume paths and packaged-content ZIP I/O fixed. Exact open3 binary reached menu, New Game and Sol, then RC 0 in a muted isolated lab. Conversation, graphics warnings, persistence, audio and intended-ROM repeat remain; see `ports/uqm/evidence/runtime-20261024.json`. |
-| NXEngine-evo | COMPILED open3 | TESTING | Clean 68040/FPU portable build; safe local-data importer restores upstream music names by size/CRC. Fresh binary reached Start Point with movement/jump, saved, exited RC 0, restored the saved position in a fresh process, and exited RC 0 again. Audio, wider input and clean-ROM gates remain; see `ports/nxengine-evo/evidence/runtime-20261024.json`. |
+| UQM 0.8.0 | MOVED | TESTING | Canonical recipe and runtime evidence now live in [amigauqm](https://github.com/DalsinAI/amigauqm). |
+| NXEngine-evo | MOVED | TESTING | Canonical recipe and runtime evidence now live in [amiganxengine](https://github.com/DalsinAI/amiganxengine). |
 | AssaultCube | Client + server COMPILED | PENDING | OpenGPU client bring-up work is preserved. Clean fixed-stove rebuild, audio integration and AC090 runtime qualification remain. |
-| Serious Sam Classic | SOURCE PINNED | NOT STARTED | TFE first. |
 | Warzone 2100 | SOURCE PINNED | NOT STARTED | Large 3D/application stress target. |
 | Doom 3 GPL source | SOURCE PINNED | NOT STARTED | Long-range renderer/engine stress target. |
 | OpenLara | SOURCE PINNED | NOT STARTED | 3D engine target; original Tomb Raider data remains external. |

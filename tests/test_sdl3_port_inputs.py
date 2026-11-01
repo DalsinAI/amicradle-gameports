@@ -58,6 +58,17 @@ class InputTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "pristine"):
             PORT.verify_source(self.root, pin)
 
+    def test_post_link_rejects_non_hunk_output(self):
+        binary = self.root / "program"
+        binary.write_bytes(b"not a hunk")
+        with self.assertRaisesRegex(ValueError, "HUNK"):
+            PORT.verify_post_link(binary, self.root, {})
+
+    def test_post_link_accepts_hunk_when_no_extra_gate_is_requested(self):
+        binary = self.root / "program"
+        binary.write_bytes(bytes.fromhex("000003f3") + b"payload")
+        self.assertEqual(PORT.verify_post_link(binary, self.root, {}), {"hunk": "PASS"})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -18,7 +18,7 @@ Our glue, scripts, build recipes, port layer (`port-layer/`) and documentation a
 
 ## Fetched at build time, not committed
 
-No upstream game source is in this repository. The build recipes fetch each project at the pin in `gameports/catalog.json` (also in `PORT_STATUS.md`), and anyone distributing binaries built from them must follow that project's licence.
+No upstream game source is in this repository. Standalone game repositories own their build recipes and exact pins; `gameports/catalog.json` now contains intake-only candidates. Anyone distributing binaries must follow the corresponding project's licence.
 
 | Component | Pin | Authors | Licence |
 | --- | --- | --- | --- |

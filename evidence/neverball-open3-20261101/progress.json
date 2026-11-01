@@ -1,0 +1,26 @@
+{
+  "build": "PASS Neverball and Neverputt, Open3",
+  "package": "PASS 27 files, 79083754 bytes",
+  "runtime": "OpenKick/OpenUp copy of Instance-32, not stock OS3.2.3; copied while source running",
+  "Neverball": [
+    "Title rendered on Radeon virgl/OpenGPU",
+    "Keyboard player name dale",
+    "Normal menu journey to Level 1",
+    "Level 1 completed, new record 12 coins",
+    "Next Level entered Level 2",
+    "Pause/resume",
+    "Normal exit NEVERBALL_RETURNED 0",
+    "Config player dale written"
+  ],
+  "Neverputt": "Startup in progress",
+  "remaining": [
+    "3-level rendering",
+    "Neverputt hole completion",
+    "audio listening and waveform checks",
+    "controller gameplay",
+    "fullscreen",
+    "restart persistence",
+    "clean installation and stock OS3.2.3"
+  ],
+  "GitHub": "Build receipt publication rejected by automatic approval review; no new commit published"
+}

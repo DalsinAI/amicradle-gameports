@@ -1,13 +1,19 @@
 # Unified Game Port Backlog
 
-**Current execution checkpoint:** see [13 October review fixes](evidence/open2-20261013-resume/README.md)
-and [recovered SDL2/Neverball evidence](evidence/sdltext-20261012-recovered/README.md).
+Implemented ports named in this historical programme now live in the standalone
+repositories linked from `README.md`. GamePorts retains only intake research and
+the five exact candidate pins in `gameports/catalog.json`.
+
+**Current execution checkpoint:** see the
+[1 November Neverball consolidation](evidence/neverball-open3-20261101/README.md),
+[13 October review fixes](evidence/open2-20261013-resume/README.md) and
+[recovered SDL2/Neverball evidence](evidence/sdltext-20261012-recovered/README.md).
 Keep the plain-68040 software-2D qualification lane separate from AssaultCube's
 OpenGPU-dependent client. No untested target is promoted by these updates.
 
 **[Unified Port Atlas](https://github.com/DalsinAI/amigachrome/tree/main/docs/porting)** — searchable cross-programme game/application catalogue with existing Amiga-port evidence, source/rights assessment and proposed Open-family acceleration or development benefit. This does not replace the local source pins, build notes or qualification gates.
 
-Live programme updated: **24 October 2026**. The older port table below is historical;
+Live programme updated: **1 November 2026**. The older port table below is historical;
 the execution order and SDL3 intake sections take precedence.
 
 Primary target: **AmigaChrome AC090 / AmigaOS 3.x / 68040 + FPU**
@@ -37,7 +43,6 @@ the normal clean-build, provenance, packaging and AC090 runtime gates.
 | Port | Current state | Likely lane | Priority | Notes / next meaningful gate |
 |---|---|---|---|---|
 | OpenOMF / OMFAGA | ACTIVE - build fix | ACGame / native AGA | TBD | GCC16/0008 lane exists. Canonical AGA-profile state bug fixed; latest runner exposed a local ENet compatibility-header path error before compile. Then AC090 arena first light. |
-| Neverball / Neverputt | BUILD GREEN - runtime testing | SDL / OpenGPU | TBD | GCC16/0008 build passes. Retest softpipe and accelerated virgl/OpenRTG path on AC090 and confirm black-frame issue is gone. |
 | C-Dogs SDL | BUILD GREEN - runtime testing | SDL / OpenGPU | TBD | GCC16/0008 build passes. Strong compiler A/B canary because old stove hit divide-by-zero alert 0x80000005. |
 | The Ur-Quan Masters | TESTING - open3 gameplay smoke | SDL / OpenGPU | P0 | Fixed native paths and ZIP content; exact binary reached Sol and exited RC 0. Conversation, graphics warnings, persistence, audio and clean-ROM repeat remain. |
 | Chocolate Doom | BUILD GREEN - runtime pending | SDL / OpenGPU | TBD | GCC16/0008 clean build passes. Run with authorised IWAD/Freedoom and exercise input, audio, config/save and exit. |
@@ -45,7 +50,6 @@ the normal clean-build, provenance, packaging and AC090 runtime gates.
 | SDLPoP | BUILD GREEN - runtime pending | SDL / OpenGPU | TBD | GCC16/0008 clean build passes. Level-one runtime, animation, input, audio and clean exit next. |
 | AssaultCube | BUILD GREEN - runtime pending | SDL / OpenGPU / OpenInput | TBD | GCC16/0008 client and server both build. Client final-link GL issue fixed. Bot-map/textured-scene first light next; audio integration follows. |
 | NXEngine-evo | TESTING - open3 gameplay smoke | SDL / OpenGPU | P0 | Fresh portable build reaches Start Point with movement/jump and fresh-process save/load; both quits RC 0. Importer fixes layout/music aliases. Sound-effect warnings, wider input/audio and clean-ROM gates remain. |
-| Serious Sam Classic | SOURCE PINNED | SDL / OpenGPU | TBD | Start with The First Encounter. Major 3D/OpenGPU target. |
 | Warzone 2100 | SOURCE PINNED | SDL / OpenGPU | TBD | Large 3D/application stress target; intended OpenUp edition candidate. |
 | Doom 3 GPL source | SOURCE PINNED | OpenGPU | TBD | Long-range idTech renderer/engine stress target; original data external. |
 | OpenLara | SOURCE PINNED | SDL / OpenGPU | TBD | Strong 3D engine candidate; original Tomb Raider data external. |
@@ -59,7 +63,6 @@ the normal clean-build, provenance, packaging and AC090 runtime gates.
 | VVVVVV | CANDIDATE | SDL / OpenGPU | TBD | Mature SDL code and modest 2D workload. Review data packaging. |
 | Wolf4SDL | CANDIDATE | ACGame / SDL | TBD | Classic software renderer. Original Wolfenstein data external. |
 | Omnispeak | CANDIDATE | ACGame / SDL | TBD | Commander Keen reimplementation with a light software workload. |
-| fheroes2 | COMPILED - runtime pending | SDL2 / OpenRTG / z.library | P1 | Pinned c0e8128; 68040 soft-float build from GitHub-only inputs (OpenNDK, OpenRTG SDL2/SDL2_mixer). Demo data fetched at build time, never shipped. Next: AC090 lab with the demo. [Port](ports/fheroes2/README.md). |
 | Fallout Community Edition | CANDIDATE | SDL / OpenGPU | TBD | Constrained 2D workload and strong game value. Original Fallout data required. |
 | OpenXcom | CANDIDATE | SDL / OpenGPU | TBD | Mature turn-based 2D engine; dependency/YAML review required. |
 | JFDuke3D | CANDIDATE | SDL / OpenGPU | TBD | Mature Build-engine port and useful 040 stress case; commercial data external. |
@@ -70,15 +73,12 @@ the normal clean-build, provenance, packaging and AC090 runtime gates.
 | KeeperFX | CANDIDATE | SDL / OpenGPU | TBD | Older engine architecture and strong game value; review low-level assumptions/data. |
 | Dune II The Maker | CANDIDATE | ACGame / SDL | TBD | Old-school RTS workload with modest rendering; review upstream age/portability. |
 | Freeciv | CANDIDATE | SDL / OpenGPU | TBD | Mature C and useful networking stress; choose a lightweight client frontend. |
-| Civilization II MGE / OpenCiv2 | EXPERIMENTAL - native linked, first dialog | Native C/C++ / wasm2c C / SDL / OpenGPU | P1 | Full generated game and adapted host compile/link with GCC16-open3 for 68040/FPU. Memory boundary probe passes in Amiga lab RC0; game renders the fresh-profile herald dialog. Replay exit, setup/menu, interactive gameplay, persistence and audio remain gates. [Prototype and exact evidence](ports/civ2-native/README.md); [source review](docs/CIVILIZATION_ALPHA_PORT_REVIEW_20261024.md). |
-| Alpha Centauri / Alien Crossfire | ACCEPTED - owner-priority research | Native C++ / OpenGPU / OpenAudio / OpenMulticore | P1 research | Owner explicitly requests it and owns Alpha Centauri. Assess GLSMAC's standalone C++17 engine (incomplete gameplay, GLSL 330, threads, working set and endian format gates) alongside Thinker's original-executable reconstruction route. Confirm expansion data. Scope is large; retain even if GLSMAC is unsuitable. See [review](docs/CIVILIZATION_ALPHA_PORT_REVIEW_20261024.md). |
-| Civilization IV BTS | SOURCE REVIEWED - research | Scalar C++ core / Python / native UI and OpenAudio | P2 | Cv4MiniEngine supplies a standalone terminal engine beyond the SDK; current x86 SIMD/C++26/Python2.7 and native-byte serialisation require work. Deterministic tiny-map turn/save first, then native frontend. No build/play claim. See [review](docs/CIVILIZATION_ALPHA_PORT_REVIEW_20261024.md). |
-| Civilization III | SOURCE REVIEWED - research | Native engine rewrite or Godot/.NET runtime project | P3 | OpenCiv3 is pre-alpha Godot4/.NET8; C3X still injects into the PC executable. Inventory data readers/rules before choosing a large rewrite or runtime port. See [review](docs/CIVILIZATION_ALPHA_PORT_REVIEW_20261024.md). |
+| Civilization IV BTS | SOURCE REVIEWED - research | Scalar C++ core / Python / native UI and OpenAudio | P2 | Cv4MiniEngine supplies a standalone terminal engine beyond the SDK; current x86 SIMD/C++26/Python2.7 and native-byte serialisation require work. Deterministic tiny-map turn/save first, then native frontend. No build/play claim. See the [archived review in OpenAlphaC](https://github.com/DalsinAI/openalphac/blob/main/docs/CIVILIZATION_ALPHA_PORT_REVIEW_20261024.md). |
+| Civilization III | SOURCE REVIEWED - research | Native engine rewrite or Godot/.NET runtime project | P3 | OpenCiv3 is pre-alpha Godot4/.NET8; C3X still injects into the PC executable. Inventory data readers/rules before choosing a large rewrite or runtime port. See the [archived review in OpenAlphaC](https://github.com/DalsinAI/openalphac/blob/main/docs/CIVILIZATION_ALPHA_PORT_REVIEW_20261024.md). |
 | Open Golf | CANDIDATE | SDL / OpenGPU | TBD | Small C 3D title; useful early GL/OpenGPU exercise. |
 | AstroMenace | SOURCE PINNED / INTAKE | SDL / OpenGPU / OpenAudio | P1 | Official `viewizard/astromenace` pinned at `bbdb3ac5af2774c92b85c4d9b2a238f606911e66` (6 Aug 2026), whose latest fix specifically resolves a GCC 16 startup hang. GPL-3.0-or-later source; SDL2/OpenGL/OpenAL/ALUT/Ogg/Vorbis/FreeType dependency surface. First gate: dependency audit against OpenGPU/OpenAudio/Open-family libraries, then clean AC090 build. |
 | JFShadowWarrior | CANDIDATE | SDL / OpenGPU | TBD | Build-engine sibling to JFDuke3D; commercial data external. |
 | CorsixTH | CANDIDATE | SDL / OpenGPU | TBD | Theme Hospital engine with SDL-era architecture; Lua and larger C++ dependency surface. |
-| OpenLoco | CANDIDATE | SDL / OpenGPU | TBD | Attractive management title and 2D workload; modern C++ requirements. |
 | OpenRCT2 | CANDIDATE | SDL / OpenGPU | TBD | Highly desirable and portable, but large/modern with meaningful memory footprint. |
 | DevilutionX | CANDIDATE | SDL / OpenGPU | TBD | Mature Diablo engine; modern C++ and original data required. |
 | ScummVM | REVIVAL CANDIDATE | SDL / OpenGPU / OpenAudio / OpenInput | P1 | AROS patches, classic 68k and modern OS4/MorphOS ports exist. Start with a deliberately small engine set and strongest Amiga-family backend. |
@@ -131,8 +131,8 @@ the normal clean-build, provenance, packaging and AC090 runtime gates.
 ## Older Amiga port revival - 24 October 2026
 
 Owner-selected intake: **OpenTyrian and Enigma**. Source pins, build/configure
-helpers and exact limits are in [OpenTyrian](ports/opentyrian/README.md) and
-[Enigma](ports/enigma/README.md). These SDL2 targets do not wait for OpenAL.
+helpers and exact limits are in [Amiga OpenTyrian](https://github.com/DalsinAI/amigaopentyrian) and
+[Amiga Enigma](https://github.com/DalsinAI/amigaenigma). These SDL2 targets do not wait for OpenAL.
 Old OS4/MorphOS binaries are precedent; AC090 needs a fresh m68k source build.
 
 | Priority | Target | Current state / next gate | Data boundary |
@@ -160,20 +160,20 @@ SDL3 candidates do not automatically depend on OpenAL.
 
 | Priority | Work | Next action and remaining gate |
 |---|---|---|
-| P0 | UQM, Chocolate Doom, SDLPoP, OpenJazz, Neverball/Neverputt, AssaultCube, NXEngine-evo | Finish the active playable campaign with verified GCC 16.2.0-open3 builds. Retain each title's outstanding graphics, input, audio, persistence and exit gates; existing muted runs do not pass audio. |
-| P0 SDL3 | LBA2, OpenLoco | Finish the existing SDL3 ports alongside the playable campaign. OpenLoco's merged endian conversion still needs full-app qualification; audio remains a separate gate. |
+| P0 | UQM, Chocolate Doom, SDLPoP, OpenJazz, AssaultCube, NXEngine-evo | Finish the active playable campaign with verified GCC 16.2.0-open3 builds. Retain each title's outstanding graphics, input, audio, persistence and exit gates; existing muted runs do not pass audio. |
+| P0 SDL3 | LBA2 | Finish the existing SDL3 port alongside the playable campaign. |
 | P0 platform gate | OpenAL qualification | When an identifiable SDK/runtime is available, record version/ABI/hashes, verify 68040/FPU and endian assumptions, then prove device/context creation, sample playback, streaming, teardown and repeat on AC090. Until then, dependency preparation only. |
 | P1 audio intake | AstroMenace | Prepare the OpenAL/ALUT/Ogg/Vorbis dependency audit now. Make this the first OpenAL consumer qualification after the platform gate; retain renderer, asset-endian, input, persistence and clean-exit gates. |
 | P1 active follow-up | OpenOMF, C-Dogs | Resume current build/runtime blockers after the P0 finish queue. |
 | P1 SDL3 intake | DevilutionX -> ScummVM -> xrick -> Frozen Bubble -> Freeserf -> Street Rod 1/2 -> DOSBox-X SDL3 | Accept into the live programme now. First pin and audit source/licence/dependencies/data, then add a build recipe and reach the target-specific interactive gate in the review. |
 | P1 lab | Space Invaders SDL3, Dinosaur SDL3, sdl3-gl | Small audio/input and OpenGPU regression targets; qualify independently of flagship ports. |
-| P2 | Remaining accepted SDL3 targets below; Serious Sam TFE, Warzone 2100, OpenLara, OpenTTD | Planned intake after the active finish queue. OpenAL progress alone does not clear architecture, renderer or data gates. |
+| P2 | Remaining accepted SDL3 targets below; OpenLara, OpenTTD | Planned intake after the active finish queue. OpenAL progress alone does not clear architecture, renderer or data gates. |
 | P3 / PARK | Heavy modern renderers, toolchains and emulators listed below | Research only until their independent platform blockers are addressed. |
 
-The SDL3 entries below are live **INTAKE** work (or **ACTIVE** for the two
-existing ports). New candidates are not build-enabled by their inclusion:
-`gameports/catalog.json` remains the exact-pinned fetch/build catalogue and gains
-entries only after the source, licence, dependency and runtime-data audit.
+The SDL3 entries below preserve the programme order at the time of review.
+New candidates are not build-enabled by their inclusion:
+`gameports/catalog.json` is now an intake-only exact-pinned catalogue and gains
+entries only for source, licence and dependency research.
 No compiler, build, PLAYABLE or RELEASE result is inferred from a priority.
 
 ## SDL3 programme - 24 October 2026
@@ -185,7 +185,6 @@ This is the live SDL3 intake queue. See [the wider SDL3 game and application rev
 | Port | State | Lane | Priority | Next gate |
 |---|---|---|---:|---|
 | LBA2 Classic Community | ACTIVE | SDL3 / OpenGPU / OpenAudio / OpenInput | P0 | Finish visual/runtime qualification on AC090. |
-| OpenLoco | ACTIVE | SDL3 / OpenGPU / networking | P0 | Clear S5/game-state endian barrier, then visible gameplay and audio. |
 
 ### P1 - next SDL3 intake
 

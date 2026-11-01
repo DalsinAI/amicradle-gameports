@@ -34,14 +34,12 @@ must be rebuilt and runtime-qualified with the approved fixed GCC 16.2 stove.
 - The Battle for Wesnoth
 - The Dark Mod
 - Hedgewars
-- Neverball / Neverputt
 - Chocolate Doom
 - OpenJazz
 - SDLPoP
 - NXEngine-evo
 - C-Dogs SDL
 - The Ur-Quan Masters
-- Serious Sam Classic
 
 ## Tier A — strong near-term candidates
 
@@ -59,7 +57,6 @@ resource-constrained systems.
 | Omnispeak | ACGame / SDL | Commander Keen reimplementation, light software workload | Original data external |
 | Meritous | ACGame / SDL | Small SDL action/roguelike | Verify current upstream health |
 | Brogue CE | ACGame / SDL | Small C roguelike with graphical frontend | UI/input adaptation |
-| fheroes2 | SDL/OpenGPU | Mature HoMM II recreation with many low-end ports | C++ size and original data |
 | Fallout Community Edition | SDL/OpenGPU | Reimplementation with constrained 2D workload | Original Fallout data required |
 | Fallout 2 Community Edition | SDL/OpenGPU | Same advantages as Fallout CE | Original Fallout 2 data required |
 | Exult | SDL/OpenGPU | Long-lived portable Ultima VII engine | Large C++ codebase/data external |
@@ -76,7 +73,6 @@ resource-constrained systems.
 | Candidate | Why | Main caution |
 |---|---|---|
 | CorsixTH | Theme Hospital engine, mature SDL-era architecture | Lua + larger C++ dependency surface |
-| OpenLoco | Excellent management title and 2D workload | Modern C++ requirements |
 | OpenRCT2 | Very desirable and heavily portable | Large/modern codebase and memory footprint |
 | DevilutionX | Mature, highly portable Diablo engine | Modern C++ and original data |
 | ScummVM | Massive value and mature portability | Huge multi-engine codebase; scope carefully |
@@ -142,10 +138,9 @@ useful next source-intake batch is:
 4. VVVVVV
 5. Wolf4SDL
 6. Omnispeak
-7. fheroes2
-8. Fallout Community Edition
-9. OpenXcom
-10. JFDuke3D
+7. Fallout Community Edition
+8. OpenXcom
+9. JFDuke3D
 
 That batch deliberately mixes very small ACGame/software-rendering wins with larger SDL
 titles, giving us useful coverage without immediately committing to another Doom 3-sized

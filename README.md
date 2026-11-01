@@ -5,7 +5,7 @@
 
 Open-source game-port and compatibility work for **m68k AROS**, **AmigaOS 3.x** and **AmigaChrome**.
 
-The repository contains compiled revival ports, the Neverball/OpenGPU release lane, and the next 3D source-intake targets. Compile success is useful evidence, but it is **not** synonymous with release readiness. See [RELEASE_POLICY.md](RELEASE_POLICY.md).
+The repository contains compiled revival ports and the next 3D source-intake targets. Compile success is useful evidence, but it is **not** synonymous with release readiness. See [RELEASE_POLICY.md](RELEASE_POLICY.md).
 
 ## Live programme - 24 October 2026
 
@@ -49,7 +49,7 @@ No port has been promoted to RELEASE.
 | Lane | Ports | Required additional gate |
 |---|---|---|
 | Plain 68040 + FPU / software 2D | OpenJazz, SDLPoP, Chocolate Doom | Run on the intended SDL CPU path with `SDL_OPENGPU=0`, plus input/audio/save/exit tests. This is a requirement, not a completed pass for all three. |
-| OpenGPU-dependent 3D client | AssaultCube client; Neverball/Neverputt GL lane | Qualify the chosen supported OpenGPU backend. No plain-68040 performance claim. |
+| OpenGPU-dependent 3D client | AssaultCube client | Qualify the chosen supported OpenGPU backend. No plain-68040 performance claim. |
 | No rendering | AssaultCube dedicated server | Socket/listen/stop tests, with the guest library version recorded. |
 
 ## Historical Open2 follow-up - actual guest first light
@@ -81,36 +81,25 @@ See [retained results and risks](evidence/open2-20261012/README.md) and
 now honours `STOVE`, preventing an accidental fallback to an older compiler.
 The OpenGPU SDK archives remain explicitly recorded reused dependencies.
 
-## Current port state
+## Current intake state
 
 | Port | Build state | Runtime state | Target / notes |
 |---|---|---|---|
-| The Ur-Quan Masters 0.8.0 | COMPILED open3 | TESTING | Native paths and zipped content fixed; menu/New Game/Sol and exit 0 observed muted. Audio, persistence and clean-ROM repeat remain. |
-| Chocolate Doom | COMPILED | PENDING | m68k / 68040 |
-| SDLPoP | COMPILED | PENDING | m68k / 68040 |
-| OpenJazz | COMPILED | PENDING | m68k / 68040 |
-| NXEngine-evo | COMPILED | PENDING | m68k / 68040 |
-| Neverball / Neverputt | COMPILED + PACKAGE VERIFIED | TESTING | Neverball 3D first light and candidate name persistence observed; full gameplay/audio gates remain. Neverputt runtime pending. |
-| AssaultCube | CLIENT + SERVER COMPILED | PENDING | OpenGPU first-light client; audio still stubbed for initial bring-up |
-| Serious Sam Classic | SOURCE PINNED | NOT STARTED | TFE first |
-| Warzone 2100 | SOURCE PINNED | NOT STARTED | later large 3D/application stress target |
-| Doom 3 | SOURCE PINNED | NOT STARTED | long-range renderer/engine stress target |
 | OpenLara | SOURCE PINNED | NOT STARTED | 3D engine / OpenGPU target |
 | OpenTTD | SOURCE PINNED | NOT STARTED | large C++/SDL application target |
 | The Battle for Wesnoth | SOURCE PINNED | NOT STARTED | large C++/SDL strategy target |
 | The Dark Mod | SOURCE PINNED | NOT STARTED | long-range idTech 4-derived stretch target |
 | Hedgewars | SOURCE PINNED | NOT STARTED | SDL/audio/networking/physics target |
 
-See [PORT_STATUS.md](PORT_STATUS.md) and the individual files under `ports/` for exact source pins, hashes, content boundaries and test gates.
+Implemented ports live in their standalone repositories below. GamePorts now
+retains only the five intake pins above plus historical programme evidence.
 
 ## Repository layout
 
 - `scripts/` — source preparation, build orchestration and field-test staging code.
 - `port-layer/acgame/` — AmigaChrome AGA presentation code, smoke test and unit tests.
-- `port-layer/uqm/` — UQM AROS bootstrap patcher and port notes.
-- `ports/*/` — per-port build recipes, patches, release notes and qualification gates.
 - `toolchain/aros-local/` — the AROS m68k toolchain bootstrap recovered from the AmigaChrome worktree.
-- `gameports/catalog.json` — exact upstream source pins and content policy.
+- `gameports/catalog.json` — exact upstream pins and content policy for intake-only candidates.
 
 See [BUILDING.md](BUILDING.md) for the rebuild path.
 
@@ -141,16 +130,6 @@ No upstream game engine source is committed here. Prepared sources live outside 
 
 | Port | Upstream | Licence / data boundary |
 |---|---|---|
-| The Ur-Quan Masters 0.8.0 | https://sc2.sourceforge.net/ | GPL-2.0-or-later code; content packages separate |
-| Chocolate Doom | https://github.com/chocolate-doom/chocolate-doom | GPL-2.0-or-later; IWAD external |
-| SDLPoP | https://github.com/NagyD/SDLPoP | GPL-3.0-or-later; commercial game data external |
-| OpenJazz | https://github.com/AlisterT/openjazz | GPL-2.0-or-later; Jazz data external |
-| NXEngine-evo | https://github.com/nxengine/nxengine-evo | GPL-3.0; Cave Story data external |
-| Neverball | https://github.com/Neverball/neverball | GPL-2.0-or-later with upstream third-party notices/data terms preserved |
-| AssaultCube | https://github.com/assaultcube/AC | zlib-like engine source; media licences reviewed separately |
-| Serious Sam Classic | https://github.com/tx00100xt/SeriousSamClassic | GPL-2.0 engine; original game data external |
-| Warzone 2100 | https://github.com/Warzone2100/warzone2100 | GPL-2.0 project plus third-party/submodule notices |
-| Doom 3 | https://github.com/id-Software/DOOM-3 | GPL-3.0 source; original game data external |
 | OpenLara | https://github.com/XProger/OpenLara | engine source only for intake; original Tomb Raider data external |
 | OpenTTD | https://github.com/OpenTTD/OpenTTD | preserve upstream and third-party notices; runtime asset packs reviewed separately |
 | The Battle for Wesnoth | https://github.com/wesnoth/wesnoth | preserve upstream code/data/translation licensing |
@@ -165,62 +144,30 @@ Copyright (c) 2026 AmigaChrome Team.
 
 AmigaChrome Game Ports is created and maintained by [SacredTrees](https://github.com/SacredTrees) with The AmigaChrome Team, copyright AmigaChrome Team. Everyone whose work it includes is credited in [`CONTRIBUTORS.md`](CONTRIBUTORS.md).
 
-The local Alpha citizen-definition reader is documented in
-[the native boundary](ports/alpha-centauri/native/CITIZEN-DEFINITIONS.md).
-It supplies original specialist data for subsequent energy integration; it does
-not yet bind technology availability or mutate the world.
+## Standalone game repositories
 
-Current faction technologies can now be resolved into the seven specialist
-fact records through the local [World binding](ports/alpha-centauri/native/WORLD-CITIZEN-ENERGY.md).
-This query preserves the world and does not execute income or turns.
+These ports have their own canonical repositories and no longer have entries,
+source pins, recipes or integration pointers in GamePorts:
 
-The local Alpha [commerce proposal](ports/alpha-centauri/native/WORLD-COMMERCE.md)
-now derives original base ranking and trade amounts from world facts, with an
-explicit choice of supplied or freshly recomputed faction bonus stage. It does
-not commit income or execute a turn.
-
-The local [police snapshot](ports/alpha-centauri/native/WORLD-POLICE.md) supplies
-ordered garrison and edition-correct double-police facts without repairing or
-mutating units. It is a dependency for later happiness and income composition.
-
-The local [pacifism dependency](ports/alpha-centauri/native/WORLD-PACIFISM.md)
-now derives the original counter from actual home units, plans, components and
-location. It does not commit happiness or execute upkeep.
-
-The local [world psych binding](ports/alpha-centauri/native/WORLD-PSYCH.md)
-combines saved population and pending social facts with current home-unit
-pacifism and an ordered validated garrison. Spending and stage remain explicit;
-this proposes happiness/social results without committing accounting or turns.
-Host and independent Linux68040 controls passed locally. AmigaOS execution,
-CI, publication, full fresh-world energy and player turn execution remain held.
-
-The local [fresh world energy proposal](ports/alpha-centauri/native/WORLD-ENERGY.md)
-connects actual resources, convoys, mineral support, commerce, owner specialist
-rules and happiness. It currently requires the inherited stable directed-human
-worker allocation and proposes results without committing an economy or turn.
-Native execution and CI remain unrun; this local candidate is unpublished.
-
-The local [owned unit wake command](ports/alpha-centauri/native/UNIT-WAKE.md) recovers the original order cancellation,
-terraforming-work reduction and alert exception. Super Former uses mask1,
-with original edition-specific design-owner grants; project indices2 and8
-select Weather Paradigm and Xenoempathy Dome. Alert uses original byte11.
-The command preserves the original signed order boundary and state mask,
-with checked speed dependencies and revision-bound, local-owner commits.
-Its tests cover full-container export/reload and stale/suspended sessions.
-This isolated candidate adds no player controls or turn authority. Native
-execution, publication and remote CI remain held.
-
-The local [deferred selection state](ports/alpha-centauri/native/UNIT-WAIT-PROJECTION.md)
-atomically combines the original deferred-unit bit with offline re-selection.
-It preserves movement/RNG and exact buffer persistence. Full Console_wait
-rendering, rally, audio, input flushing and command-loop completion remain
-unimplemented; no new player control or End Turn authority is exposed.
-Host and independent Linux68040 controls pass. Native execution, publication
-and remote CI remain held.
-
-The local [combat prototype strengths](ports/alpha-centauri/native/COMBAT-PROTOTYPE.md)
-restore original conventional/psi rating leaves and saved-world faction/project
-bindings, including edition-specific Spore/Tower rules. Host and independent
-Linux68040 match the original closed helpers; full battle modifiers, RNG damage,
-kills, attack legality and player combat remain unimplemented. Normal SDK builds
-are compile-only; native execution, publication and remote CI remain held.
+- [OpenAlphaC](https://github.com/DalsinAI/openalphac)
+- [AmigaCivII](https://github.com/DalsinAI/amigacivii)
+- [Amiga fheroes2](https://github.com/DalsinAI/amigafheroes2)
+- [AmigaNeverBall](https://github.com/DalsinAI/amiganeverball)
+- [Amiga OpenLoco](https://github.com/DalsinAI/amigaopenloco)
+- [OpenSeriousSam](https://github.com/DalsinAI/openserioussam)
+- [Amiga AssaultCube](https://github.com/DalsinAI/amigaassaultcube)
+- [Amiga AstroMenace](https://github.com/DalsinAI/amigaastromenace)
+- [Amiga C-Dogs](https://github.com/DalsinAI/amigacdogs)
+- [Amiga Chocolate Doom](https://github.com/DalsinAI/amigachocolatedoom)
+- [Amiga Doom 3](https://github.com/DalsinAI/amigadoom3)
+- [Amiga Enigma](https://github.com/DalsinAI/amigaenigma)
+- [Amiga LBA2](https://github.com/DalsinAI/amigalba2)
+- [Amiga NXEngine-evo](https://github.com/DalsinAI/amiganxengine)
+- [Amiga OpenJazz](https://github.com/DalsinAI/amigaopenjazz)
+- [Amiga OpenOMF](https://github.com/DalsinAI/amigaopenomf)
+- [Amiga OpenTyrian](https://github.com/DalsinAI/amigaopentyrian)
+- [Amiga SDL2 demos](https://github.com/DalsinAI/amigasdl2demos)
+- [Amiga SDLPoP](https://github.com/DalsinAI/amigasdlpop)
+- [Amiga SWIV](https://github.com/DalsinAI/amigaswiv)
+- [Amiga UQM](https://github.com/DalsinAI/amigauqm)
+- [Amiga Warzone 2100](https://github.com/DalsinAI/amigawarzone2100)

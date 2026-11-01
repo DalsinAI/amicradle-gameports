@@ -1,11 +1,9 @@
-"""Fixture tests for pinned codec inputs, fail-closed recipes and relocatability."""
+"""Fixture tests for pinned codec inputs and relocatability."""
 import hashlib
 import importlib.util
 import json
-import os
 from pathlib import Path
 import shutil
-import subprocess
 import tempfile
 import unittest
 
@@ -71,22 +69,4 @@ class DependencyTests(unittest.TestCase):
         self.stage(); shutil.rmtree(self.source)
         new=self.root/'moved with spaces'; self.stove.rename(new); self.stove=new
         self.verify()
-    def test_missing_dependencies_block_all_five_recipes_before_build(self):
-        env=os.environ.copy();env['STOVE']=str(self.stove)
-        env.pop('AMIGA_STOVE',None);env.pop('ZLIB_ROOT',None);env.pop('UQM_DEPS',None)
-        for name in ('assaultcube/build-amiga-client.sh','assaultcube/build-amiga-server.sh',
-                     'uqm/build-amigaos3.sh','nxengine-evo/build-amigaos3.sh','astromenace/build-amigaos3.sh'):
-            with self.subTest(recipe=name):
-                done=subprocess.run(['sh',str(ROOT/'ports'/name)],env=env,capture_output=True,text=True)
-                self.assertNotEqual(done.returncode,0)
-                self.assertIn('DEPENDENCY_GATE_FAILED',done.stderr)
-    def test_recipes_do_not_reference_workstation_donor(self):
-        for name in ('assaultcube/build-amiga-client.sh','assaultcube/build-amiga-server.sh',
-                     'uqm/build-amigaos3.sh','nxengine-evo/build-amigaos3.sh','astromenace/build-amigaos3.sh'):
-            source=(ROOT/'ports'/name).read_text()
-            self.assertNotIn('webkit-os32',source)
-            self.assertNotIn('FALLBACK',source)
-            self.assertIn('port_dependencies.py" verify --stove',source)
-
-
 if __name__ == '__main__': unittest.main()

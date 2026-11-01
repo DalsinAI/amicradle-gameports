@@ -1,3 +1,0 @@
-# Unified-diff context and raw evidence preserve their exact bytes.
-patches/*.patch -whitespace
-evidence/** -text -whitespace

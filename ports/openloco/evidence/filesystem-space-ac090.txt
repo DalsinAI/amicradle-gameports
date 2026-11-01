@@ -1,1 +1,0 @@
-PASS: DOS Info and C++ filesystem space agree; missing path returns ENOENT
