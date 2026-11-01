@@ -5,9 +5,9 @@
 #include <string.h>
 
 /* acgame-joy [AGA|RTG|AUTO] [FRAMES]: shows the first pad as ACGame reads it
- * (OpenInput when it is there, lowlevel.library's port 2 otherwise): a lamp
+ * (GFOpenInput when it is there, lowlevel.library's port 2 otherwise): a lamp
  * for each standard button, the two sticks and the two triggers. The top
- * strip says where the pad came from: green OpenInput, yellow lowlevel.library,
+ * strip says where the pad came from: green GFOpenInput, yellow lowlevel.library,
  * red no pad. Changes are printed too. Escape quits. */
 
 #define W 320
@@ -50,7 +50,7 @@ static void trigger(acgame_indexed_surface *f, int left, int top, int16_t v) {
 }
 
 static const char *source_name(unsigned s) {
-    return s == ACGAME_PAD_OPENINPUT ? "OpenInput" : s == ACGAME_PAD_LOWLEVEL ? "lowlevel.library" : "none";
+    return s == ACGAME_PAD_OPENINPUT ? "GFOpenInput" : s == ACGAME_PAD_LOWLEVEL ? "lowlevel.library" : "none";
 }
 
 int main(int argc, char **argv) {
@@ -82,10 +82,10 @@ int main(int argc, char **argv) {
         acgame_platform_shutdown();
         return 21;
     }
-    printf("ACGame joystick: %s screen; openinput.library %s\n", info.planar ? "AGA planar" : "RTG chunky",
+    printf("ACGame joystick: %s screen; gfopeninput.library %s\n", info.planar ? "AGA planar" : "RTG chunky",
            info.openinput ? "in use" : "not in use (lowlevel.library only)");
     if (info.openinput) {
-        printf("ACGame joystick: openinput.library %d.%d\n", info.openinput >> 16, info.openinput & 0xffff);
+        printf("ACGame joystick: gfopeninput.library %d.%d\n", info.openinput >> 16, info.openinput & 0xffff);
     }
     memset(f->palette, 0, sizeof(f->palette));
     memcpy(f->palette, colours, sizeof(colours));

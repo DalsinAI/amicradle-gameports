@@ -1,6 +1,6 @@
 # SDL3 game and application port review - 24 October 2026
 
-Primary target: **AmigaChrome AC090 / AmigaOS 3.x / 68040 + FPU**
+Primary target: **AmiCradle AC090 / AmigaOS 3.x / 68040 + FPU**
 
 This review widens the SDL3 intake beyond the first active ports. Inclusion here
 is a porting candidate or active engineering lane, not a build or release claim.
@@ -9,9 +9,9 @@ dependency and runtime-data review.
 
 ## Platform baseline
 
-AmigaChrome now has an SDL3 lane through OpenAmiga SDL3 / SDL3.module, the
-OpenGPU renderer, OpenAudio/AHI, OpenInput, GCC 16.2.0-open3 and the existing
-Open-family SDK. The useful near-term candidates are therefore C/C++ projects
+AmiCradle now has an SDL3 lane through GFOpenAmiga SDL3 / SDL3.module, the
+GFOpenGPU renderer, GFOpenAudio/AHI, GFOpenInput, GCC 16.2.0-open3 and the existing
+GFOpen-family SDK. The useful near-term candidates are therefore C/C++ projects
 whose SDL3 dependency is a real portability boundary rather than projects whose
 actual dependency is Vulkan, .NET, Rust, Zig or an x86-only recompilation stack.
 
@@ -36,10 +36,10 @@ actual dependency is Vulkan, .NET, Rust, Zig or an x86-only recompilation stack.
 | Space Invaders SDL3 | https://github.com/uRadical/spaceinvaders | P1-LAB | Tiny native SDL3 game; useful release canary for renderer/audio/input rather than a flagship. | Deterministic playable loop with sound and clean exit. |
 | Woof! | https://github.com/fabiangreffrath/woof | P2 | Modern Doom-family source port using SDL3. Duplicates some Chocolate Doom value but is an excellent SDL3 stress/canary. | Freedoom title -> map -> input -> audio -> save -> exit. |
 | Project Picori / TMC PC port | https://github.com/999sian/tmc | P2 | Native C/SDL3 port built on the Minish Cap decompilation. Strong low-level fit; original game data boundary must stay explicit. | Boot/title with owner-supplied data, input/audio/save. |
-| Principia | https://github.com/Bithack/principia | P2 | C++ SDL3 physics/sandbox with OpenGL and Lua; useful OpenGPU + CPU/physics test. | Menu -> simple level -> physics interaction -> audio/input/save. |
+| Principia | https://github.com/Bithack/principia | P2 | C++ SDL3 physics/sandbox with OpenGL and Lua; useful GFOpenGPU + CPU/physics test. | Menu -> simple level -> physics interaction -> audio/input/save. |
 | OpenCMR2 | https://github.com/pablocpas/OpenCMR2 | P2 | Native SDL3 port of Colin McRae Rally 2.0 decompilation; excellent 3D/gamepad target, original data external. | Menu -> track -> drive one stage -> audio/input/exit. |
 | SuperTux | https://github.com/SuperTux/supertux | P2 | Mature open-source platformer now carrying SDL3 support; larger C++/OpenGL footprint but no proprietary data barrier. | Menu -> level -> controller/audio/save. |
-| Quetoo | https://github.com/jdolan/quetoo | P2 | C/id Tech 2 lineage and SDL3; useful OpenGPU FPS after AssaultCube. | Local map -> movement -> textured scene -> audio -> clean exit. |
+| Quetoo | https://github.com/jdolan/quetoo | P2 | C/id Tech 2 lineage and SDL3; useful GFOpenGPU FPS after AssaultCube. | Local map -> movement -> textured scene -> audio -> clean exit. |
 | Richman 4 Remastered | https://github.com/lhr0909/richman4-remastered | P2 | C++/SDL3 board-game port; moderate rendering and good UI/input test. Owner data required. | Menu -> board -> input -> audio -> save. |
 | Atrinik classic client | https://github.com/atrinik/classic | P2 | C17 SDL3 client/server/editor monorepo; client is a useful networked 2D workload. | Client window -> local/test server connect -> input/render/audio. |
 | JA2 Pecel Bakwan | https://github.com/adhikasp/ja2-pecel-bakwan | P3 | SDL3 Jagged Alliance 2 reimplementation with larger modern dependency surface. | Dependency audit before any build work. |
@@ -54,10 +54,10 @@ actual dependency is Vulkan, .NET, Rust, Zig or an x86-only recompilation stack.
 | ScummVM SDL3 | https://github.com/scummvm/scummvm | P1 | Application/platform multiplier: one SDL3 backend unlocks many adventure engines. | Minimal engine build with one free/redistributable title. |
 | DOSBox-X SDL3 | https://github.com/CrownParkComputing/dosbox-x-sdl3 | P1 | Existing SDL3 fork; huge application/game multiplier. Interpreter-first on 68040, reduced feature set. | DOS prompt -> one tiny DOS game/app -> audio/input -> exit. |
 | Retro-DOS | https://github.com/CrownParkComputing/Retro-Dosbox | P2 | SDL3 + Dear ImGui frontend over DOSBox-X. Useful later, but core DOSBox-X should land first. | Frontend/library with one local test title. |
-| portty | https://github.com/chestso/portty | P2 | C terminal emulator using SDL3, FreeType and HarfBuzz; aligns with existing Open-family font work and provides a real non-game SDL3 app. | Shell PTY -> text render -> keyboard -> resize/scroll -> exit. |
+| portty | https://github.com/chestso/portty | P2 | C terminal emulator using SDL3, FreeType and HarfBuzz; aligns with existing GFOpen-family font work and provides a real non-game SDL3 app. | Shell PTY -> text render -> keyboard -> resize/scroll -> exit. |
 | BubiC-8801MA | https://github.com/bubio/BubiC-8801MA | P2 | C++ PC-8801 emulator using SDL3/ImGui. Useful emulator workload if dependencies stay tractable. | Emulator UI -> legal/free boot media -> input/audio. |
-| simple2d | https://github.com/simple2d/simple2d | P2-SDK | C SDL3 2D framework, more useful as an AmigaChrome developer/sample layer than an end-user app. | Build examples against SDL3.module/OpenGPU. |
-| sdl3-gl | https://github.com/arkenidar/sdl3-gl | P1-LAB | Tiny C SDL3 + fixed-function OpenGL test; ideal OpenGPU regression harness. | Rotating OBJ scene through the supported GL/OpenGPU lane. |
+| simple2d | https://github.com/simple2d/simple2d | P2-SDK | C SDL3 2D framework, more useful as an AmiCradle developer/sample layer than an end-user app. | Build examples against SDL3.module/GFOpenGPU. |
+| sdl3-gl | https://github.com/arkenidar/sdl3-gl | P1-LAB | Tiny C SDL3 + fixed-function OpenGL test; ideal GFOpenGPU regression harness. | Rotating OBJ scene through the supported GL/GFOpenGPU lane. |
 | Ymir | https://github.com/ymir-emu/ymir | P3/PARK | SDL3 Sega Saturn emulator, but C++20 and Saturn emulation cost make AC090 performance doubtful. | Architecture/performance review only. |
 | Atrinik editor | https://github.com/atrinik/editor | PARK | SDL3 but written in Rust; toolchain cost dominates the application. | Revisit only if Rust/m68k becomes a supported platform. |
 | CrossDesk | https://github.com/kunkundi/crossdesk | PARK | SDL3 frontend but WebRTC/media/network dependency stack is much larger than the UI. | No port work until WebRTC stack is justified independently. |
@@ -69,7 +69,7 @@ These use SDL3 but should not consume the current porting queue:
 
 - **Generals / GeneralsX SDL3 ports** - attractive, but their current renderer path
   is tied to DXVK/Vulkan/MoltenVK-class infrastructure rather than our current
-  OpenGPU lane.
+  GFOpenGPU lane.
 - **OpenReliant (StarLancer)** - Zig plus SDL GPU/Vulkan; the Zig toolchain is a
   larger blocker than SDL3.
 - **MDK SDL3** - C#/.NET runtime requirement makes SDL3 the easy part.
@@ -93,7 +93,7 @@ The owner reports OpenAL nearing readiness. Prepare AstroMenace's dependency
 lane now and qualify it as the first OpenAL consumer after the SDK/runtime
 passes device/context, sample, streaming, teardown and repeat gates on AC090.
 This is a conditional priority change, not an OpenAL availability or audio-pass
-claim. SDL3 audio remains its own OpenAudio/AHI qualification lane; do not add
+claim. SDL3 audio remains its own GFOpenAudio/AHI qualification lane; do not add
 an OpenAL dependency to SDL3 targets unless their actual source requires it.
 Keep LBA2/OpenLoco and the active playable finish campaign ahead of broad new
 port implementation. Exact source pins, licences, dependencies and external
@@ -104,7 +104,7 @@ data must still be reviewed before a candidate enters the fetch/build catalogue.
 1. Finish **LBA2** and **OpenLoco** first: they are already real SDL3/open3 ports.
 2. Intake **DevilutionX, ScummVM, xrick, Frozen Bubble, Freeserf, Street Rod 1/2**.
 3. Use **Space Invaders SDL3, Dinosaur SDL3** and **sdl3-gl** as small deterministic regression
-   programs for SDL3.module/OpenGPU/OpenAudio/OpenInput.
+   programs for SDL3.module/GFOpenGPU/GFOpenAudio/GFOpenInput.
 4. Start the platform multipliers: **DOSBox-X SDL3**, then **Retro-DOS**.
 5. Take the second wave: **Woof!, Project Picori, Principia, OpenCMR2, SuperTux,
    Quetoo, Richman 4, Atrinik client, OpenBumpy and GSplus**.
@@ -119,5 +119,5 @@ applicable audio, persistence, focus/window, clean-exit, provenance, packaging
 and clean-instance repeat gates pass.
 
 SDL3 use alone is not a reason to port a program. The SDL3 lane is valuable when
-it reduces platform adaptation and exercises OpenGPU/OpenAudio/OpenInput in a
+it reduces platform adaptation and exercises GFOpenGPU/GFOpenAudio/GFOpenInput in a
 reusable way.

@@ -1,6 +1,6 @@
 # Build Environment Snapshot
 
-The successful builds were produced on 30 September 2026 with the AmigaChrome local AROS m68k SDK.
+The successful builds were produced on 30 September 2026 with the AmiCradle local AROS m68k SDK.
 
 ## Canonical target
 
@@ -12,7 +12,7 @@ The successful builds were produced on 30 September 2026 with the AmigaChrome lo
 - sysroot layout: AROS `Developer/include` + `Developer/lib`
 - SDL2 SDK version observed: 2.32.10
 
-The AmigaChrome tree used a generated CMake toolchain equivalent to:
+The AmiCradle tree used a generated CMake toolchain equivalent to:
 
     set(CMAKE_SYSTEM_NAME Generic)
     set(CMAKE_C_COMPILER "$ENV{AROS_CC}")

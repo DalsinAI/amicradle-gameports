@@ -185,7 +185,7 @@ def import_disc(cue, out, extract=True, wav=True, byte_order='auto'):
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = Path(tempfile.mkdtemp(prefix=out.name+'.', dir=out.parent))
     try:
-        receipt = {'schema': 'amigachrome-cd-import', 'version': 1, 'originals': {},
+        receipt = {'schema': 'amicradle-cd-import', 'version': 1, 'originals': {},
                    'tracks': tracks, 'derivatives': [], 'qualification': 'not runtime-qualified',
                    'importer_source_sha256': sha256(__file__)}
         (tmp/'disc').mkdir()

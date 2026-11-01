@@ -4,15 +4,15 @@ TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$TOOLS_DIR/../.." && pwd)"
 # shellcheck source=/dev/null
 source "$TOOLS_DIR/lock.env"
-WORK_ROOT="${AMIGACHROME_AROS_WORK_ROOT:-$ROOT/build/aros-local}"
+WORK_ROOT="${AMICRADLE_AROS_WORK_ROOT:-$ROOT/build/aros-local}"
 AROS_SRC="$WORK_ROOT/aros-src"
 AROS_BUILD="$WORK_ROOT/aros-build"
 AROS_TOOLCHAIN_BUILD="$WORK_ROOT/aros-toolchain-build"
-AROS_TOOLCHAIN_DIR="${AMIGACHROME_AROS_TOOLCHAIN_PREFIX:-$WORK_ROOT/toolchain}"
-AROS_TOOLCHAIN_MARKER="$AROS_TOOLCHAIN_DIR/.amigachrome-toolchain.json"
+AROS_TOOLCHAIN_DIR="${AMICRADLE_AROS_TOOLCHAIN_PREFIX:-$WORK_ROOT/toolchain}"
+AROS_TOOLCHAIN_MARKER="$AROS_TOOLCHAIN_DIR/.amicradle-toolchain.json"
 AROS_PORTS="$WORK_ROOT/aros-ports"
 OUT="$WORK_ROOT/out"
-CACHE_DIR="${AMIGACHROME_AROS_CACHE_DIR:-$ROOT/RECOVERY/AROS_LOCAL_BUILD}"
+CACHE_DIR="${AMICRADLE_AROS_CACHE_DIR:-$ROOT/RECOVERY/AROS_LOCAL_BUILD}"
 SNAPSHOT="$CACHE_DIR/$AROS_SNAPSHOT_NAME"
 SNAPSHOT_SHA="$SNAPSHOT.sha256"
 TOOLCHAIN_SNAPSHOT="$CACHE_DIR/$AROS_TOOLCHAIN_SNAPSHOT_NAME"
@@ -28,7 +28,7 @@ require_file() {
 }
 
 check_source_ref() {
-  local marker="$AROS_SRC/.amigachrome-source-ref"
+  local marker="$AROS_SRC/.amicradle-source-ref"
   if [ -f "$marker" ]; then
     local got
     got="$(tr -d '\r\n' < "$marker")"

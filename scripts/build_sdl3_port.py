@@ -96,7 +96,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--manifest", required=True, type=Path)
     ap.add_argument("--stove", required=True, type=Path, help="stove root, not prefix")
-    ap.add_argument("--sdl3-sdk", required=True, type=Path, help="OpenRTG SDL3 build output")
+    ap.add_argument("--sdl3-sdk", required=True, type=Path, help="GFOpenRTG SDL3 build output")
     ap.add_argument("--source", type=Path)
     ap.add_argument("--out", type=Path)
     ap.add_argument("--jobs", type=int, default=2)
@@ -122,7 +122,7 @@ def main():
     verify_source(source, port["source"]["commit"])
     for name in ("libSDL3.a", "SDL3.module", "include/SDL3/SDL.h"):
         if not (sdk / name).is_file():
-            raise ValueError(f"Missing OpenRTG SDL3 SDK file: {sdk / name}")
+            raise ValueError(f"Missing GFOpenRTG SDL3 SDK file: {sdk / name}")
     # SDK input hashes identify imported binaries; they do not qualify them.
     sdk_hashes = {str(p.relative_to(sdk)): digest(p) for p in sorted(sdk.rglob("*"))
                   if p.is_file() and (p.is_relative_to(sdk / "include") or
@@ -163,7 +163,7 @@ def main():
         work = final
     config = out / "sdl3-config"
     config.mkdir(exist_ok=True)
-    # SDL3::SDL3 is the OpenGPU module CLIENT archive, not a private static SDL.
+    # SDL3::SDL3 is the GFOpenGPU module CLIENT archive, not a private static SDL.
     (config / "SDL3Config.cmake").write_text(
         'set(SDL3_FOUND TRUE)\n'
         'add_library(SDL3::SDL3 STATIC IMPORTED GLOBAL)\n'
@@ -176,7 +176,7 @@ def main():
         f'add_compile_options("-ffile-prefix-map={ROOT}=/gameports"\n'
         f' "-ffile-prefix-map={out}=/port-build")\n')
     command = ["cmake", "-S", str(work), "-B", str(out / "cmake"),
-               f"-DCMAKE_TOOLCHAIN_FILE={ROOT}/toolchain/amigaos3-opengpu.cmake",
+               f"-DCMAKE_TOOLCHAIN_FILE={ROOT}/toolchain/amigaos3-gfopengpu.cmake",
                f"-DAMIGA_STOVE={stove}", f"-DSDL3_DIR={config}",
                f"-DCMAKE_PROJECT_INCLUDE={config}/repro.cmake",
                "-DCMAKE_BUILD_TYPE=Release", "-DFETCHCONTENT_FULLY_DISCONNECTED=ON",

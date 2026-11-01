@@ -5,7 +5,7 @@ For this repository, **done means ready for release**.
 A port may not be labelled DONE or RELEASE merely because it compiles or reaches first light. A release requires:
 
 - pinned and reproducible source provenance;
-- a clean build using the current OpenUp/Open* interfaces;
+- a clean build using the current GFOpenUp/Open* interfaces;
 - no private replacement SDL/Mesa/audio/input stack when the Open platform supplies that service;
 - runtime qualification on a clean target instance;
 - graphics, audio, keyboard, mouse/controller input, persistence and clean shutdown exercised;

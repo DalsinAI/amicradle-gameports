@@ -35,8 +35,8 @@ typedef enum {
 } acgame_key;
 
 /* A game pad in the standard layout (SDL 2's GameController layout, which is
- * OpenInput's): the button and axis numbers are OpenInput's OIB_ and OIAXIS_
- * numbers, so a game needs no OpenInput header to read them. */
+ * GFOpenInput's): the button and axis numbers are GFOpenInput's OIB_ and OIAXIS_
+ * numbers, so a game needs no GFOpenInput header to read them. */
 enum {
     ACGAME_PAD_A = 0,               /* the bottom face button; a CD32 pad's red */
     ACGAME_PAD_B,                   /* the right face button; CD32 blue */
@@ -70,7 +70,7 @@ enum {
 /* Where the pad's state came from. */
 typedef enum {
     ACGAME_PAD_NONE = 0,            /* no pad */
-    ACGAME_PAD_OPENINPUT = 1,       /* openinput.library 1.2 or later */
+    ACGAME_PAD_OPENINPUT = 1,       /* gfopeninput.library 1.2 or later */
     ACGAME_PAD_LOWLEVEL = 2         /* lowlevel.library's ReadJoyPort, port 2 */
 } acgame_pad_source;
 
@@ -95,9 +95,9 @@ typedef struct {
 /* What the backend found when it opened the screen. */
 typedef struct {
     int planar;                     /* 1: native AGA planes (ACGame's C2P); 0: chunky (RTG) */
-    int opengfx;                    /* 1: OpenGfx (opengpu.library 0.8+) has the drawing calls, so an
-                                     * RTG frame is drawn by the cores and the GPU on AmigaChrome */
-    int openinput;                  /* openinput.library's (version << 16 | revision), 0 when not used */
+    int opengfx;                    /* 1: GFOpenGfx (gfopengpu.library 0.8+) has the drawing calls, so an
+                                     * RTG frame is drawn by the cores and the GPU on AmiCradle */
+    int openinput;                  /* gfopeninput.library's (version << 16 | revision), 0 when not used */
     unsigned screen_width;          /* the screen opened; the frame is centred on it */
     unsigned screen_height;
 } acgame_platform_info;

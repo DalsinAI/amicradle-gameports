@@ -1,4 +1,4 @@
-# Building ports with OpenAmigaGCC 16.2.0-open2
+# Building ports with GFOpenAmigaGCC 16.2.0-open2
 
 > Historical document: the commands below record the former monorepo layout.
 > The maintained recipes now live in the standalone repositories linked from
@@ -16,14 +16,14 @@ Use locally available inputs; this script makes no network requests:
 python3 scripts/stage_open2_stove.py \
   --archive /path/to/openamigagcc-16.2.0-open2-x86_64-linux.tar.xz \
   --ndk-prefix /path/to/open2-prefix-with-installed-NDK \
-  --sdk-prefix /path/to/existing-OpenGPU-stove/prefix \
+  --sdk-prefix /path/to/existing-GFOpenGPU-stove/prefix \
   --destination "$PWD/build/open2-stove"
 export STOVE="$PWD/build/open2-stove"
 ```
 
-The script accepts only the release archive SHA-256 `5ece099a6fb8923a35eacf420bfa5fced06546ac1822714c76a2ae52466c978c`. It refuses an existing destination, protects the release's compiler/runtime files against replacement, and records every supplemental OpenGPU SDK file. Supply NDK headers generated using the Open2 install procedure; the proprietary NDK is not distributed by this repository.
+The script accepts only the release archive SHA-256 `5ece099a6fb8923a35eacf420bfa5fced06546ac1822714c76a2ae52466c978c`. It refuses an existing destination, protects the release's compiler/runtime files against replacement, and records every supplemental GFOpenGPU SDK file. Supply NDK headers generated using the Open2 install procedure; the proprietary NDK is not distributed by this repository.
 
-**Important:** copied OpenGPU SDK archives are imported dependencies, not freshly rebuilt or newly runtime-qualified code. The receipt says this explicitly. Rebuild/qualify those dependencies separately before release. Do not copy an entire old stove over Open2: that would replace the very libpthread, libnix and C++ fixes being selected.
+**Important:** copied GFOpenGPU SDK archives are imported dependencies, not freshly rebuilt or newly runtime-qualified code. The receipt says this explicitly. Rebuild/qualify those dependencies separately before release. Do not copy an entire old stove over Open2: that would replace the very libpthread, libnix and C++ fixes being selected.
 
 ## Compiler selection
 
@@ -32,7 +32,7 @@ All AmigaOS port recipes use `STOVE`. The shared CMake toolchain now resolves:
 1. Explicit `-DAMIGA_STOVE=...`.
 2. A non-empty `AMIGA_STOVE` environment variable.
 3. A non-empty `STOVE` environment variable.
-4. Legacy `~/AmigaChrome/stoves/os32-gcc16` default, retained for compatibility.
+4. Legacy `~/AmiCradle/stoves/os32-gcc16` default, retained for compatibility.
 
 Contradictory non-empty `STOVE` and `AMIGA_STOVE` environment values fail configuration instead of silently mixing headers and runtimes. An explicit CMake override remains authoritative. The chosen location is printed during configure. Inspect `CMakeFiles/*/CMakeCXXCompiler.cmake` or the build log to verify the actual C/C++ executable. A `CMAKE_PREFIX_PATH` pointing to Open2 headers does **not** by itself select the Open2 compiler.
 

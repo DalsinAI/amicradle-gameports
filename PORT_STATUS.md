@@ -6,7 +6,7 @@ All implemented ports described below have moved to the standalone repositories
 linked from `README.md`. This file is retained as historical qualification
 evidence and is not a current GamePorts build inventory.
 
-Primary target: **AmigaChrome AC090 / AmigaOS 3.x / 68040 + FPU**
+Primary target: **AmiCradle AC090 / AmigaOS 3.x / 68040 + FPU**
 
 **DONE means RELEASE.** A successful compile is intermediate evidence, not a release result.
 
@@ -16,7 +16,7 @@ Neverball and Neverputt now have one canonical recipe in
 [DalsinAI/amiganeverball](https://github.com/DalsinAI/amiganeverball). The
 historical GamePorts evidence below records the exact-pinned GCC 16.2.0-open3
 build and package-gate pass that preceded extraction.
-On the isolated AC090/OpenGPU lab, Neverball rendered its title, completed Level
+On the isolated AC090/GFOpenGPU lab, Neverball rendered its title, completed Level
 01, entered Level 02, accepted the native player name `dale`, paused/resumed and
 returned 0. Neverputt rendered its title and Hole 01 in fullscreen, accepted
 mouse strokes and menu input, opened and closed the enumerated joystick, and
@@ -74,7 +74,7 @@ No port has been promoted to RELEASE.
 | Lane | Ports | Required additional gate |
 |---|---|---|
 | Plain 68040 + FPU / software 2D | OpenJazz, SDLPoP, Chocolate Doom | Run on the intended SDL CPU path with `SDL_OPENGPU=0`, plus input/audio/save/exit tests. This is a requirement, not a completed pass for all three. |
-| OpenGPU-dependent 3D client | AssaultCube client; Neverball/Neverputt GL lane | Qualify the chosen supported OpenGPU backend. No plain-68040 performance claim. |
+| GFOpenGPU-dependent 3D client | AssaultCube client; Neverball/Neverputt GL lane | Qualify the chosen supported GFOpenGPU backend. No plain-68040 performance claim. |
 | No rendering | AssaultCube dedicated server | Socket/listen/stop tests, with the guest library version recorded. |
 
 ## Historical Open2 follow-up - actual guest first light
@@ -103,7 +103,7 @@ NXEngine-evo was compiling at snapshot; no final result is claimed.
 
 [Raw build logs, hashes and limitations](evidence/open2-20261012/README.md)
 record the exact release archive, local source pins and 2,012 verified compiler
-and runtime files. Existing OpenGPU/codec archives were reused, not rebuilt.
+and runtime files. Existing GFOpenGPU/codec archives were reused, not rebuilt.
 AssaultCube's linker warnings and audio stub are explicit outstanding work.
 These results supersede the old compiler hold only for the *new application
 artifacts*, not old binaries or unqualified dependency stacks.
@@ -126,13 +126,13 @@ valid engineering work unless a fixed-stove A/B test shows otherwise.
 
 | Port | Build / package | Runtime | Current evidence / next gate |
 |---|---|---|---|
-| C-Dogs SDL | COMPILED; 103 MB self-contained package staged | TESTING | AC090 launch reaches the executable, SDL2/OpenGPU module and bundled data. The old-stove binary then raises dead-end CPU alert **0x80000005 (divide by zero)** before a usable game frame. Preserve unchanged for fixed-stove A/B. |
+| C-Dogs SDL | COMPILED; 103 MB self-contained package staged | TESTING | AC090 launch reaches the executable, SDL2/GFOpenGPU module and bundled data. The old-stove binary then raises dead-end CPU alert **0x80000005 (divide by zero)** before a usable game frame. Preserve unchanged for fixed-stove A/B. |
 | Chocolate Doom | COMPILED; pristine rebuild PASS | PENDING | Exact pinned source rebuilt locally with no network. Provisional old-stove SHA-256 `d3ae7440920fe9bc2213a945c5aeec3576f7a4405147d86f9774d654a63b16b0`; runtime requires an authorised compatible IWAD and fixed-stove rebuild. |
 | OpenJazz | COMPILED; pristine rebuild PASS | PENDING | Exact pinned source + checked portability patch rebuilt locally with no network. Provisional old-stove SHA-256 `c6f48d76e5c42fc264e134cef0d41d2b6769fc2dbb0448429bff1aad311a934e`; runtime data remains external and fixed-stove rebuild is mandatory. |
 | SDLPoP | COMPILED; pristine rebuild PASS | PENDING | Exact pinned source + checked Amiga portability patch rebuilt locally with no network. Provisional old-stove SHA-256 `51097f931538140895659af40f021d58ff20c348751c174bd093881c23600f6a`; fixed-stove runtime qualification remains. |
 | UQM 0.8.0 | MOVED | TESTING | Canonical recipe and runtime evidence now live in [amigauqm](https://github.com/DalsinAI/amigauqm). |
 | NXEngine-evo | MOVED | TESTING | Canonical recipe and runtime evidence now live in [amiganxengine](https://github.com/DalsinAI/amiganxengine). |
-| AssaultCube | Client + server COMPILED | PENDING | OpenGPU client bring-up work is preserved. Clean fixed-stove rebuild, audio integration and AC090 runtime qualification remain. |
+| AssaultCube | Client + server COMPILED | PENDING | GFOpenGPU client bring-up work is preserved. Clean fixed-stove rebuild, audio integration and AC090 runtime qualification remain. |
 | Warzone 2100 | SOURCE PINNED | NOT STARTED | Large 3D/application stress target. |
 | Doom 3 GPL source | SOURCE PINNED | NOT STARTED | Long-range renderer/engine stress target. |
 | OpenLara | SOURCE PINNED | NOT STARTED | 3D engine target; original Tomb Raider data remains external. |
@@ -149,7 +149,7 @@ C-Dogs provisional old-stove binary SHA-256:
 A port reaches **RELEASE** only when all applicable gates are green:
 
 1. Clean build from the exact pinned source using the approved compiler stove.
-2. Required Open-family services are used instead of private replacement stacks.
+2. Required GFOpen-family services are used instead of private replacement stacks.
 3. Package layout, notices, source provenance and SHA-256 inventory are complete.
 4. Launch succeeds on a clean AC090 instance.
 5. Graphics reaches a usable game/title frame.

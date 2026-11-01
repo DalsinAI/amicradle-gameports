@@ -1,6 +1,6 @@
 # ACGame AGA/040 port layer
 
-ACGame is the small common layer for AmigaChrome game ports targeting an AGA A1200-class machine with a 68040 and large Zorro III Fast RAM.
+ACGame is the small common layer for AmiCradle game ports targeting an AGA A1200-class machine with a 68040 and large Zorro III Fast RAM.
 
 The first rule is architectural: Fast RAM is the workspace; Chip RAM is the presentation boundary. A large Z3 allocation does not make AGA DMA read Fast RAM.
 
@@ -12,7 +12,7 @@ The first rule is architectural: Fast RAM is the workspace; Chip RAM is the pres
   backend uses.
 - `acgame_ham8_encode_row`: greedy RGB-to-HAM8 scanline encoder with a 64-colour base palette, plus a matching decoder for tests/offline tooling.
 - The Amiga backend (`src/platform_aros_aga.c`, AmigaOS 3.x and AROS m68k):
-  AGA or RTG 8-bit screens, keyboard, mouse, and pads through OpenInput with
+  AGA or RTG 8-bit screens, keyboard, mouse, and pads through GFOpenInput with
   lowlevel.library as the fallback. See `AROS_AGA.md`.
 
 Gameplay should normally use indexed 256-colour AGA. HAM8 is intended for title art, portraits, briefings, loading screens and other static or slowly changing presentation where horizontal dependency is acceptable.
@@ -32,7 +32,7 @@ The platform layer is still to provide:
 - Paula-first audio with an optional AHI backend;
 - timer and file wrappers suitable for AmigaOS 3.x and AROS 68k.
 
-The backend opens AGA and RTG screens on OS 3.2.3 and reads pads through OpenInput (tested on an AmigaChrome lab instance, 9 October 2026). No claim is made yet that any of the four games links on 68k against this backend.
+The backend opens AGA and RTG screens on OS 3.2.3 and reads pads through GFOpenInput (tested on an AmiCradle lab instance, 9 October 2026). No claim is made yet that any of the four games links on 68k against this backend.
 
 
 ## Canonical copy

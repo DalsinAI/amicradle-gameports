@@ -1,9 +1,9 @@
-# AmigaChrome Game Ports
+# AmiCradle Game Ports
 
 
-**[Unified Port Atlas](https://github.com/DalsinAI/amigachrome/tree/main/docs/porting)** — searchable cross-programme game/application catalogue with existing Amiga-port evidence, source/rights assessment and proposed Open-family acceleration or development benefit. This does not replace the local source pins, build notes or qualification gates.
+**[Unified Port Atlas](https://github.com/DalsinAI/amigachrome/tree/main/docs/porting)** — searchable cross-programme game/application catalogue with existing Amiga-port evidence, source/rights assessment and proposed GFOpen-family acceleration or development benefit. This does not replace the local source pins, build notes or qualification gates.
 
-Open-source game-port and compatibility work for **m68k AROS**, **AmigaOS 3.x** and **AmigaChrome**.
+Open-source game-port and compatibility work for **m68k AROS**, **AmigaOS 3.x** and **AmiCradle**.
 
 The repository contains compiled revival ports and the next 3D source-intake targets. Compile success is useful evidence, but it is **not** synonymous with release readiness. See [RELEASE_POLICY.md](RELEASE_POLICY.md).
 
@@ -49,7 +49,7 @@ No port has been promoted to RELEASE.
 | Lane | Ports | Required additional gate |
 |---|---|---|
 | Plain 68040 + FPU / software 2D | OpenJazz, SDLPoP, Chocolate Doom | Run on the intended SDL CPU path with `SDL_OPENGPU=0`, plus input/audio/save/exit tests. This is a requirement, not a completed pass for all three. |
-| OpenGPU-dependent 3D client | AssaultCube client | Qualify the chosen supported OpenGPU backend. No plain-68040 performance claim. |
+| GFOpenGPU-dependent 3D client | AssaultCube client | Qualify the chosen supported GFOpenGPU backend. No plain-68040 performance claim. |
 | No rendering | AssaultCube dedicated server | Socket/listen/stop tests, with the guest library version recorded. |
 
 ## Historical Open2 follow-up - actual guest first light
@@ -71,7 +71,7 @@ runtime; the on-screen keyboard was a workaround, not a text-input pass.
 
 ## Open2 compiler pass - 12 October 2026
 
-The port queue has resumed with **OpenAmigaGCC 16.2.0-open2**. OpenJazz,
+The port queue has resumed with **GFOpenAmigaGCC 16.2.0-open2**. OpenJazz,
 Chocolate Doom, SDLPoP and both AssaultCube executables have new compile/link
 artifacts. NXEngine-evo's longer rebuild was still running at the evidence
 snapshot. No new game runtime or release pass is claimed.
@@ -79,13 +79,13 @@ snapshot. No new game runtime or release pass is claimed.
 See [retained results and risks](evidence/open2-20261012/README.md) and
 [Open2 build instructions](docs/OPEN2_BUILDING.md). The shared CMake toolchain
 now honours `STOVE`, preventing an accidental fallback to an older compiler.
-The OpenGPU SDK archives remain explicitly recorded reused dependencies.
+The GFOpenGPU SDK archives remain explicitly recorded reused dependencies.
 
 ## Current intake state
 
 | Port | Build state | Runtime state | Target / notes |
 |---|---|---|---|
-| OpenLara | SOURCE PINNED | NOT STARTED | 3D engine / OpenGPU target |
+| OpenLara | SOURCE PINNED | NOT STARTED | 3D engine / GFOpenGPU target |
 | OpenTTD | SOURCE PINNED | NOT STARTED | large C++/SDL application target |
 | The Battle for Wesnoth | SOURCE PINNED | NOT STARTED | large C++/SDL strategy target |
 | The Dark Mod | SOURCE PINNED | NOT STARTED | long-range idTech 4-derived stretch target |
@@ -97,8 +97,8 @@ retains only the five intake pins above plus historical programme evidence.
 ## Repository layout
 
 - `scripts/` — source preparation, build orchestration and field-test staging code.
-- `port-layer/acgame/` — AmigaChrome AGA presentation code, smoke test and unit tests.
-- `toolchain/aros-local/` — the AROS m68k toolchain bootstrap recovered from the AmigaChrome worktree.
+- `port-layer/acgame/` — AmiCradle AGA presentation code, smoke test and unit tests.
+- `toolchain/aros-local/` — the AROS m68k toolchain bootstrap recovered from the AmiCradle worktree.
 - `gameports/catalog.json` — exact upstream pins and content policy for intake-only candidates.
 
 See [BUILDING.md](BUILDING.md) for the rebuild path.
@@ -115,7 +115,7 @@ Game data, ROMs, proprietary assets and local test caches are **not** part of th
 
 - **SOURCE PINNED** means the exact upstream input has been selected but no successful target build is claimed.
 - **COMPILED** means the pinned source has produced the target m68k executable.
-- **FIRST LIGHT** means the executable has launched on an AmigaChrome guest.
+- **FIRST LIGHT** means the executable has launched on an AmiCradle guest.
 - **TESTING** means runtime qualification is underway and at least one required release gate remains open.
 - **TESTED** means the stated graphics, input, audio, persistence and clean-exit gates have been exercised.
 - **RELEASE** means the port has passed its complete release gates, package/provenance checks and clean-instance runtime qualification.
@@ -124,7 +124,7 @@ Game data, ROMs, proprietary assets and local test caches are **not** part of th
 
 ## Licence
 
-AmigaChrome-authored glue, scripts and documentation are MIT licensed unless a file says otherwise. Upstream projects retain their own licences. Game data retains its own rights and is not redistributed unless its licence and the port's release policy permit it.
+AmiCradle-authored glue, scripts and documentation are MIT licensed unless a file says otherwise. Upstream projects retain their own licences. Game data retains its own rights and is not redistributed unless its licence and the port's release policy permit it.
 
 No upstream game engine source is committed here. Prepared sources live outside Git at their pinned revision. Binaries built from them remain subject to the upstream licence, including source-offer and notice obligations where applicable.
 

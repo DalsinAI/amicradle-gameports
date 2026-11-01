@@ -17,7 +17,7 @@ class StoveSelectionTests(unittest.TestCase):
         if amiga is not None: env['AMIGA_STOVE'] = amiga
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory)/'select.cmake'
-            path.write_text('include("'+str(ROOT/'toolchain/amigaos3-opengpu.cmake')+'")\n'
+            path.write_text('include("'+str(ROOT/'toolchain/amigaos3-gfopengpu.cmake')+'")\n'
                             'file(WRITE "'+str(Path(directory)/'result.txt')+'" '
                             '"${AMIGA_STOVE}\n${CMAKE_C_COMPILER}\n${CMAKE_CXX_COMPILER}\n")\n')
             cmd = ['cmake']
@@ -40,7 +40,7 @@ class StoveSelectionTests(unittest.TestCase):
     def test_empty_amiga_environment_does_not_mask_stove(self):
         self.check(self.select(stove='/opt/open2',amiga=''),'/opt/open2')
     def test_legacy_default_is_unchanged(self):
-        self.check(self.select(),'/test-home/AmigaChrome/stoves/os32-gcc16')
+        self.check(self.select(),'/test-home/AmiCradle/stoves/os32-gcc16')
     def test_space_in_stove_path(self):
         self.check(self.select(stove='/opt/Open GCC 16 open2'),'/opt/Open GCC 16 open2')
 
@@ -57,7 +57,7 @@ class StoveSelectionTests(unittest.TestCase):
             script.write_text(
                 f'set(AMIGA_STOVE "{root / "stove"}")\n'
                 f'set(AMIGA_SDK_OVERLAYS "{overlay}")\n'
-                f'include("{ROOT / "toolchain/amigaos3-opengpu.cmake"}")\n'
+                f'include("{ROOT / "toolchain/amigaos3-gfopengpu.cmake"}")\n'
                 'find_path(TARGET_HEADER probe.h)\n'
                 f'find_path(HOST_HEADER host_only.h PATHS "{host / "include"}" NO_DEFAULT_PATH)\n'
                 f'file(WRITE "{result}" "${{TARGET_HEADER}}\n${{HOST_HEADER}}\n${{CMAKE_TRY_COMPILE_PLATFORM_VARIABLES}}")\n')

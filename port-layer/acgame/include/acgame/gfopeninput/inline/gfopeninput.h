@@ -1,6 +1,6 @@
 /* Copyright (c) 2026 AmigaChrome Team. OpenInput, MIT licence (LICENSE).
  * SPDX-License-Identifier: MIT
- * Inline calls for bebbo's m68k-amigaos-gcc, from library/openinput_lib.sfd.
+ * Inline calls for bebbo's m68k-amigaos-gcc, from library/gfopeninput_lib.sfd.
  * The tag-list helpers build their list in an array (never by taking the
  * address of the first variable argument, which an inlined helper can lose). */
 #ifndef _INLINE_OPENINPUT_H

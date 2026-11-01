@@ -8,17 +8,17 @@ This is a **candidate list**, not a build claim. Projects move into `gameports/c
 only after an exact upstream revision, build strategy, dependency boundary and data/licensing
 policy have been reviewed.
 
-Primary target: **AmigaChrome AC090 / AmigaOS 3.x / 68040 + FPU**.
+Primary target: **AmiCradle AC090 / AmigaOS 3.x / 68040 + FPU**.
 
 ## Platform fit
 
 Two porting lanes matter:
 
 - **ACGame lane** — best for indexed/software-rendered titles. ACGame now provides the
-  AmigaOS/AROS AGA+RTG backend, fast 8-bit C2P, OpenGfx-aware RTG presentation,
-  keyboard/mouse, OpenInput pads with lowlevel.library fallback and timing.
+  AmigaOS/AROS AGA+RTG backend, fast 8-bit C2P, GFOpenGfx-aware RTG presentation,
+  keyboard/mouse, GFOpenInput pads with lowlevel.library fallback and timing.
   ACGame PCM audio is still a stub.
-- **Open SDL/GPU lane** — SDL2/OpenGPU/OpenInput/OpenAudio/AHI remains the better fit for
+- **GFOpen SDL/GPU lane** — SDL2/GFOpenGPU/GFOpenInput/GFOpenAudio/AHI remains the better fit for
   true-colour SDL, OpenGL and more modern engines.
 
 The compiler qualification rule still applies: DONE means RELEASE, and all final binaries
@@ -51,22 +51,22 @@ resource-constrained systems.
 |---|---|---|---|
 | Anarch | ACGame | Tiny C software FPS; excellent 040/AGA stress case | Verify renderer/input assumptions |
 | SDL Sopwith | ACGame / SDL | Small C/SDL title; very low integration risk | Audio path |
-| VVVVVV | SDL/OpenGPU | Mature SDL code, modest 2D workload | Data/licence packaging |
+| VVVVVV | SDL/GFOpenGPU | Mature SDL code, modest 2D workload | Data/licence packaging |
 | Julius | ACGame / SDL | Caesar III reimplementation; software 2D and mature C | Original game data external |
 | Wolf4SDL | ACGame / SDL | Classic C/SDL software renderer | Original game data external |
 | Omnispeak | ACGame / SDL | Commander Keen reimplementation, light software workload | Original data external |
 | Meritous | ACGame / SDL | Small SDL action/roguelike | Verify current upstream health |
 | Brogue CE | ACGame / SDL | Small C roguelike with graphical frontend | UI/input adaptation |
-| Fallout Community Edition | SDL/OpenGPU | Reimplementation with constrained 2D workload | Original Fallout data required |
-| Fallout 2 Community Edition | SDL/OpenGPU | Same advantages as Fallout CE | Original Fallout 2 data required |
-| Exult | SDL/OpenGPU | Long-lived portable Ultima VII engine | Large C++ codebase/data external |
-| OpenXcom | SDL/OpenGPU | Mature turn-based engine and natural 2D workload | C++/YAML dependency set |
-| KeeperFX | SDL/OpenGPU | Older engine architecture, strong game value | Data, low-level assumptions |
+| Fallout Community Edition | SDL/GFOpenGPU | Reimplementation with constrained 2D workload | Original Fallout data required |
+| Fallout 2 Community Edition | SDL/GFOpenGPU | Same advantages as Fallout CE | Original Fallout 2 data required |
+| Exult | SDL/GFOpenGPU | Long-lived portable Ultima VII engine | Large C++ codebase/data external |
+| OpenXcom | SDL/GFOpenGPU | Mature turn-based engine and natural 2D workload | C++/YAML dependency set |
+| KeeperFX | SDL/GFOpenGPU | Older engine architecture, strong game value | Data, low-level assumptions |
 | Dune II The Maker | ACGame / SDL | Old-school RTS workload, modest rendering | Upstream age/portability review |
-| Freeciv | SDL/OpenGPU | Mature C code and useful networking stress | Choose a lightweight client frontend |
-| Open Golf | SDL/OpenGPU | Small C 3D title, useful early OpenGPU test | GL/API requirements |
-| JFDuke3D | SDL/OpenGPU | Mature Build-engine port and useful 040 stress | Commercial data external |
-| JFShadowWarrior | SDL/OpenGPU | Same Build-engine advantages | Commercial data external |
+| Freeciv | SDL/GFOpenGPU | Mature C code and useful networking stress | Choose a lightweight client frontend |
+| Open Golf | SDL/GFOpenGPU | Small C 3D title, useful early GFOpenGPU test | GL/API requirements |
+| JFDuke3D | SDL/GFOpenGPU | Mature Build-engine port and useful 040 stress | Commercial data external |
+| JFShadowWarrior | SDL/GFOpenGPU | Same Build-engine advantages | Commercial data external |
 
 ## Tier B — good candidates, larger integration job
 
@@ -82,12 +82,12 @@ resource-constrained systems.
 | CatacombGL | Small classic FPS with modern renderer | OpenGL adaptation |
 | AvP Forever / NakedAVP | Great late-90s 3D target | More substantial renderer/audio work |
 | Lugaru | Open-source 3D action game | OpenGL/C++ workload |
-| wipEout rewrite | Excellent OpenGPU showcase | 3D renderer and original game data boundary |
+| wipEout rewrite | Excellent GFOpenGPU showcase | 3D renderer and original game data boundary |
 | C&C Tiberian Dawn / Red Alert source | Historically appropriate large C++ targets | Windows-era platform assumptions |
 | OpenEnroth | Might & Magic engine recreation | Modern C++ and large data/runtime scope |
 | OpenNox | Attractive classic-engine target | Go toolchain makes native 68k difficult; investigate alternatives first |
 
-## Tier C — OpenGPU / system stretch targets
+## Tier C — GFOpenGPU / system stretch targets
 
 These are worth retaining as long-range capability tests, not first-wave ports.
 
@@ -124,7 +124,7 @@ include:
 - Panda3D-based projects;
 - browser/TypeScript-only games.
 
-They can be revisited if AmigaChrome gains the relevant runtime, but today they are poor
+They can be revisited if AmiCradle gains the relevant runtime, but today they are poor
 native 68k candidates.
 
 ## Suggested next intake after the current wave
