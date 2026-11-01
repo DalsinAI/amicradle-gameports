@@ -14,6 +14,9 @@
 #include "../engine.h"
 
 #include <memory>
+#include <signal.h>
+#include <sys/resource.h>
+#include <unistd.h>
 
 namespace alpha {
 namespace engine {
@@ -445,6 +448,50 @@ static void test_save_memory() {
     CHECK_EQ(*ControlTurnMove, 1);
 }
 
+static std::vector<uint8_t> read_all(const std::string& path) {
+    std::vector<uint8_t> data;
+    FILE* fp = fopen(path.c_str(), "rb");
+    if (!fp) {
+        return data;
+    }
+    int c;
+    while ((c = fgetc(fp)) != EOF) {
+        data.push_back((uint8_t)c);
+    }
+    fclose(fp);
+    return data;
+}
+
+/* save_daemon on a name that already exists (an autosave for a replayed
+ * year): a write that runs out of space must fail and leave the old save. */
+static void test_save_file() {
+    auto s = new_state();
+    engine_bind(s.get());
+    setup_world(16, 10);
+    base_init(1, 2, 2);
+    veh_init(BSC_SCOUT_PATROL, 1, 2, 2);
+    MapWin->cOwner = 1;
+    std::string path = "/tmp/alpha-engine-test-" + std::to_string((long)getpid()) + ".sav";
+    remove(path.c_str());
+    CHECK_EQ(save_daemon(path.c_str()), SAVE_OK);
+    std::vector<uint8_t> first = read_all(path);
+    CHECK(first.size() > 64);
+    struct rlimit saved, small;
+    CHECK_EQ(getrlimit(RLIMIT_FSIZE, &saved), 0);
+    small = saved;
+    small.rlim_cur = first.size() / 2; // a full disk
+    signal(SIGXFSZ, SIG_IGN);
+    CHECK_EQ(setrlimit(RLIMIT_FSIZE, &small), 0);
+    CHECK_EQ(save_daemon(path.c_str()), SAVE_ERR_IO);
+    CHECK_EQ(setrlimit(RLIMIT_FSIZE, &saved), 0);
+    signal(SIGXFSZ, SIG_DFL);
+    CHECK(read_all(path) == first);
+    CHECK(access((path + ".tmp").c_str(), F_OK) != 0);
+    CHECK_EQ(save_daemon(path.c_str()), SAVE_OK);
+    CHECK(read_all(path).size() == first.size());
+    remove(path.c_str());
+}
+
 static int run_unit() {
     auto base = new_state();
     engine_bind(base.get());
@@ -457,6 +504,7 @@ static int run_unit() {
     test_bases();
     test_events();
     test_save_memory();
+    test_save_file();
     engine_bind(base.get());
     if (failures) {
         fprintf(stderr, "%d of %d unit checks failed\n", failures, checks);

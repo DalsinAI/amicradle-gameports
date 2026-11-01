@@ -79,6 +79,9 @@ int save_daemon_bytes(std::vector<uint8_t>& out);
 /* File versions (stdio). */
 int load_daemon(const char* filename);
 int save_daemon(const char* filename);
+/* Write SIZE bytes to FILENAME through FILENAME.tmp and a rename, so an
+ * existing file is only replaced by a complete one. SAVE_OK or SAVE_ERR_IO. */
+int write_save_file(const char* filename, const uint8_t* data, size_t size);
 
 /* Switch the bound state to data version 12 (the version Thinker writes). */
 void upgrade_save_version();

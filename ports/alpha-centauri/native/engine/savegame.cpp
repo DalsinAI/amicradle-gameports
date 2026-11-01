@@ -726,23 +726,47 @@ int load_daemon(const char* filename) {
     return load_daemon_bytes(data.data(), data.size());
 }
 
+int write_save_file(const char* filename, const uint8_t* data, size_t size) {
+    // Write a temporary file first: an existing save of the same name (an
+    // autosave for a replayed year) survives a full disk or a crash.
+    std::string tmp = std::string(filename) + ".tmp";
+    FILE* fp = fopen(tmp.c_str(), "wb");
+    if (!fp) {
+        return SAVE_ERR_IO;
+    }
+    bool ok = fwrite(data, 1, size, fp) == size;
+    ok = (fclose(fp) == 0) && ok;
+    if (!ok) {
+        remove(tmp.c_str());
+        return SAVE_ERR_IO;
+    }
+    if (rename(tmp.c_str(), filename) == 0) {
+        return SAVE_OK;
+    }
+    // AmigaDOS Rename never replaces a file: move the old save aside, and put
+    // it back if the new one cannot take its name.
+    std::string old = std::string(filename) + ".old";
+    remove(old.c_str());
+    if (rename(filename, old.c_str()) != 0) {
+        remove(tmp.c_str());
+        return SAVE_ERR_IO;
+    }
+    if (rename(tmp.c_str(), filename) != 0) {
+        rename(old.c_str(), filename);
+        remove(tmp.c_str());
+        return SAVE_ERR_IO;
+    }
+    remove(old.c_str());
+    return SAVE_OK;
+}
+
 int save_daemon(const char* filename) {
     std::vector<uint8_t> data;
     int error = save_daemon_bytes(data);
     if (error != SAVE_OK) {
         return error;
     }
-    FILE* fp = fopen(filename, "wb");
-    if (!fp) {
-        return SAVE_ERR_IO;
-    }
-    bool ok = fwrite(data.data(), 1, data.size(), fp) == data.size();
-    ok = (fclose(fp) == 0) && ok;
-    if (!ok) {
-        remove(filename);
-        return SAVE_ERR_IO;
-    }
-    return SAVE_OK;
+    return write_save_file(filename, data.data(), data.size());
 }
 
 size_t wire_size_record(const char* name, bool legacy) {
