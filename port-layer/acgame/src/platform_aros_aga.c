@@ -27,6 +27,7 @@
 #include <graphics/gfxbase.h>
 #include <graphics/modeid.h>
 #include <graphics/rastport.h>
+#include <graphics/view.h>
 #include <intuition/intuition.h>
 #include <libraries/lowlevel.h>
 #include <proto/dos.h>
@@ -118,6 +119,8 @@ typedef struct {
 } acgame_openinput;
 #endif
 
+#define ACGAME_SCREEN_BUFFERS 3
+
 typedef struct {
     struct Screen *screen;
     struct Window *window;
@@ -136,6 +139,21 @@ typedef struct {
     int opengfx;
     int palette_valid;
     int quit_requested;
+    /* Planar screens: three Chip RAM buffers (two when Chip RAM is short)
+     * through Intuition's ScreenBuffers. C2P writes one that is neither on
+     * display nor still being scanned out, then ChangeScreenBuffer shows it
+     * at the next vertical blank, so a frame is never seen half converted.
+     * The third buffer lets the next frame start while the display still
+     * reads the previous one. */
+    struct ScreenBuffer *buffer[ACGAME_SCREEN_BUFFERS];
+    int buffers;                    /* how many are in use: 0, 2 or 3 */
+    struct MsgPort *safe_port;      /* SafeMessages: a buffer taken off the display may be written */
+    struct MsgPort *shown_port;     /* DispMessages: the last change is on the display */
+    int shown;                      /* the buffer last put on display */
+    int replaced[ACGAME_SCREEN_BUFFERS]; /* the buffer each one took the display from */
+    int writable[ACGAME_SCREEN_BUFFERS];
+    int safe_pending;               /* SafeMessages not yet back */
+    int shown_pending;              /* the last change's DispMessage is not back */
     unsigned screen_width;
     unsigned screen_height;
 #if ACGAME_OPENINPUT
@@ -385,7 +403,132 @@ static void close_input(void) {
 
 /* ---- display ---------------------------------------------------------------- */
 
+/* Takes one SafeMessage: the buffer that the message's change replaced is
+ * no longer scanned out and may be written. */
+static void take_safe_message(struct Message *msg) {
+    acgame_amiga_state *g = &g_acgame_amiga;
+    int i;
+    for (i = 0; i < g->buffers; ++i) {
+        if (msg == &g->buffer[i]->sb_DBufInfo->dbi_SafeMessage) {
+            if (g->replaced[i] >= 0) {
+                g->writable[g->replaced[i]] = 1;
+                g->replaced[i] = -1;
+            }
+            break;
+        }
+    }
+    --g->safe_pending;
+}
+
+static void collect_safe(int block) {
+    acgame_amiga_state *g = &g_acgame_amiga;
+    struct Message *msg;
+    for (;;) {
+        while ((msg = GetMsg(g->safe_port)) != NULL) {
+            take_safe_message(msg);
+            block = 0;
+        }
+        if (!block || g->safe_pending <= 0) {
+            return;
+        }
+        Wait(1UL << g->safe_port->mp_SigBit);
+    }
+}
+
+static void collect_shown(void) {
+    acgame_amiga_state *g = &g_acgame_amiga;
+    while (g->shown_pending) {
+        if (GetMsg(g->shown_port)) {
+            g->shown_pending = 0;
+        } else {
+            Wait(1UL << g->shown_port->mp_SigBit);
+        }
+    }
+}
+
+/* Puts buffer i on display at the next vertical blank. */
+static int change_buffer(int i) {
+    acgame_amiga_state *g = &g_acgame_amiga;
+    collect_shown();
+    if (!ChangeScreenBuffer(g->screen, g->buffer[i])) {
+        return 0;
+    }
+    g->replaced[i] = g->shown;
+    g->writable[i] = 0;
+    g->shown = i;
+    g->shown_pending = 1;
+    ++g->safe_pending;
+    return 1;
+}
+
+static void close_double_buffer(void) {
+    acgame_amiga_state *g = &g_acgame_amiga;
+    int i;
+    if (g->buffers) {
+        collect_shown();
+        collect_safe(1);
+        while (g->safe_pending > 0) {
+            collect_safe(1);
+        }
+        if (g->shown != 0 && change_buffer(0)) {
+            /* the screen's own bitmap goes back on display before the copies are freed */
+            collect_shown();
+            while (g->safe_pending > 0) {
+                collect_safe(1);
+            }
+        }
+    }
+    for (i = ACGAME_SCREEN_BUFFERS - 1; i >= 0; --i) {
+        if (g->buffer[i]) {
+            FreeScreenBuffer(g->screen, g->buffer[i]);
+            g->buffer[i] = NULL;
+        }
+    }
+    g->buffers = 0;
+    if (g->safe_port) {
+        DeleteMsgPort(g->safe_port);
+        g->safe_port = NULL;
+    }
+    if (g->shown_port) {
+        DeleteMsgPort(g->shown_port);
+        g->shown_port = NULL;
+    }
+}
+
+static int bitmap_is_planar8(struct BitMap *bitmap);
+
+/* Without Chip RAM for a second buffer frames go single-buffered into the
+ * screen's bitmap after WaitTOF, as before. */
+static void open_double_buffer(void) {
+    acgame_amiga_state *g = &g_acgame_amiga;
+    int i, n = 0;
+    g->safe_port = CreateMsgPort();
+    g->shown_port = CreateMsgPort();
+    if (g->safe_port && g->shown_port) {
+        for (i = 0; i < ACGAME_SCREEN_BUFFERS; ++i) {
+            g->buffer[i] = AllocScreenBuffer(g->screen, NULL, i == 0 ? SB_SCREEN_BITMAP : SB_COPY_BITMAP);
+            if (!g->buffer[i] || !bitmap_is_planar8(g->buffer[i]->sb_BitMap)) {
+                break;
+            }
+            g->buffer[i]->sb_DBufInfo->dbi_SafeMessage.mn_ReplyPort = g->safe_port;
+            g->buffer[i]->sb_DBufInfo->dbi_DispMessage.mn_ReplyPort = g->shown_port;
+            g->replaced[i] = -1;
+            g->writable[i] = i != 0;
+            n = i + 1;
+        }
+    }
+    if (n < 2) {
+        close_double_buffer();
+        return;
+    }
+    g->buffers = n;
+    g->shown = 0;
+    g->safe_pending = 0;
+    g->shown_pending = 0;
+}
+
 static void close_display(void) {
+    close_double_buffer();
     if (g_acgame_amiga.window) {
         CloseWindow(g_acgame_amiga.window);
         g_acgame_amiga.window = NULL;
@@ -558,10 +701,55 @@ static int update_palette(const acgame_rgb8 palette[256]) {
     return 0;
 }
 
-static int copy_to_screen(const acgame_indexed_surface *frame) {
-    struct BitMap *bitmap;
+static int c2p_into(struct BitMap *bitmap, const acgame_indexed_surface *frame) {
     uint8_t *planes[8];
     unsigned p;
+    for (p = 0; p < 8; ++p) {
+        planes[p] = (uint8_t *)bitmap->Planes[p];
+    }
+    return acgame_c2p8_fast(frame->pixels, frame->pitch, planes, bitmap->BytesPerRow,
+                            frame->width, frame->height);
+}
+
+/* Planar, buffered: convert into a buffer off the display, then show it and
+ * its palette together at the next vertical blank. */
+static int present_double_buffered(const acgame_indexed_surface *frame) {
+    acgame_amiga_state *g = &g_acgame_amiga;
+    int draw = -1, i, result;
+    if (!frame->pixels || frame->width != g->width || frame->height != g->height) {
+        return -1;
+    }
+    collect_safe(0);
+    for (;;) {
+        for (i = 0; i < g->buffers && draw < 0; ++i) {
+            if (i != g->shown && g->writable[i]) {
+                draw = i;
+            }
+        }
+        if (draw >= 0) {
+            break;
+        }
+        if (g->safe_pending <= 0) {
+            /* every change has been answered: nothing off display is scanned */
+            for (i = 0; i < g->buffers; ++i) {
+                g->writable[i] = i != g->shown;
+            }
+            continue;
+        }
+        collect_safe(1);
+    }
+    result = c2p_into(g->buffer[draw]->sb_BitMap, frame);
+    if (result != 0) {
+        return result;
+    }
+    /* A refused change (Intuition busy) drops this frame; the buffer stays
+     * writable for the next one. */
+    change_buffer(draw);
+    return update_palette(frame->palette);
+}
+
+static int copy_to_screen(const acgame_indexed_surface *frame) {
+    struct BitMap *bitmap;
 
     if (!g_acgame_amiga.screen || !frame || !frame->pixels ||
         frame->width != g_acgame_amiga.width || frame->height != g_acgame_amiga.height) {
@@ -576,11 +764,7 @@ static int copy_to_screen(const acgame_indexed_surface *frame) {
         return 0;
     }
     bitmap = g_acgame_amiga.screen->RastPort.BitMap;
-    for (p = 0; p < 8; ++p) {
-        planes[p] = (uint8_t *)bitmap->Planes[p];
-    }
-    return acgame_c2p8_fast(frame->pixels, frame->pitch, planes, bitmap->BytesPerRow,
-                            frame->width, frame->height);
+    return c2p_into(bitmap, frame);
 }
 
 static void set_key(unsigned raw, int down) {
@@ -662,6 +846,10 @@ int acgame_platform_init(const acgame_video_config *config) {
         return -1;
     }
 
+    if (g_acgame_amiga.planar) {
+        open_double_buffer();
+    }
+
     g_acgame_amiga.window = OpenWindowTags(
         NULL,
         WA_CustomScreen, g_acgame_amiga.screen,
@@ -720,7 +908,13 @@ acgame_indexed_surface *acgame_platform_begin_indexed_frame(void) {
 }
 
 int acgame_platform_present_indexed(const acgame_indexed_surface *frame) {
-    if (!frame || update_palette(frame->palette) != 0) {
+    if (!frame || !g_acgame_amiga.screen) {
+        return -1;
+    }
+    if (g_acgame_amiga.buffers) {
+        return present_double_buffered(frame);
+    }
+    if (update_palette(frame->palette) != 0) {
         return -1;
     }
     WaitTOF();
