@@ -339,7 +339,15 @@
  
  namespace enigma {
      PreferenceManager *PreferenceManager::theSingleton = nullptr;
-@@ -84,11 +81,11 @@
+@@ -57,6 +54,7 @@
+     
+     PreferenceManager::PreferenceManager() {
+         std::string prefTemplatePath;
++        oxpcompat::recoverPublishedFile(app.prefPath);
+         bool haveXMLProperties = ecl::FileExists(app.prefPath);
+         
+         if (!app.systemFS->findFile( std::string("schemas/") + PREFFILENAME , prefTemplatePath)) {
+@@ -84,11 +82,11 @@
                      DOMElement *tmplProperty = dynamic_cast<DOMElement *>(tmplPropList->item(i));
                      const XMLCh * key = tmplProperty->getAttribute(Utf8ToXML("key").x_str());
                      DOMElement * lastUserProperty;
@@ -459,6 +467,14 @@
  
  namespace enigma {
      StateManager *StateManager::theSingleton = 0;
+@@ -57,6 +52,7 @@
+         std::string statePath;
+         std::string errMessage;
+         
++        recoverPublishedFile(app.userPath + "/state.xml");
+         if (!app.resourceFS->findFile( "state.xml" , statePath)) {
+             if (!app.systemFS->findFile( "schemas/state.xml" , statePath)) {
+                 throw XFrontend("Cannot load application state template!");
 --- a/src/StateManager.hh
 +++ b/src/StateManager.hh
 @@ -22,7 +22,7 @@
@@ -1168,7 +1184,7 @@
          void createPreviews();
 --- /dev/null
 +++ b/src/oxp_enigma.cc
-@@ -0,0 +1,613 @@
+@@ -0,0 +1,634 @@
 +/* Enigma/OXP adapter. MIT, Copyright (c) 2026 AmigaChrome Team. */
 +#include "oxp_enigma.hh"
 +#include <cerrno>
@@ -1731,10 +1747,31 @@
 +  auto s = serialise(n);
 +  return XMLString::transcode(s.c_str());
 +}
++namespace {
++bool readable(const std::string &path) {
++  std::ifstream f(path, std::ios::binary);
++  return f.good();
++}
++} // namespace
++/* writeToURI only ever puts a completely written file at the main name, so a
++ * backup next to an existing main file is stale and is removed. A backup with
++ * no main file means the publish stopped between its two renames (crash,
++ * reset): the backup is the last complete version and is put back. */
++bool recoverPublishedFile(const std::string &path) {
++  const std::string backup = path + ".oxp-previous";
++  if (!readable(backup))
++    return readable(path);
++  if (readable(path)) {
++    std::remove(backup.c_str());
++    return true;
++  }
++  return std::rename(backup.c_str(), path.c_str()) == 0;
++}
 +bool DOMLSSerializer::writeToURI(DOMNode *n, const XMLCh *uri) {
 +  auto path = utf8(uri), tmp = path + ".oxp-tmp",
 +       backup = path + ".oxp-previous";
 +  auto s = serialise(n);
++  recoverPublishedFile(path);
 +  {
 +    std::ofstream f(tmp, std::ios::binary | std::ios::trunc);
 +    if (!f)
@@ -1784,7 +1821,7 @@
 +} // namespace oxpcompat
 --- /dev/null
 +++ b/src/oxp_enigma.hh
-@@ -0,0 +1,377 @@
+@@ -0,0 +1,380 @@
 +/* Enigma's DOM compatibility adapter over the existing OXP parser.
 + * MIT, Copyright (c) 2026 AmigaChrome Team. No Xerces code or binary needed. */
 +#ifndef OXP_ENIGMA_HH
@@ -2078,6 +2115,9 @@
 +  virtual DOMNodeFilter::FilterAction acceptNode(const DOMNode *) const = 0;
 +  virtual unsigned long getWhatToShow() const = 0;
 +};
++/* Repairs a save interrupted between writeToURI's two renames. Call before
++ * testing whether a saved file exists. Returns whether it exists afterwards. */
++bool recoverPublishedFile(const std::string &path);
 +class DOMLSSerializer {
 +  DOMConfiguration config;
 +  DOMLSSerializerFilter *filter = nullptr;

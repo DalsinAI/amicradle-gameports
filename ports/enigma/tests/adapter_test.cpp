@@ -14,6 +14,15 @@ static unsigned checks = 0, bad = 0;
       std::fprintf(stderr, "FAIL %d %s\n", __LINE__, #x);                      \
     }                                                                          \
   } while (0)
+#ifdef ADAPTER_TEST_AMIGADOS_RENAME
+/* Link with -Wl,--wrap=rename: like AmigaDOS Rename, never replace a file. */
+extern "C" int __real_rename(const char *, const char *);
+extern "C" int __wrap_rename(const char *from, const char *to) {
+  if (std::ifstream(to).good())
+    return -1;
+  return __real_rename(from, to);
+}
+#endif
 struct Errors : DOMErrorHandler {
   bool seen = false;
   bool handleError(const DOMError &) override {
@@ -123,6 +132,27 @@ int main(int argc, char **argv) {
       CHECK(list->getLength() == before);
       CHECK(ser.writeToURI(d, u"/this-directory-does-not-exist/test.xml") ==
             false);
+      /* A save interrupted between its two renames (crash, reset) leaves a
+       * backup. A stale one must not block later saves, and a lone one is the
+       * last complete file and must be put back before Enigma looks for it. */
+      std::string saved = std::string(argv[1]) + "/oxp-recovery-check.xml";
+      std::string backup = saved + ".oxp-previous";
+      std::u16string uri(saved.begin(), saved.end());
+      std::remove(saved.c_str());
+      std::remove(backup.c_str());
+      CHECK(ser.writeToURI(d, uri.c_str()));
+      std::ofstream(backup, std::ios::binary) << "<stale/>";
+      CHECK(ser.writeToURI(d, uri.c_str()));
+      CHECK(ser.writeToURI(d, uri.c_str()));
+      CHECK(!std::ifstream(backup).good());
+      std::rename(saved.c_str(), backup.c_str());
+      CHECK(recoverPublishedFile(saved));
+      CHECK(!std::ifstream(backup).good());
+      DOMDocument *restored = parser.parseURI(saved.c_str());
+      CHECK(restored);
+      if (restored)
+        restored->release();
+      std::remove(saved.c_str());
     }
     std::printf("Releasing %s\n", f);
     d->release();
