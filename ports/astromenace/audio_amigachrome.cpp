@@ -12,6 +12,7 @@
 #include "SDL_mixer.h"
 
 #include <cmath>
+#include <deque>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -44,9 +45,22 @@ struct SoundState {
     uint32_t destroyTicks;
 };
 
+/* A music file being decoded on the decode thread. Decoding a whole track
+   (13-31 MB of PCM) takes seconds on a 68040, so it never runs on the game's
+   thread: the file is read here, decoded there, and played once ready. */
+struct DecodeJob {
+    std::unique_ptr<cFILE> file;
+    Mix_Chunk *chunk = nullptr;
+    bool done = false;          // under DecodeLock
+    bool cancelled = false;     // under DecodeLock
+};
+
 struct MusicState {
     Mix_Chunk *chunk;
     int channel;
+    std::shared_ptr<DecodeJob> pending;     // the track being decoded
+    std::shared_ptr<DecodeJob> pendingLoop; // its loop part, decoded meanwhile
+    int pendingLoops;
     float localVolume;
     float globalVolume;
     bool looped;
@@ -65,6 +79,18 @@ std::unordered_map<unsigned, SoundState> Sounds;
 std::unordered_map<std::string, MusicState> Music;
 unsigned NextBufferId = 1;
 unsigned NextSoundId = 1;
+
+/* Channels 0..MusicChannels-1 are reserved for music (Mix_ReserveChannels),
+   so a sound never takes a music channel, and a stale channel number kept by
+   a finished sound can never halt or re-volume the music. Two themes overlap
+   during a cross-fade; four leaves room to spare. */
+constexpr int MusicChannels = 4;
+
+SDL_Thread *DecodeThread = nullptr;
+SDL_mutex *DecodeLock = nullptr;
+SDL_cond *DecodeWake = nullptr;
+std::deque<std::shared_ptr<DecodeJob>> DecodeQueue;
+bool DecodeStop = false;
 
 static int mixVolume(float v)
 {
@@ -87,6 +113,105 @@ static Mix_Chunk *loadChunk(const std::string &name)
        SDL2_mixer satellite advertises Ogg through this path and can service
        it via media.decode before falling back to its bundled stb_vorbis. */
     return Mix_LoadWAV_RW(rw, 1);
+}
+
+static int decodeMain(void *)
+{
+    SDL_LockMutex(DecodeLock);
+    for (;;) {
+        while (DecodeQueue.empty() && !DecodeStop)
+            SDL_CondWait(DecodeWake, DecodeLock);
+        if (DecodeStop)
+            break;
+        std::shared_ptr<DecodeJob> job = DecodeQueue.front();
+        DecodeQueue.pop_front();
+        if (job->cancelled)
+            continue;
+        SDL_UnlockMutex(DecodeLock);
+        Mix_Chunk *chunk = nullptr;
+        SDL_RWops *rw = SDL_RWFromConstMem(job->file->GetData(), static_cast<int>(job->file->GetSize()));
+        if (rw)
+            chunk = Mix_LoadWAV_RW(rw, 1);
+        SDL_LockMutex(DecodeLock);
+        if (job->cancelled) {
+            if (chunk)
+                Mix_FreeChunk(chunk);
+        } else {
+            job->chunk = chunk;
+        }
+        job->file.reset();
+        job->done = true;
+    }
+    SDL_UnlockMutex(DecodeLock);
+    return 0;
+}
+
+/* Reads the file here (the VFS stays on the game's thread) and queues it. */
+static std::shared_ptr<DecodeJob> queueDecode(const std::string &name)
+{
+    std::unique_ptr<cFILE> file = vw_fopen(name);
+    if (!file || file->GetSize() <= 0 || file->GetData() == nullptr)
+        return nullptr;
+    auto job = std::make_shared<DecodeJob>();
+    if (!DecodeThread) {
+        /* no thread could be made: decode here, as before */
+        SDL_RWops *rw = SDL_RWFromConstMem(file->GetData(), static_cast<int>(file->GetSize()));
+        job->chunk = rw ? Mix_LoadWAV_RW(rw, 1) : nullptr;
+        job->done = true;
+        return job;
+    }
+    job->file = std::move(file);
+    SDL_LockMutex(DecodeLock);
+    DecodeQueue.push_back(job);
+    SDL_CondSignal(DecodeWake);
+    SDL_UnlockMutex(DecodeLock);
+    return job;
+}
+
+/* Takes a finished decode: 1 with the chunk (may be null: it failed), 0 while
+   it is still running. */
+static int collectDecode(const std::shared_ptr<DecodeJob> &job, Mix_Chunk *&chunk)
+{
+    if (DecodeLock) SDL_LockMutex(DecodeLock);
+    const bool done = job->done;
+    chunk = done ? job->chunk : nullptr;
+    if (done) job->chunk = nullptr;
+    if (DecodeLock) SDL_UnlockMutex(DecodeLock);
+    return done ? 1 : 0;
+}
+
+static void cancelDecode(std::shared_ptr<DecodeJob> &job)
+{
+    if (!job)
+        return;
+    if (DecodeLock) SDL_LockMutex(DecodeLock);
+    job->cancelled = true;
+    if (job->chunk) {
+        Mix_FreeChunk(job->chunk);
+        job->chunk = nullptr;
+    }
+    if (DecodeLock) SDL_UnlockMutex(DecodeLock);
+    job.reset();
+}
+
+static void stopDecodeThread()
+{
+    if (!DecodeThread)
+        return;
+    SDL_LockMutex(DecodeLock);
+    DecodeStop = true;
+    for (auto &job : DecodeQueue)
+        job->cancelled = true;
+    DecodeQueue.clear();
+    SDL_CondSignal(DecodeWake);
+    SDL_UnlockMutex(DecodeLock);
+    SDL_WaitThread(DecodeThread, nullptr);
+    DecodeThread = nullptr;
+    SDL_DestroyCond(DecodeWake);
+    SDL_DestroyMutex(DecodeLock);
+    DecodeWake = nullptr;
+    DecodeLock = nullptr;
+    DecodeStop = false;
 }
 
 static BufferEntry *bufferFor(const std::string &name)
@@ -140,6 +265,8 @@ static unsigned newSoundId()
 
 static void freeMusic(MusicState &m)
 {
+    cancelDecode(m.pending);
+    cancelDecode(m.pendingLoop);
     if (m.channel >= 0)
         Mix_HaltChannel(m.channel);
     if (m.chunk)
@@ -148,12 +275,30 @@ static void freeMusic(MusicState &m)
     m.channel = -1;
 }
 
-static bool startMusicChunk(MusicState &m, const std::string &name, int loops)
+/* A reserved music channel that no other theme holds. */
+static int freeMusicChannel(const MusicState &self)
 {
-    Mix_Chunk *chunk = loadChunk(name);
+    for (int channel = 0; channel < MusicChannels; ++channel) {
+        bool taken = Mix_Playing(channel) != 0;
+        for (auto &p : Music)
+            if (&p.second != &self && p.second.channel == channel)
+                taken = true;
+        if (!taken)
+            return channel;
+    }
+    return -1;
+}
+
+/* Plays a decoded chunk on a music channel; takes ownership of chunk. */
+static bool playMusicChunk(MusicState &m, Mix_Chunk *chunk, int loops)
+{
     if (!chunk)
         return false;
-    int channel = Mix_PlayChannel(-1, chunk, loops);
+    if (m.channel >= 0)
+        Mix_HaltChannel(m.channel);
+    int channel = freeMusicChannel(m);
+    if (channel >= 0)
+        channel = Mix_PlayChannel(channel, chunk, loops);
     if (channel < 0) {
         Mix_FreeChunk(chunk);
         return false;
@@ -191,6 +336,18 @@ bool vw_InitAudio()
         return false;
     }
     Mix_AllocateChannels(64);
+    Mix_ReserveChannels(MusicChannels);
+    DecodeLock = SDL_CreateMutex();
+    DecodeWake = SDL_CreateCond();
+    if (DecodeLock && DecodeWake)
+        DecodeThread = SDL_CreateThread(decodeMain, "astromenace-music", nullptr);
+    if (!DecodeThread) {
+        std::cerr << "vw_InitAudio(): no music decode thread: " << SDL_GetError() << "\n";
+        if (DecodeWake) SDL_DestroyCond(DecodeWake);
+        if (DecodeLock) SDL_DestroyMutex(DecodeLock);
+        DecodeWake = nullptr;
+        DecodeLock = nullptr;
+    }
     AudioReady = true;
     std::cout << "Audio      : AmigaChrome OpenGPU SDL2_mixer\n";
     return true;
@@ -207,6 +364,7 @@ void vw_ShutdownAudio()
         return;
     vw_ReleaseAllSounds();
     vw_ReleaseAllMusic();
+    stopDecodeThread();
     for (auto &p : SoundBuffers)
         if (p.second.chunk) Mix_FreeChunk(p.second.chunk);
     SoundBuffers.clear();
@@ -373,10 +531,14 @@ bool vw_PlayMusic(const std::string &name, float localVolume, float globalVolume
     if (Music.find(name) != Music.end())
         return true;
 
-    MusicState m{nullptr, -1, localVolume, globalVolume, loop, loopFileName,
+    MusicState m{nullptr, -1, nullptr, nullptr, 0, localVolume, globalVolume, loop, loopFileName,
                  false, false, localVolume, localVolume, 0, 0, SDL_GetTicks()};
-    if (!startMusicChunk(m, name, loop ? -1 : 0))
+    m.pending = queueDecode(name);
+    if (!m.pending)
         return false;
+    m.pendingLoops = loop ? -1 : 0;
+    if (!loopFileName.empty())
+        m.pendingLoop = queueDecode(loopFileName);
     Music.emplace(name, m);
     return true;
 }
@@ -390,16 +552,23 @@ void vw_SetMusicGlobalVolume(float volume)
     }
 }
 
+/* A theme still being decoded (or waiting for its loop part) counts as
+   playing: it has started, as an OpenAL stream has once queued. */
+static bool musicActive(const MusicState &m)
+{
+    return m.pending || m.pendingLoop || (m.channel >= 0 && Mix_Playing(m.channel));
+}
+
 bool vw_IsMusicPlaying(const std::string &name)
 {
     auto it = Music.find(name);
-    return it != Music.end() && it->second.channel >= 0 && Mix_Playing(it->second.channel);
+    return it != Music.end() && musicActive(it->second);
 }
 
 bool vw_IsAnyMusicPlaying()
 {
     for (auto &p : Music)
-        if (p.second.channel >= 0 && Mix_Playing(p.second.channel))
+        if (musicActive(p.second))
             return true;
     return false;
 }
@@ -451,6 +620,27 @@ void vw_UpdateMusic(uint32_t now)
         m.lastTick = now;
         bool erase = false;
 
+        if (m.pending) {
+            Mix_Chunk *chunk = nullptr;
+            if (m.fadeOut) {
+                erase = true;           // replaced before it was heard
+            } else if (collectDecode(m.pending, chunk)) {
+                m.pending.reset();
+                if (!playMusicChunk(m, chunk, m.pendingLoops))
+                    erase = true;
+            }
+            if (erase || m.pending) {
+                if (erase) {
+                    freeMusic(m);
+                    it = Music.erase(it);
+                } else {
+                    ++it;               // fades start once it plays
+                }
+                continue;
+            }
+            delta = 0;
+        }
+
         if (m.fadeIn || m.fadeOut) {
             m.fadeTicks += delta;
             float t = static_cast<float>(m.fadeTicks) / static_cast<float>(m.fadePeriod);
@@ -469,12 +659,18 @@ void vw_UpdateMusic(uint32_t now)
         }
 
         if (!erase && m.channel >= 0 && !Mix_Playing(m.channel)) {
-            if (!m.loopPart.empty()) {
-                std::string next = m.loopPart;
-                m.loopPart.clear();
-                m.looped = true;
-                if (!startMusicChunk(m, next, -1))
-                    erase = true;
+            if (!m.loopPart.empty() && m.pendingLoop) {
+                Mix_Chunk *chunk = nullptr;
+                if (collectDecode(m.pendingLoop, chunk)) {
+                    m.pendingLoop.reset();
+                    m.loopPart.clear();
+                    m.looped = true;
+                    if (!playMusicChunk(m, chunk, -1))
+                        erase = true;
+                }
+                /* else the loop part is still decoding: try again next update */
+            } else if (!m.loopPart.empty()) {
+                erase = true;           // its file could not be read
             } else if (!m.looped) {
                 erase = true;
             }

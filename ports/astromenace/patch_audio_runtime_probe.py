@@ -56,12 +56,10 @@ if namespace_anchor not in text:
     raise RuntimeError("AstroMenace audio namespace marker missing")
 text = text.replace(namespace_anchor, namespace_insert, 1)
 
-open_anchor = '''    Mix_AllocateChannels(64);
-    AudioReady = true;
+open_anchor = '''    AudioReady = true;
     std::cout << "Audio      : AmigaChrome OpenGPU SDL2_mixer\\n";
 '''
-open_insert = '''    Mix_AllocateChannels(64);
-    AudioReady = true;
+open_insert = '''    AudioReady = true;
 #ifdef AMIGACHROME
     AMAudioProbeStage("PROGDIR:stage-audio-open");
 #endif
@@ -95,7 +93,7 @@ text = text.replace(play_anchor, play_insert, 1)
 playing_anchor = '''bool vw_IsAnyMusicPlaying()
 {
     for (auto &p : Music)
-        if (p.second.channel >= 0 && Mix_Playing(p.second.channel))
+        if (musicActive(p.second))
             return true;
     return false;
 }
@@ -103,9 +101,10 @@ playing_anchor = '''bool vw_IsAnyMusicPlaying()
 playing_insert = '''bool vw_IsAnyMusicPlaying()
 {
     for (auto &p : Music)
-        if (p.second.channel >= 0 && Mix_Playing(p.second.channel)) {
+        if (musicActive(p.second)) {
 #ifdef AMIGACHROME
-            if (!AudioProbeActiveMarked) {
+            if (!AudioProbeActiveMarked && p.second.channel >= 0 &&
+                Mix_Playing(p.second.channel)) {
                 AMAudioProbeStage("PROGDIR:stage-audio-channel-active");
                 AudioProbeActiveMarked = true;
             }
@@ -123,7 +122,7 @@ update_anchor = '''        uint32_t delta = now - m.lastTick;
         m.lastTick = now;
         bool erase = false;
 
-        if (m.fadeIn || m.fadeOut) {
+        if (m.pending) {
 '''
 update_insert = '''        uint32_t delta = now - m.lastTick;
         m.lastTick = now;
@@ -141,7 +140,7 @@ update_insert = '''        uint32_t delta = now - m.lastTick;
         }
 #endif
 
-        if (m.fadeIn || m.fadeOut) {
+        if (m.pending) {
 '''
 if update_anchor not in text:
     raise RuntimeError("AstroMenace music update marker missing")
@@ -153,6 +152,7 @@ shutdown_anchor = '''void vw_ShutdownAudio()
         return;
     vw_ReleaseAllSounds();
     vw_ReleaseAllMusic();
+    stopDecodeThread();
     for (auto &p : SoundBuffers)
         if (p.second.chunk) Mix_FreeChunk(p.second.chunk);
     SoundBuffers.clear();
@@ -179,6 +179,7 @@ shutdown_insert = '''void vw_ShutdownAudio()
     AMAudioProbeStage("PROGDIR:stage-audio-before-release-music");
 #endif
     vw_ReleaseAllMusic();
+    stopDecodeThread();
 #ifdef AMIGACHROME
     AMAudioProbeStage("PROGDIR:stage-audio-after-release-music");
     AMAudioProbeStage("PROGDIR:stage-audio-before-buffer-free");
