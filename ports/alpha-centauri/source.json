@@ -1,7 +1,7 @@
 {
   "name": "OpenAlphaC",
   "url": "https://github.com/DalsinAI/openalphac.git",
-  "commit": "d21d62ed19c907ce02fd72fa3232f7d6382e8784",
+  "commit": "84ca3d89c6ef64e828c1c93449a68a0682afdd4f",
   "status": "engineering pre-release; Amiga target qualification pending",
   "target": "AmigaOS 3.x, 68040 + FPU with optional OpenGPU acceleration",
   "contentPolicy": "Original Alpha Centauri and Alien Crossfire data stays private and outside git and public release artifacts."
