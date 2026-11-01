@@ -50,7 +50,14 @@ export PATH="$OPENUP_SDK/bin:$PATH"
 sh ports/neverball/build.sh build/game-ports/sources/neverball
 ```
 
-The result is `build/neverball-release/package/Neverball/`.
+The result is `build/neverball-release/package/Neverball/`. The package carries
+its own `SHA256SUMS`; `scripts/verify_neverball_release.py` checks that every
+other file is listed exactly once and that every digest matches.
+
+This directory is the canonical Neverball recipe. The consolidated runtime and
+build record is in
+[`evidence/neverball-open3-20261101`](../../evidence/neverball-open3-20261101/README.md).
+Older workspaces are historical copies, not independent recipe sources.
 
 ## Release gates
 

@@ -1,10 +1,28 @@
 # Port Status
 
-Latest review update: **24 October 2026 (local time)**. Earlier dated snapshots below are preserved as history.
+Latest review update: **1 November 2026 (local time)**. Earlier dated snapshots below are preserved as history.
 
 Primary target: **AmigaChrome AC090 / AmigaOS 3.x / 68040 + FPU**
 
 **DONE means RELEASE.** A successful compile is intermediate evidence, not a release result.
+
+## Neverball consolidation and Open3 qualification - 1 November 2026
+
+Neverball and Neverputt now have one canonical recipe and evidence trail in this
+repository. An exact-pinned GCC 16.2.0-open3 build and the package gate pass.
+On the isolated AC090/OpenGPU lab, Neverball rendered its title, completed Level
+01, entered Level 02, accepted the native player name `dale`, paused/resumed and
+returned 0. Neverputt rendered its title and Hole 01 in fullscreen, accepted
+mouse strokes and menu input, opened and closed the enumerated joystick, and
+returned normally to Workbench.
+
+This is still **TESTING**, not RELEASE: a third Neverball level, a completed
+Neverputt hole, audible audio proof, controller-driven gameplay, restart
+persistence and a clean stock-instance repetition remain open. The package
+inventory bug found during consolidation is fixed in the recipe and verifier;
+the fixed package rebuild receipt is kept with the evidence.
+
+[Consolidated evidence, exact claims and remaining gates](evidence/neverball-open3-20261101/README.md).
 
 ## OpenJazz gameplay smoke test - 24 October 2026
 

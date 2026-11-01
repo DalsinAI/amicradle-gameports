@@ -1,13 +1,15 @@
 # Unified Game Port Backlog
 
-**Current execution checkpoint:** see [13 October review fixes](evidence/open2-20261013-resume/README.md)
-and [recovered SDL2/Neverball evidence](evidence/sdltext-20261012-recovered/README.md).
+**Current execution checkpoint:** see the
+[1 November Neverball consolidation](evidence/neverball-open3-20261101/README.md),
+[13 October review fixes](evidence/open2-20261013-resume/README.md) and
+[recovered SDL2/Neverball evidence](evidence/sdltext-20261012-recovered/README.md).
 Keep the plain-68040 software-2D qualification lane separate from AssaultCube's
 OpenGPU-dependent client. No untested target is promoted by these updates.
 
 **[Unified Port Atlas](https://github.com/DalsinAI/amigachrome/tree/main/docs/porting)** — searchable cross-programme game/application catalogue with existing Amiga-port evidence, source/rights assessment and proposed Open-family acceleration or development benefit. This does not replace the local source pins, build notes or qualification gates.
 
-Live programme updated: **24 October 2026**. The older port table below is historical;
+Live programme updated: **1 November 2026**. The older port table below is historical;
 the execution order and SDL3 intake sections take precedence.
 
 Primary target: **AmigaChrome AC090 / AmigaOS 3.x / 68040 + FPU**
@@ -37,7 +39,7 @@ the normal clean-build, provenance, packaging and AC090 runtime gates.
 | Port | Current state | Likely lane | Priority | Notes / next meaningful gate |
 |---|---|---|---|---|
 | OpenOMF / OMFAGA | ACTIVE - build fix | ACGame / native AGA | TBD | GCC16/0008 lane exists. Canonical AGA-profile state bug fixed; latest runner exposed a local ENet compatibility-header path error before compile. Then AC090 arena first light. |
-| Neverball / Neverputt | BUILD GREEN - runtime testing | SDL / OpenGPU | TBD | GCC16/0008 build passes. Retest softpipe and accelerated virgl/OpenRTG path on AC090 and confirm black-frame issue is gone. |
+| Neverball / Neverputt | TESTING - open3 gameplay | SDL / OpenGPU / OpenInput | P0 | Open3 build/package pass; virgl black-frame issue is gone. Neverball completed Level 01 and entered Level 02; Neverputt rendered and accepted mouse strokes, then exited cleanly. Next: third Neverball level, sink one Neverputt hole, audio proof, controller gameplay, restart persistence and clean-stock repeat. [Evidence](evidence/neverball-open3-20261101/README.md). |
 | C-Dogs SDL | BUILD GREEN - runtime testing | SDL / OpenGPU | TBD | GCC16/0008 build passes. Strong compiler A/B canary because old stove hit divide-by-zero alert 0x80000005. |
 | The Ur-Quan Masters | TESTING - open3 gameplay smoke | SDL / OpenGPU | P0 | Fixed native paths and ZIP content; exact binary reached Sol and exited RC 0. Conversation, graphics warnings, persistence, audio and clean-ROM repeat remain. |
 | Chocolate Doom | BUILD GREEN - runtime pending | SDL / OpenGPU | TBD | GCC16/0008 clean build passes. Run with authorised IWAD/Freedoom and exercise input, audio, config/save and exit. |

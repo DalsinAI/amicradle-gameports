@@ -16,9 +16,14 @@ CC=${CC:-$STOVE/bin/m68k-amigaos-gcc}
 CXX=${CXX:-$STOVE/bin/m68k-amigaos-g++}
 DATA_PK3=${NEVERBALL_DATA_PK3:-"$ROOT/build/game-ports/runtime-assets/neverball/data-1.6.0.pk3"}
 DATA_SHA=b2eddfbe05443e36719541639cb6246c5dd81260bce67a053d0d2c0ad34bc58c
+PIN=a1ed09911dca262d80049c12a2824d683af494d6
 
 [ -x "$CC" ] || { echo "missing 68k compiler: $CC" >&2; exit 2; }
 [ -x "$CXX" ] || { echo "missing 68k C++ compiler: $CXX" >&2; exit 2; }
+[ "$(git -C "$SRC" rev-parse HEAD 2>/dev/null)" = "$PIN" ] || {
+    echo "Neverball source is not at pinned commit $PIN" >&2
+    exit 2
+}
 [ -f "$DATA_PK3" ] || { echo "missing prepared Neverball release data: run game_port_prepare.py prepare --game neverball" >&2; exit 2; }
 [ "$(sha256sum "$DATA_PK3" | awk '{print $1}')" = "$DATA_SHA" ] || {
     echo "Neverball release-data SHA-256 mismatch" >&2
@@ -96,7 +101,7 @@ done
 
 cat > "$PKG/OPENUP-RELEASE.txt" <<EOF
 Neverball / Neverputt for OpenUp
-Upstream: Neverball 1.6.0, commit a1ed09911dca262d80049c12a2824d683af494d6
+Upstream: Neverball 1.6.0, commit $PIN
 Official release data SHA-256: $DATA_SHA
 Target: AmigaOS 3.2.x, 68040+FPU
 Graphics: OpenGPU SDL2 + OpenGPU GL
@@ -107,8 +112,13 @@ Keyboard/mouse: OpenGPU SDL2 native Amiga backend
 Runtime dependencies: opengpu.library + SDL2.module + GL.module + openinput.library
 EOF
 
+# The inventory is part of the package it authenticates. Generate it last and
+# exclude the manifest itself so every listed digest remains reproducible.
+rm -f "$OUT/package/SHA256SUMS"
 (
-  cd "$OUT/package"
-  find Neverball -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+  cd "$PKG"
+  find . -type f ! -name 'SHA256SUMS' ! -name '.SHA256SUMS.tmp' -print0 \
+    | sort -z | xargs -0 sha256sum > .SHA256SUMS.tmp
+  mv .SHA256SUMS.tmp SHA256SUMS
 )
 echo "Neverball release tree: $PKG"

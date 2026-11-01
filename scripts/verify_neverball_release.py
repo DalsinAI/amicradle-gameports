@@ -6,7 +6,7 @@ It does not turn a package into RELEASE; runtime qualification remains mandatory
 """
 from __future__ import annotations
 import argparse, hashlib, json, zipfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 PIN = "a1ed09911dca262d80049c12a2824d683af494d6"
 REQUIRED = (
@@ -25,6 +25,55 @@ def sha256(path: Path) -> str:
             h.update(b)
     return h.hexdigest()
 
+def verify_inventory(root: Path) -> list[str]:
+    """Return failures for the package's complete, self-excluding hash inventory."""
+    inventory = root / "SHA256SUMS"
+    if not inventory.is_file():
+        return ["missing SHA256SUMS"]
+
+    failures: list[str] = []
+    entries: dict[str, str] = {}
+    for number, raw in enumerate(inventory.read_text(errors="replace").splitlines(), 1):
+        fields = raw.split(maxsplit=1)
+        if len(fields) != 2 or len(fields[0]) != 64:
+            failures.append(f"malformed SHA256SUMS line {number}")
+            continue
+        digest, name = fields
+        name = name.lstrip("*")
+        while name.startswith("./"):
+            name = name[2:]
+        path = PurePosixPath(name)
+        if not name or path.is_absolute() or ".." in path.parts:
+            failures.append(f"unsafe SHA256SUMS path on line {number}")
+            continue
+        normalized = path.as_posix()
+        if normalized == "SHA256SUMS":
+            failures.append("SHA256SUMS must not hash itself")
+            continue
+        if normalized in entries:
+            failures.append(f"duplicate SHA256SUMS entry: {normalized}")
+            continue
+        if any(c not in "0123456789abcdef" for c in digest):
+            failures.append(f"invalid SHA-256 digest for {normalized}")
+            continue
+        entries[normalized] = digest
+
+    files = {
+        path.relative_to(root).as_posix(): path
+        for path in root.rglob("*")
+        if path.is_file() and path != inventory
+    }
+    missing = sorted(set(files) - set(entries))
+    extra = sorted(set(entries) - set(files))
+    if missing:
+        failures.append("SHA256SUMS missing files: " + ", ".join(missing))
+    if extra:
+        failures.append("SHA256SUMS lists absent files: " + ", ".join(extra))
+    for name in sorted(set(files) & set(entries)):
+        if sha256(files[name]) != entries[name]:
+            failures.append(f"SHA256 mismatch: {name}")
+    return failures
+
 def main() -> int:
     ap=argparse.ArgumentParser()
     ap.add_argument("package", type=Path)
@@ -35,6 +84,7 @@ def main() -> int:
     for name in REQUIRED:
         if not (root/name).exists():
             failures.append(f"missing {name}")
+    failures.extend(verify_inventory(root))
     note=root/"OPENUP-RELEASE.txt"
     if note.is_file() and PIN not in note.read_text(errors="replace"):
         failures.append("release note does not carry the pinned upstream commit")

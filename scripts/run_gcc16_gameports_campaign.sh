@@ -103,7 +103,6 @@ rm -rf build/os3/neverball-release
 run_port "3/8" "02-neverball" env STOVE="$PREFIX" OPENUP_SDK="$PREFIX" CPU=68040   sh ports/neverball/build.sh build/game-ports/sources/neverball build/os3/neverball-release
 if grep -q "^PASS$" "$STATUS/02-neverball"; then
   copy_if build/os3/neverball-release/package/Neverball "$PAYLOAD/Neverball"
-  copy_if build/os3/neverball-release/package/SHA256SUMS "$PAYLOAD/Neverball-SHA256SUMS"
 fi
 
 run_port "4/8" "03-cdogs" env STOVE="$STOVE"   sh ports/cdogs-sdl/build-amigaos3.sh
