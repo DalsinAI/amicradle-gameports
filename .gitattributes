@@ -25,3 +25,8 @@ ports/opentyrian/patches/0001-amiga-user-directory.patch -whitespace
 
 # Unified-diff context lines for the fheroes2 AmigaOS patch.
 ports/fheroes2/patches/*.patch -whitespace
+
+# Preserve upstream whitespace and blank context in the Enigma unified diff.
+ports/enigma/patches/0001-enigma-oxp.patch -whitespace
+# Keep native runtime logs byte-for-byte.
+ports/enigma/evidence/20261031/*.log -whitespace

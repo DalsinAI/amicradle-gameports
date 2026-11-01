@@ -1,0 +1,28 @@
+Enigma v1.3 (development version - v1.31 compatibility branch)
+systemFS = "PROGDIR:data"
+docPath = "PROGDIR:docs"
+prefPath = "PROGDIR:User/enigmarc.xml"
+Preferences: no LUA option "MouseSpeed"
+Preferences: no LUA option "FullScreen"
+Preferences: no LUA option "InGameMusic"
+Preferences: no LUA option "VideoMode"
+Preferences: no LUA option "Gamma"
+Preferences: no LUA option "SoundSet"
+Preferences: no LUA option "SoundVolume"
+Preferences: no LUA option "MusicVolume"
+Preferences: no LUA option "StereoSeparation"
+Preferences: no LUA option "RatingsAutoUpdate"
+Preferences: no LUA option "_MacUpdate1.00"
+userPath = "PROGDIR:User"
+userImagePath = "PROGDIR:User"
+resourceFS = "PROGDIR:User:PROGDIR:data"
+Startup: localization start
+l10nPath = "PROGDIR:data/locale"
+Startup: localization complete
+Startup: state start
+Startup: state complete
+Score save o.k.
+Score save o.k.
+State save o.k.
+Preferences save o.k.
+Enigma OXP XML persistence: PASS existing=0

@@ -1,0 +1,18 @@
+Enigma v1.3 (development version - v1.31 compatibility branch)
+systemFS = "PROGDIR:data"
+docPath = "PROGDIR:docs"
+prefPath = "PROGDIR:User/enigmarc.xml"
+userPath = "PROGDIR:User"
+userImagePath = "PROGDIR:User"
+resourceFS = "PROGDIR:User:PROGDIR:data"
+Startup: localization start
+l10nPath = "PROGDIR:data/locale"
+Startup: localization complete
+Startup: state start
+Startup: state complete
+User id '371C1AF35963748C'
+Score save o.k.
+Score save o.k.
+State save o.k.
+Preferences save o.k.
+Enigma OXP XML persistence: PASS existing=1
