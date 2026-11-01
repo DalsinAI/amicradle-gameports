@@ -25,11 +25,14 @@ the cores and the GPU where the system offers it.
   copy into the board is done by the cores; on a real Amiga with Picasso96 it is
   the RTG system's own code. `acgame_platform_get_info()` says which.
 - `LoadRGB32` updates the 256-colour palette only when it changes.
-- On a planar screen frames are double-buffered through Intuition's
-  ScreenBuffers (two Chip RAM bitmaps): C2P writes the hidden one and
-  `ChangeScreenBuffer` shows it with its palette at the next vertical blank,
-  so no half-converted frame is seen. Without Chip RAM for the second buffer,
-  and on RTG screens, `WaitTOF` is the presentation boundary.
+- On a planar screen frames are buffered through Intuition's ScreenBuffers
+  (three Chip RAM bitmaps, or two when Chip RAM is short): C2P writes one that
+  is neither shown nor still scanned out, and `ChangeScreenBuffer` shows it
+  with its palette at the next vertical blank, so no half-converted frame is
+  seen. The third buffer keeps the full frame rate while the display's
+  safe-to-write reply for the previous buffer is still on its way. Without
+  Chip RAM for a second buffer, and on RTG screens, `WaitTOF` is the
+  presentation boundary.
 
 ## Input
 

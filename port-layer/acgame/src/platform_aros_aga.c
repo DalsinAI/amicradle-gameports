@@ -119,6 +119,8 @@ typedef struct {
 } acgame_openinput;
 #endif
 
+#define ACGAME_SCREEN_BUFFERS 3
+
 typedef struct {
     struct Screen *screen;
     struct Window *window;
@@ -137,15 +139,21 @@ typedef struct {
     int opengfx;
     int palette_valid;
     int quit_requested;
-    /* Planar screens: two Chip RAM buffers through Intuition's ScreenBuffers.
-     * C2P writes the one not on display, then ChangeScreenBuffer shows it at
-     * the next vertical blank, so a frame is never seen half converted. */
-    struct ScreenBuffer *buffer[2];
-    struct MsgPort *safe_port;      /* a buffer taken off the display may be written */
-    struct MsgPort *shown_port;     /* the last change is on the display */
-    int shown;                      /* which buffer is on the display */
-    int safe_to_write;
-    int safe_to_change;
+    /* Planar screens: three Chip RAM buffers (two when Chip RAM is short)
+     * through Intuition's ScreenBuffers. C2P writes one that is neither on
+     * display nor still being scanned out, then ChangeScreenBuffer shows it
+     * at the next vertical blank, so a frame is never seen half converted.
+     * The third buffer lets the next frame start while the display still
+     * reads the previous one. */
+    struct ScreenBuffer *buffer[ACGAME_SCREEN_BUFFERS];
+    int buffers;                    /* how many are in use: 0, 2 or 3 */
+    struct MsgPort *safe_port;      /* SafeMessages: a buffer taken off the display may be written */
+    struct MsgPort *shown_port;     /* DispMessages: the last change is on the display */
+    int shown;                      /* the buffer last put on display */
+    int replaced[ACGAME_SCREEN_BUFFERS]; /* the buffer each one took the display from */
+    int writable[ACGAME_SCREEN_BUFFERS];
+    int safe_pending;               /* SafeMessages not yet back */
+    int shown_pending;              /* the last change's DispMessage is not back */
     unsigned screen_width;
     unsigned screen_height;
 #if ACGAME_OPENINPUT
@@ -395,38 +403,88 @@ static void close_input(void) {
 
 /* ---- display ---------------------------------------------------------------- */
 
-/* Collects Intuition's replies to the last ChangeScreenBuffer. */
-static void wait_port(struct MsgPort *port, int *done) {
-    if (*done) {
-        return;
+/* Takes one SafeMessage: the buffer that the message's change replaced is
+ * no longer scanned out and may be written. */
+static void take_safe_message(struct Message *msg) {
+    acgame_amiga_state *g = &g_acgame_amiga;
+    int i;
+    for (i = 0; i < g->buffers; ++i) {
+        if (msg == &g->buffer[i]->sb_DBufInfo->dbi_SafeMessage) {
+            if (g->replaced[i] >= 0) {
+                g->writable[g->replaced[i]] = 1;
+                g->replaced[i] = -1;
+            }
+            break;
+        }
     }
-    while (!GetMsg(port)) {
-        Wait(1UL << port->mp_SigBit);
+    --g->safe_pending;
+}
+
+static void collect_safe(int block) {
+    acgame_amiga_state *g = &g_acgame_amiga;
+    struct Message *msg;
+    for (;;) {
+        while ((msg = GetMsg(g->safe_port)) != NULL) {
+            take_safe_message(msg);
+            block = 0;
+        }
+        if (!block || g->safe_pending <= 0) {
+            return;
+        }
+        Wait(1UL << g->safe_port->mp_SigBit);
     }
-    *done = 1;
+}
+
+static void collect_shown(void) {
+    acgame_amiga_state *g = &g_acgame_amiga;
+    while (g->shown_pending) {
+        if (GetMsg(g->shown_port)) {
+            g->shown_pending = 0;
+        } else {
+            Wait(1UL << g->shown_port->mp_SigBit);
+        }
+    }
+}
+
+/* Puts buffer i on display at the next vertical blank. */
+static int change_buffer(int i) {
+    acgame_amiga_state *g = &g_acgame_amiga;
+    collect_shown();
+    if (!ChangeScreenBuffer(g->screen, g->buffer[i])) {
+        return 0;
+    }
+    g->replaced[i] = g->shown;
+    g->writable[i] = 0;
+    g->shown = i;
+    g->shown_pending = 1;
+    ++g->safe_pending;
+    return 1;
 }
 
 static void close_double_buffer(void) {
     acgame_amiga_state *g = &g_acgame_amiga;
-    if (g->buffer[0] && g->buffer[1]) {
-        wait_port(g->safe_port, &g->safe_to_write);
-        wait_port(g->shown_port, &g->safe_to_change);
-        if (g->shown != 0 && ChangeScreenBuffer(g->screen, g->buffer[0])) {
-            /* the screen's own bitmap goes back on display before the copy is freed */
-            g->safe_to_write = g->safe_to_change = 0;
-            wait_port(g->safe_port, &g->safe_to_write);
-            wait_port(g->shown_port, &g->safe_to_change);
-            g->shown = 0;
+    int i;
+    if (g->buffers) {
+        collect_shown();
+        collect_safe(1);
+        while (g->safe_pending > 0) {
+            collect_safe(1);
+        }
+        if (g->shown != 0 && change_buffer(0)) {
+            /* the screen's own bitmap goes back on display before the copies are freed */
+            collect_shown();
+            while (g->safe_pending > 0) {
+                collect_safe(1);
+            }
         }
     }
-    if (g->buffer[1]) {
-        FreeScreenBuffer(g->screen, g->buffer[1]);
-        g->buffer[1] = NULL;
+    for (i = ACGAME_SCREEN_BUFFERS - 1; i >= 0; --i) {
+        if (g->buffer[i]) {
+            FreeScreenBuffer(g->screen, g->buffer[i]);
+            g->buffer[i] = NULL;
+        }
     }
-    if (g->buffer[0]) {
-        FreeScreenBuffer(g->screen, g->buffer[0]);
-        g->buffer[0] = NULL;
-    }
+    g->buffers = 0;
     if (g->safe_port) {
         DeleteMsgPort(g->safe_port);
         g->safe_port = NULL;
@@ -439,28 +497,34 @@ static void close_double_buffer(void) {
 
 static int bitmap_is_planar8(struct BitMap *bitmap);
 
-/* Without the second buffer (Chip RAM short) frames go single-buffered into
- * the screen's bitmap after WaitTOF, as before. */
+/* Without Chip RAM for a second buffer frames go single-buffered into the
+ * screen's bitmap after WaitTOF, as before. */
 static void open_double_buffer(void) {
     acgame_amiga_state *g = &g_acgame_amiga;
-    unsigned i;
-    g->buffer[0] = AllocScreenBuffer(g->screen, NULL, SB_SCREEN_BITMAP);
-    g->buffer[1] = AllocScreenBuffer(g->screen, NULL, SB_COPY_BITMAP);
+    int i, n = 0;
     g->safe_port = CreateMsgPort();
     g->shown_port = CreateMsgPort();
-    if (!g->buffer[0] || !g->buffer[1] || !g->safe_port || !g->shown_port ||
-        !bitmap_is_planar8(g->buffer[0]->sb_BitMap) || !bitmap_is_planar8(g->buffer[1]->sb_BitMap)) {
-        g->safe_to_write = g->safe_to_change = 1;
+    if (g->safe_port && g->shown_port) {
+        for (i = 0; i < ACGAME_SCREEN_BUFFERS; ++i) {
+            g->buffer[i] = AllocScreenBuffer(g->screen, NULL, i == 0 ? SB_SCREEN_BITMAP : SB_COPY_BITMAP);
+            if (!g->buffer[i] || !bitmap_is_planar8(g->buffer[i]->sb_BitMap)) {
+                break;
+            }
+            g->buffer[i]->sb_DBufInfo->dbi_SafeMessage.mn_ReplyPort = g->safe_port;
+            g->buffer[i]->sb_DBufInfo->dbi_DispMessage.mn_ReplyPort = g->shown_port;
+            g->replaced[i] = -1;
+            g->writable[i] = i != 0;
+            n = i + 1;
+        }
+    }
+    if (n < 2) {
         close_double_buffer();
         return;
     }
-    for (i = 0; i < 2; ++i) {
-        g->buffer[i]->sb_DBufInfo->dbi_SafeMessage.mn_ReplyPort = g->safe_port;
-        g->buffer[i]->sb_DBufInfo->dbi_DispMessage.mn_ReplyPort = g->shown_port;
-    }
+    g->buffers = n;
     g->shown = 0;
-    g->safe_to_write = 1;
-    g->safe_to_change = 1;
+    g->safe_pending = 0;
+    g->shown_pending = 0;
 }
 
 static void close_display(void) {
@@ -647,28 +711,40 @@ static int c2p_into(struct BitMap *bitmap, const acgame_indexed_surface *frame) 
                             frame->width, frame->height);
 }
 
-/* Planar, double-buffered: convert into the hidden buffer, then show it and
+/* Planar, buffered: convert into a buffer off the display, then show it and
  * its palette together at the next vertical blank. */
 static int present_double_buffered(const acgame_indexed_surface *frame) {
     acgame_amiga_state *g = &g_acgame_amiga;
-    const int draw = !g->shown;
-    int result;
+    int draw = -1, i, result;
     if (!frame->pixels || frame->width != g->width || frame->height != g->height) {
         return -1;
     }
-    wait_port(g->safe_port, &g->safe_to_write);
+    collect_safe(0);
+    for (;;) {
+        for (i = 0; i < g->buffers && draw < 0; ++i) {
+            if (i != g->shown && g->writable[i]) {
+                draw = i;
+            }
+        }
+        if (draw >= 0) {
+            break;
+        }
+        if (g->safe_pending <= 0) {
+            /* every change has been answered: nothing off display is scanned */
+            for (i = 0; i < g->buffers; ++i) {
+                g->writable[i] = i != g->shown;
+            }
+            continue;
+        }
+        collect_safe(1);
+    }
     result = c2p_into(g->buffer[draw]->sb_BitMap, frame);
     if (result != 0) {
         return result;
     }
-    wait_port(g->shown_port, &g->safe_to_change);
-    if (ChangeScreenBuffer(g->screen, g->buffer[draw])) {
-        g->shown = draw;
-        g->safe_to_write = 0;
-        g->safe_to_change = 0;
-    }
-    /* A refused change (Intuition busy) drops this frame; the next one goes
-     * into the same hidden buffer. */
+    /* A refused change (Intuition busy) drops this frame; the buffer stays
+     * writable for the next one. */
+    change_buffer(draw);
     return update_palette(frame->palette);
 }
 
@@ -833,7 +909,7 @@ int acgame_platform_present_indexed(const acgame_indexed_surface *frame) {
     if (!frame || !g_acgame_amiga.screen) {
         return -1;
     }
-    if (g_acgame_amiga.buffer[0]) {
+    if (g_acgame_amiga.buffers) {
         return present_double_buffered(frame);
     }
     if (update_palette(frame->palette) != 0) {
