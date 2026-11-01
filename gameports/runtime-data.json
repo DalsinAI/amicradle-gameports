@@ -49,10 +49,10 @@
       "urls": [
         "https://www.omf2097.com/pub/files/omf/openomf-assets.zip"
       ],
-      "sha256": null,
+      "sha256": "de472c786adf9e618bf4b71a5f2cb85bb0b090f27da2b3008f305453a8dea67d",
       "availability": "freeware-public-download",
       "packaging": "fetch-on-demand",
-      "notes": "This is the data archive linked directly by OpenOMF upstream BUILD.md. Record the observed SHA-256 after fetch until a publisher checksum is pinned."
+      "notes": "This is the data archive linked directly by OpenOMF upstream BUILD.md (openomf 4a94a754). SHA-256 observed on 1 November 2026 (5,984,420 bytes, 56 entries, CRCs good) from that URL and pinned for repeat downloads; not a publisher signature."
     },
     "jazz-shareware-1.1": {
       "games": [
