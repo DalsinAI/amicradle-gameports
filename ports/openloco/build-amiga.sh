@@ -27,7 +27,27 @@ SDL3_SDK=${OPENLOCO_SDL3_SDK:-$GP/build/team1-sdl3-open3}
 WORK=${OPENLOCO_WORK:-$HOME/AmigaChrome-dev/openloco-work}
 JOBS=${OPENLOCO_JOBS:-$(( $(nproc) > 3 ? $(nproc) / 2 : 1 ))}
 mkdir -p "$WORK"
-KEY=$( (cd "$HERE" && find source.json patches compat -type f | LC_ALL=C sort | xargs sha256sum) | sha256sum | cut -c1-16)
+for f in "$STAGED/provenance.json" "$STAGED/prefix/bin/m68k-amigaos-g++" "$SDL3_SDK/libSDL3.a" "$SDL3_SDK/SDL3.module"; do
+    [[ -e $f ]] || { echo "MISSING $f"; ls -la "$GP/build" | head -60; exit 1; }
+done
+# Validate every compiler/runtime file before accepting a cached result.
+python3 -c 'import sys;from pathlib import Path;sys.path.insert(0,sys.argv[1]);from build_sdl3_port import verify_stove;verify_stove(Path(sys.argv[2]))' "$ROOT/scripts" "$STAGED"
+# The key covers the complete recipe and the actual imported build inputs. A
+# cache hit therefore cannot combine an old executable with a new SDL module.
+KEY=$(
+    {
+        (cd "$ROOT" && {
+            find ports/openloco -type f -print0
+            printf '%s\0' scripts/build_sdl3_port.py scripts/check_m68040_fpcr.py \
+                toolchain/amigaos3-opengpu.cmake toolchain/port-dependencies.lock.json
+        } | LC_ALL=C sort -z | xargs -0 sha256sum)
+        (cd "$STAGED" && sha256sum provenance.json prefix/bin/m68k-amigaos-g++)
+        (cd "$SDL3_SDK" && {
+            find include -type f -print0
+            printf '%s\0' libSDL3.a SDL3.module
+        } | LC_ALL=C sort -z | xargs -0 sha256sum)
+    } | sha256sum | cut -c1-32
+)
 echo "recipe $KEY, work $WORK, stove $STAGED, sdl3 $SDL3_SDK, jobs $JOBS"
 
 # Install into the scratch lab (never an instance): its drives are host
@@ -77,10 +97,24 @@ if alive; then
 fi
 BIN=$WORK/tree/cmake/OpenLoco
 if [[ -f "$WORK/done.key" && $(cat "$WORK/done.key") == "$KEY" && -f "$BIN" ]]; then
+    python3 - "$WORK/tree/receipt.json" "$BIN" "$WORK/OpenAL.module" <<'PY'
+import hashlib, json, pathlib, sys
+receipt = json.loads(pathlib.Path(sys.argv[1]).read_text())
+def digest(path):
+    with pathlib.Path(path).open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+if receipt.get('state') != 'compiled' or digest(sys.argv[2]) != receipt.get('binary_sha256'):
+    raise SystemExit('cached OpenLoco does not match its completed receipt')
+for name, item in receipt.get('external_inputs', {}).items():
+    if digest(item['path']) != item['sha256']:
+        raise SystemExit(f'cached external input changed: {name}')
+if digest(sys.argv[3]) != receipt['external_inputs']['OPENAL_MODULE']['sha256']:
+    raise SystemExit('cached release OpenAL.module does not match its receipt')
+PY
     cp "$BIN" "$OUT/OpenLoco"
     cp "$SDL3_SDK/SDL3.module" "$OUT/SDL3.module"
     cp "$WORK/OpenAL.module" "$OUT/OpenAL.module"
-    cp "$WORK/tree/receipt.json" "$OUT/receipt.json" 2>/dev/null || true
+    cp "$WORK/tree/receipt.json" "$OUT/receipt.json"
     cp -r "$WORK/tree/source/data" "$OUT/data"
     tail -n 30 "$WORK/build.log" > "$OUT/build-tail.log"
     m68k=$STAGED/prefix/bin/m68k-amigaos-
@@ -96,10 +130,6 @@ if [[ -f "$WORK/failed.key" && $(cat "$WORK/failed.key") == "$KEY" ]]; then
     rm -f "$WORK/failed.key"   # the next call tries again
     exit 1
 fi
-
-for f in "$STAGED/provenance.json" "$STAGED/prefix/bin/m68k-amigaos-g++" "$SDL3_SDK/libSDL3.a" "$SDL3_SDK/SDL3.module"; do
-    [[ -e $f ]] || { echo "MISSING $f"; ls -la "$GP/build" | head -60; exit 1; }
-done
 
 # Copy this recipe out of Cradle's checkout: Cradle resets it between jobs.
 rm -rf "$WORK/recipe.new"; mkdir -p "$WORK/recipe.new"
@@ -124,14 +154,19 @@ ln -sfn $WORK/sources/dependencies build/game-ports/dependencies
 # OpenAL.module and its link library, from OpenRTG at the recipe's pin,
 # with the GCC 16 stove (OpenRTG's own build script and defaults).
 OPENRTG=\$(python3 -c "import json; print(json.load(open('ports/openloco/source.json'))['openrtg']['commit'])")
-if [[ ! -f $WORK/openal/\$OPENRTG/libopenal.a ]]; then
+AL=$WORK/openal/\$OPENRTG-$KEY
+if [[ ! -f \$AL/libopenal.a || ! -f \$AL/OpenAL.module || ! -f \$AL/include/AL/al.h ]]; then
     [[ -d $WORK/openrtg/.git ]] || git clone -q https://github.com/DalsinAI/openrtg.git $WORK/openrtg
     git -C $WORK/openrtg cat-file -e "\$OPENRTG^{commit}" 2>/dev/null || git -C $WORK/openrtg fetch -q origin
-    git -C $WORK/openrtg checkout -q --detach "\$OPENRTG"
-    rm -rf $WORK/openal/\$OPENRTG
-    STOVE=${STOVE:-$HOME/AmigaChrome/stoves/os32-gcc16}/prefix sh $WORK/openrtg/library/modules/openal/build.sh $WORK/openal/\$OPENRTG module stub
+    SRC=$WORK/openrtg-source/\$OPENRTG-$KEY
+    rm -rf \$SRC \$AL
+    mkdir -p \$SRC \$AL
+    git -C $WORK/openrtg archive "\$OPENRTG" | tar -x -C \$SRC
+    for p in "\$R"/ports/openloco/openrtg-patches/*.patch; do
+        patch -d \$SRC -p1 < "\$p"
+    done
+    STOVE=$STAGED/prefix sh \$SRC/library/modules/openal/build.sh \$AL module stub
 fi
-AL=$WORK/openal/\$OPENRTG
 mkdir -p $WORK/openal-cmake
 cat > $WORK/openal-cmake/OpenALConfig.cmake <<CFG
 set(OpenAL_FOUND TRUE)
@@ -144,6 +179,9 @@ set_target_properties(OpenAL::OpenAL PROPERTIES
 endif()
 CFG
 export OPENAL_CMAKE_DIR=$WORK/openal-cmake
+export OPENAL_CONFIG=$WORK/openal-cmake/OpenALConfig.cmake
+export OPENAL_LIBRARY=\$AL/libopenal.a
+export OPENAL_MODULE=\$AL/OpenAL.module
 cp \$AL/OpenAL.module $WORK/OpenAL.module
 python3 scripts/build_sdl3_port.py --manifest ports/openloco/source.json --stove $STAGED \
     --sdl3-sdk $SDL3_SDK --out $WORK/tree --jobs $JOBS --reuse-out

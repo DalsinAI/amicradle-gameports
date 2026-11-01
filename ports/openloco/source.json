@@ -33,8 +33,10 @@
         "-DAMIGA_CPU_FLAGS=-m68040 -m68881 -fno-delete-null-pointer-checks",
         "-DOPENLOCO_GCC16_UI_WORKAROUND=ON",
         "-DOPENLOCO_SOURCE_COMMIT=6d7f5b1bfb4abd5ae2f1a2ade628a2b0d46f861e",
-        "-DOPENLOCO_AMIGA_RUNTIME_COMPAT_SOURCE=@PORT_DIR@/compat/StatVfs.Amiga.cpp"
-      ]
+        "-DOPENLOCO_AMIGA_RUNTIME_COMPAT_SOURCE=@PORT_DIR@/compat/StatVfs.Amiga.cpp;@PORT_DIR@/compat/Stack.Amiga.cpp"
+      ],
+      "postLink68040": true,
+      "stackBytes": 4194304
     }
   },
   "buildDependencies": {
@@ -58,6 +60,11 @@
     }
   },
   "compilerRelease": "16.2.0-open3",
+  "externalInputEnvironment": [
+    "OPENAL_CONFIG",
+    "OPENAL_LIBRARY",
+    "OPENAL_MODULE"
+  ],
   "openrtg": {
     "url": "https://github.com/DalsinAI/openrtg.git",
     "commit": "8b6d09ff1023edc3fb1e62e3db0490ec385820b2",

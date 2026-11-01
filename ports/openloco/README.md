@@ -1,15 +1,21 @@
 # OpenLoco
 
 Target: AmigaOS 3.x / 68040 + FPU / AC090, GCC 16.2.0-open3 and OpenAmiga SDL3.
-Status (31 October): playable on a 68040 lab copy of Instance-32 (OS 3.2.3,
-OpenRTG, AHI). Title screen with its live demo map, scenario list and previews,
-new game (Boulder Breakers), Save Game, autosave, Load Game from the title
-screen and a clean exit all work with the original Locomotion data. Sound is
-built in: OpenAL calls go to OpenRTG's `LIBS:OpenGPU/OpenAL.module` (OpenAL 1.1
-over AHI); the lab reports "OpenAL ... Renderer: AHI Voices, initialized" with
-992 mono and 32 stereo sources (labs are muted, so it has not been heard yet).
-See [Lab results](#lab-results-31-october), [S5 boundaries](S5_ENDIAN.md) and
-[audio](AUDIO_ASSESSMENT.md). Earlier evidence below is historical.
+Status (1 November): the port has reached the title/demo, scenario selection,
+new game (Boulder Breakers), Save Game, autosave, title-screen Load Game and a
+clean exit on a 68040 lab copy of Instance-32 (OS 3.2.3, OpenRTG, AHI). That
+runtime pass used a temporary station diagnostic patch and is historical
+evidence, not qualification of the current recipe. The committed recipe omits
+the diagnostic, requests a 4 MiB stack, narrows the compiler workaround and
+enforces HUNK, stack and GCC 16 FPCR checks after every link. Repeat the target
+pass against its exact receipt before release promotion.
+
+A clean build of the current recipe completed on 1 November. The 7,634,020-byte
+HUNK executable is SHA-256
+`351383c6c97b8027a3e5f185a23793416cfa87d32bd2c612250857db9e0626fa`;
+the post-link gates passed for 68040 FPCR safety and the 4 MiB stack. See the
+[current build evidence](evidence/build-2026-11-01.json). This is build-qualified,
+not runtime-qualified.
 
 The exact upstream source is `OpenLoco/OpenLoco`
 `6d7f5b1bfb4abd5ae2f1a2ade628a2b0d46f861e` (version 26.09).
@@ -21,6 +27,10 @@ by full commits. It does not change the catalog or existing port lanes.
 ```sh
 python3 scripts/game_port_prepare.py prepare --catalog ports/openloco/source.json --game openloco
 python3 scripts/port_dependencies.py stage --stove "$STOVE" --source /path/to/locked-codec-inputs
+OPENAL_CMAKE_DIR=/path/to/openal-cmake \
+OPENAL_CONFIG=/path/to/openal-cmake/OpenALConfig.cmake \
+OPENAL_LIBRARY=/path/to/libopenal.a \
+OPENAL_MODULE=/path/to/OpenAL.module \
 SDL3_SDK=/path/to/openrtg-sdl3-output \
   sh ports/openloco/build-amigaos3.sh --out "$PWD/build/openloco-clean"
 ```
@@ -33,8 +43,8 @@ codec inventory, exports source and applies checked patches without editing
 caches, and records logs and a receipt. Existing SDK/codec binaries are imported,
 not newly source-rebuilt or runtime-qualified.
 
-The platform baseline assessed here is OpenRTG
-`0c98fe780e6531946be44bebbb3a9db0c7bb7ab2`, SDL 3.4.14 and SDL3_68k
+The current platform input is OpenRTG
+`8b6d09ff1023edc3fb1e62e3db0490ec385820b2`, SDL 3.4.14 and SDL3_68k
 `c82dea042718200eea401e7ed62d88b997bc9fd9`. New platform work is a separate
 qualification dependency. The game links the platform SDL3 client.
 
@@ -44,24 +54,27 @@ qualification dependency. The game links the platform SDL3 client.
 - Add an opt-in sequential viewport path, selected for this port. Desktop
   parallel rendering remains the default. No TBB substitution or invented
   OpenMulticore support; actual multicore rendering needs a later adapter.
-- Disable runtime asset fetching/copying for this engine build. This is not a
-  ready-to-run package. Upstream defaults remain unchanged.
-- Read/write Sawyer container length and checksum fields explicitly as
-  little-endian bytes. Payload conversion is a separate outstanding task.
+- Disable runtime asset fetching/copying; the user supplies lawful Locomotion
+  data. Upstream defaults remain unchanged.
+- Decode graphics, objects, audio and complete S5/save state explicitly at
+  little-endian wire boundaries and preserve compatible files on export.
+- Use the pinned OpenRTG OpenAL.module over AHI. Reverb remains off because the
+  backend does not advertise EFX.
+- Compile only IndustryList.cpp, TerraForm.cpp and TownList.cpp at `-O0` for the
+  recorded open3 ICE; the other 91 UI translation units stay optimised.
+- Define a 4 MiB libnix stack contract for Shell and Workbench launches.
 
-The initial full-game configure stopped at OpenAL. The current engineering
-recipe explicitly disables audio, supplies native Amiga platform/socket bindings
-and builds successfully. Two clean builds produce SHA-256
-`96da9f61b1c2845c268f20930fe2901503fa73803abc46d399fbe4dc701e5f72`. [Engineering notes](ENGINEERING.md) describe the
-AC090 probe results, the scoped open3 compiler workaround and remaining gates.
-Current full-application evidence is recorded separately from those API probes.
+The receipt records compiler/runtime, SDL3, OpenAL, dependency, codec, patch and
+recipe hashes plus the executable hash and post-link results. [Engineering
+notes](ENGINEERING.md) describe the AC090 probes and remaining gates.
 
 Targeted tests build the real patched Sawyer loader and MemoryStream with
 synthetic data. The host probe passed exact length/checksum bytes, payload
 round-trip, position restoration, corrupt checksums and truncated input. The
 same probe and the Core Numerics/Prng sources compile/link with open3 to HUNK
-and a target archive. The link emits duplicate libstdc++ section warnings.
-The target probe has not been run; big-endian runtime correctness is unqualified.
+and a target archive. Complete state and widget probes passed on the 68k lab;
+see [S5 boundaries](S5_ENDIAN.md). The duplicate libstdc++ COMDAT warnings still
+need a toolchain investigation.
 
 After a game configure attempt has exported the patched source:
 
@@ -79,13 +92,11 @@ run that executable in an Amiga guest, not with host CTest.
 
 ## Remaining game work
 
-The [audio reuse assessment](AUDIO_ASSESSMENT.md) recommends a reusable
-OpenAL-compatible module over native OpenAHI/ACAHI. OpenAHI already supplies
-mixing, voices, pitch and pan; ACAHI Host mix can offload the mixing. The common
-layer needs resource arbitration, context/source lifetime, playback semantics,
-spatialization and truthful capabilities. OpenLoco can keep its OpenAL calls.
-A game-specific SDL3 audio replacement is not selected. The shared adapter is
-not implemented here, and the engineering recipe explicitly disables it until that shared backend is ready.
+The [audio assessment](AUDIO_ASSESSMENT.md) selected the reusable OpenRTG
+OpenAL-compatible module over native OpenAHI/ACAHI, and the recipe now uses it.
+Initialisation and source-capacity queries passed in the muted lab. Audible
+music/effects, pitch/pan fidelity, dropouts, latency and sustained 68040 cost
+still need testing on an unmuted target.
 
 Use a locally generated versioned native asset cache where beneficial, per
 [the preprocessing standard](../../docs/ASSET_PREPROCESSING.md). The full
@@ -93,11 +104,11 @@ schema audit and converter are not implemented. Object records, CSS/WAV
 metadata, PCM and packed S5/save structures cannot be converted by blindly
 swapping a container's words. Preserve original data and compatible saves.
 
-Implemented but still requiring full-application qualification: native Amiga
-paths/user directories, time and single-instance handling. Still outstanding:
-filesystem/packed-data audit, complete C++20 application qualification and
-linker-warning investigation, OpenGPU presentation and INDEX8 qualification,
-input, persistence, clean exit and measured memory/CPU costs.
+Implemented and exercised in the historical lab pass: native paths/user
+directories, time, single-instance handling, OpenGPU presentation, input,
+persistence and clean exit. Still outstanding for the current exact receipt:
+the target repeat, linker-warning investigation, long-session vehicle/track
+play, audible audio and measured memory/CPU costs on the plain 68040 fallback.
 
 OpenLoco's engine is MIT; preserve dependency notices. Original Locomotion
 assets are user-supplied. The disabled OpenGraphics v0.1.12 package is pinned
@@ -106,17 +117,13 @@ it is not fetched or bundled here and still needs a separate packaging/rights
 review. No assets, SDK headers or binaries are committed. All
 [release gates](../../RELEASE_POLICY.md) remain open.
 
-The final binary was launched from RAM: on AC090. Native DOS paths correctly
-created program-relative User/save, landscape and objects folders. Version/help
-print the pinned version and return 1, matching the upstream dispatcher. A full
-startup reaches the retail assets but cannot interpret packed little-endian G1
-metadata (4122 elements becomes 437256192); CSS loading also reports an invalid
-vector size. No menu/gameplay pass is claimed. See
-[evidence](evidence/noaudio-native-results.json).
+The earlier no-audio checkpoint reached retail data but stopped on little-endian
+G1/CSS metadata; [its receipt](evidence/noaudio-native-results.json) remains as
+historical failure evidence. Patches 0012-0016 supersede that checkpoint.
 
 ## Lab results (31 October)
 
-Built on Daletop through Cradle (`stove_build`, target `ports/openloco`,
+The historical diagnostic build was made on Daletop through Cradle (`stove_build`, target `ports/openloco`,
 stove `os32-gcc16`); `build-amiga.sh` keeps an incremental work folder,
 builds OpenRTG's OpenAL.module and link stub at the commit in `source.json`
 (`openrtg`), and installs into lab `t3-openloco` only (never an instance).
@@ -126,6 +133,8 @@ builds OpenRTG's OpenAL.module and link stub at the commit in `source.json`
 | OpenLoco (HUNK) | 9,832,716 |
 | OpenAL.module | 58,528 |
 
+- It included an uncommitted station-tool logging patch and cannot qualify the
+  current source. Its behavioural observations must be repeated.
 - New game, date advances, Save Game (763,801 byte .SV5 in under 0.5 s),
   autosave, Load Game of that save, quit from the window's close box: all OK.
 - Patch 0017 lets the engine build against an OpenAL without EFX (OpenRTG's

@@ -154,9 +154,9 @@ latency, CPU and memory under representative voice counts on clean 68040 and
 AC090 targets. Test actual AHI/ACAHI output. Host dummy output proves none of
 those hardware results.
 
-No SDL2, SDL3, AHI or OpenAL platform implementation is changed by this
-assessment. The current full-game recipe still stops at the missing OpenAL
-dependency until the tested shared OpenAL-to-OpenAHI layer supplies it.
+This assessment did not itself change SDL2, SDL3, AHI or OpenAL. The selected
+shared OpenAL-to-AHI layer was subsequently implemented in OpenRTG and is now a
+pinned, hashed input to the full-game recipe.
 
 ## Source references
 

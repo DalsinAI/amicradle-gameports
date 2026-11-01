@@ -35,11 +35,12 @@ The separate widget probe passed on both host and 68k, including OK text,
 content low bits, assignment and the null string marker. Assertions remain
 enabled in Release builds.
 
-Earlier full-app tests reached the title and a scenario with an incomplete
-state walk; those screenshots do not qualify this corrected converter.
-Full-app repeat, save/load compatibility, audio and the intended OpenKick
-ROM test remain open. The current Amiga recipe still disables audio. These
-patches are engineering progress, not a playable or release certification.
+An AC090 diagnostic build with the corrected converter reached the title and a
+scenario, saved, autosaved and loaded the result. Because that build included an
+uncommitted station diagnostic, the current recipe still needs an exact
+receipt-bound repeat. The current recipe enables the pinned OpenAL/AHI backend;
+audible audio and the intended OpenKick ROM test remain open. These patches are
+engineering progress, not release certification.
 The older `evidence/s5-20261024/` records describe patch 0014's checkpoint.
 
 ## Reproduce

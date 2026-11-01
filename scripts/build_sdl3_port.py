@@ -8,6 +8,7 @@ import json
 import os
 import shutil
 import re
+import sys
 from pathlib import Path
 import subprocess
 import tarfile
@@ -57,6 +58,38 @@ def expand(arg, port_dir):
             raise ValueError(f"{name} must be set for this recipe")
         arg = arg.replace(f"@ENV:{name}@", os.environ[name])
     return arg
+
+
+def verify_post_link(binary, stove, port):
+    """Apply the release gates requested by an Amiga port manifest."""
+    if binary.read_bytes()[:4] != bytes.fromhex("000003f3"):
+        raise ValueError(f"Not an Amiga HUNK executable: {binary}")
+    result = {"hunk": "PASS"}
+    prefix = stove / "prefix/bin/m68k-amigaos-"
+    if port.get("postLink68040"):
+        scan = subprocess.run(
+            [sys.executable, str(ROOT / "scripts/check_m68040_fpcr.py"),
+             str(prefix) + "objdump", str(binary)],
+            text=True, capture_output=True, check=True)
+        result["m68040_fpcr_scan"] = scan.stdout.strip()
+    expected_stack = port.get("stackBytes")
+    if expected_stack is not None:
+        symbols = run([str(prefix) + "nm", "-S", binary]).splitlines()
+        fields = next((line.split() for line in symbols
+                       if line.split()[-1:] == ["___stack"]), None)
+        if fields is None or len(fields) < 3 or fields[-2].upper() != "D":
+            raise ValueError("___stack must be a non-zero definition in the data section")
+        offset = int(fields[0], 16)
+        with tempfile.NamedTemporaryFile() as data:
+            subprocess.run([str(prefix) + "objcopy", "--only-section=.data", "-O", "binary",
+                            str(binary), data.name], check=True)
+            data.seek(offset)
+            encoded = data.read(4)
+        actual_stack = int.from_bytes(encoded, "big") if len(encoded) == 4 else None
+        if actual_stack != expected_stack:
+            raise ValueError(f"___stack is {actual_stack}, expected {expected_stack}")
+        result["stack_bytes"] = actual_stack
+    return result
 
 
 def main():
@@ -153,6 +186,14 @@ def main():
     if codecs:
         command += [f"-DZLIB_ROOT={codecs}", f"-DPNG_PNG_INCLUDE_DIR={codecs}/include",
                     f"-DPNG_LIBRARY={codecs}/lib/libpng.a"]
+    external_inputs = {}
+    for name in spec.get("externalInputEnvironment", []):
+        if not os.environ.get(name):
+            raise ValueError(f"Required external input environment is unset: {name}")
+        path = Path(os.environ[name]).resolve()
+        if not path.is_file():
+            raise ValueError(f"Missing external input {name}: {path}")
+        external_inputs[name] = {"path": str(path), "sha256": digest(path)}
     evidence = {"schema": 1, "port": game, "source": port["source"],
                 "compiler_archive_sha256": receipt["archive_sha256"],
                 "compiler_release": receipt["release"],
@@ -160,7 +201,8 @@ def main():
                 "patches": {p.name: digest(p) for p in patches},
                 "recipe_files": {str(p.relative_to(manifest.parent)): digest(p)
                                  for p in sorted(manifest.parent.rglob("*")) if p.is_file()},
-                "dependencies": spec.get("buildDependencies", {}), "configure": command,
+                "dependencies": spec.get("buildDependencies", {}),
+                "external_inputs": external_inputs, "configure": command,
                 "codec_lock_sha256": digest(ROOT / "toolchain/port-dependencies.lock.json") if codecs else None,
                 "build": ["cmake", "--build", str(out / "cmake"), "--target", port["target"],
                           "-j", str(args.jobs)], "state": "attempting", "runtime": "not tested"}
@@ -178,6 +220,7 @@ def main():
             binary = out / "cmake" / port["binary"]
             evidence["binary_sha256"] = digest(binary)
             evidence["binary_file"] = run(["file", binary])
+            evidence["post_link"] = verify_post_link(binary, stove, port)
     except subprocess.CalledProcessError as exc:
         evidence["state"] = "blocked"
         evidence["failed_command"] = exc.cmd

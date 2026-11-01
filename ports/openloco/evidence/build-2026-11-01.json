@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "status": "build-qualified-runtime-not-tested",
+  "source_commit": "6d7f5b1bfb4abd5ae2f1a2ade628a2b0d46f861e",
+  "openrtg_commit": "8b6d09ff1023edc3fb1e62e3db0490ec385820b2",
+  "compiler_release": "16.2.0-open3",
+  "binary": {
+    "name": "OpenLoco",
+    "bytes": 7634020,
+    "sha256": "351383c6c97b8027a3e5f185a23793416cfa87d32bd2c612250857db9e0626fa",
+    "file_type": "AmigaOS loadseg()ble executable/binary"
+  },
+  "modules": {
+    "OpenAL.module": {
+      "bytes": 58516,
+      "sha256": "9a670896f6304c4041fdf5307284cec7633def0b2783c4b8d0709210f8d55a98"
+    },
+    "SDL3.module": {
+      "sha256": "9a837d53dcaa14b859a0dfd45ea276fb18db66390dbfc41ab19f47d62c8fc1db"
+    }
+  },
+  "openal_library_sha256": "9b9447f1e9489cfd49ac349fea73d90f04b0b3f4abd945381991d2f60f853e0f",
+  "post_link": {
+    "hunk": "PASS",
+    "m68040_fpcr_scan": "fpcr_check: none",
+    "stack_bytes": 4194304
+  },
+  "runtime": "not tested for this exact receipt"
+}

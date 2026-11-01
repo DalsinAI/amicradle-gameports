@@ -1,11 +1,14 @@
 # Little-endian assets on AC090
 
-24 October 2026: **engineering asset-loader tests pass; gameplay is blocked**.
-Upstream is pinned to `6d7f5b1bfb4abd5ae2f1a2ade628a2b0d46f861e`.
+24 October 2026 checkpoint: **engineering asset-loader tests pass; gameplay
+was blocked at this stage**. This document preserves that checkpoint; see the
+[port README](README.md) for current status. Upstream is pinned to
+`6d7f5b1bfb4abd5ae2f1a2ade628a2b0d46f861e`.
 
 Patches 0012 and 0013 decode wire metadata at the load boundary. Original game
-files remain unchanged. The full application still has audio disabled and uses
-the existing frozen SDL3 SDK; this does not qualify a new renderer or OpenAL.
+files remain unchanged. This checkpoint used an audio-disabled application and
+the existing frozen SDL3 SDK; it did not qualify a renderer or OpenAL. The
+current recipe enables the separately pinned and receipted OpenAL/AHI backend.
 
 ## Scope
 

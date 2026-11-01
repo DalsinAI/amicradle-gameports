@@ -1,11 +1,10 @@
 # Amiga engineering lane
 
-The recipe temporarily selects `OPENLOCO_DISABLE_AUDIO=ON`. The default upstream
-OpenAL backend remains available when that option is off. The disabled backend
-reports no device, no buffers, no voices and no playback; it does not claim to
-provide audio. The common OpenAL.module / OpenAHI implementation remains Team 4's
-work. The host and AC090 contract probes pass, including rejection of playback
-handles and safe channel-volume access. This is not AHI or OpenAL qualification.
+The recipe selects `OPENLOCO_DISABLE_AUDIO=OFF` and links the pinned OpenRTG
+OpenAL client. At runtime OpenAL.module provides the AHI backend. Its library and
+module hashes are external inputs in `receipt.json`. Initialisation and capacity
+queries pass in the muted lab; audible playback and sustained 68040 performance
+remain unqualified.
 
 ## Native networking
 
@@ -62,8 +61,8 @@ IndustryList.cpp, TerraForm.cpp and TownList.cpp expose an open3 GCC
 internal compiler error: an unrecognised SI-mode `ge` instruction during RTL
 CSE. For IndustryList, O3, O2, O1 and disabling rerun-CSE failed; O0 compiled.
 TerraForm also compiled at O0. The explicit engineering recipe option applies
-O0 to the UI translation units. Files outside src/Ui retain normal release
-optimisation. This is a temporary compiler workaround,
+`-O0` only to those three translation units. All other UI and engine files retain
+normal release optimisation. This is a temporary compiler workaround,
 not a source-logic or gameplay change. UI behaviour/performance still
 needs runtime testing. No compiler or shared stove is modified.
 
@@ -76,12 +75,11 @@ A further 38 graphics/music files were copied from the CD Data directory,
 for 651 game files in total. Original archives/CD and a per-file hash receipt
 stay in the local media repository. No assets are committed or bundled.
 
-The Sawyer wire header/checksum fix is **not** a packed-payload conversion.
-Object records, graphics metadata, scripts and S5/save structures still need
-an endian audit and schema-aware native cache, with reference comparisons.
-LBA2's converter must not be applied to Locomotion files. Clean-target gameplay,
-OpenGPU/INDEX8 presentation, input, audio, persistence and release-policy gates
-remain open even if the application compiles.
+The Sawyer wire header/checksum fix alone was not a packed-payload conversion.
+Patches 0012-0016 now decode graphics, object, audio and S5 state fields at their
+wire boundaries, with host/target reference comparisons. LBA2's converter must
+not be applied to Locomotion files. Exact-receipt gameplay, audible audio,
+long-session performance and release-policy gates remain open.
 
 ## Native runtime links
 
