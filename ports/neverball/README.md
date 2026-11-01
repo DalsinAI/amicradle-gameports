@@ -13,6 +13,21 @@ This is intentionally not a separate SDL/Mesa port.
 - Keyboard/mouse/timers: OpenGPU SDL native Amiga backends.
 - CPU target: 68040 + FPU, the canonical OpenUp game target.
 
+The shipped pair remains one 68040+68881 build. On AmigaChrome, `GL.module`
+selects the virgl/OpenGPU path; without that host acceleration the same binary
+selects the module's CPU softpipe renderer. `NEVERBALL_PROFILE=68040` applies a
+640x480 reduced-effects profile to either game. The build explicitly carries
+GCC 16's required `-fno-tree-loop-distribute-patterns` workaround, scans both
+final binaries for the related FPCR-indexed-store defect, and gives each GL
+program the SDK-required 1 MiB stack.
+
+Audio uses SDL2_mixer through SDL2 to AHI/OpenAHI and retains the SDK's Paula
+fallback. Input uses SDL's OpenInput route when available and native input when
+it is not. OpenMulticore is not a required library: its jobs may not call SDL,
+OpenGPU, AHI or AmigaOS, and the current physics state is not a safe isolated
+compute buffer. A forced dependency would therefore damage rather than improve
+the genuine 68040 fallback.
+
 The upstream game/core code remains unchanged unless a proven Amiga-specific defect requires a patch.
 
 ## Paths and music
@@ -52,7 +67,9 @@ sh ports/neverball/build.sh build/game-ports/sources/neverball
 
 The result is `build/neverball-release/package/Neverball/`. The package carries
 its own `SHA256SUMS`; `scripts/verify_neverball_release.py` checks that every
-other file is listed exactly once and that every digest matches.
+other file is listed exactly once and that every digest matches. It also carries
+`OPENUP-PERFORMANCE.txt`, which documents accelerated, diagnostic, and forced
+68040 runtime controls.
 
 This directory is the canonical Neverball recipe. The consolidated runtime and
 build record is in

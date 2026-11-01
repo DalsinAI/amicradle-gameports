@@ -14,6 +14,7 @@ REQUIRED = (
     "Neverputt",
     "LICENSE.md",
     "OPENUP-RELEASE.txt",
+    "OPENUP-PERFORMANCE.txt",
     "data",
     "doc",
 )
@@ -88,6 +89,12 @@ def main() -> int:
     note=root/"OPENUP-RELEASE.txt"
     if note.is_file() and PIN not in note.read_text(errors="replace"):
         failures.append("release note does not carry the pinned upstream commit")
+    performance=root/"OPENUP-PERFORMANCE.txt"
+    if performance.is_file():
+        performance_text=performance.read_text(errors="replace")
+        for claim in ("68040+68881", "softpipe", "NEVERBALL_PROFILE=68040", "OpenMulticore"):
+            if claim not in performance_text:
+                failures.append(f"performance note is missing required claim: {claim}")
     data=root/"data"
     if data.is_dir():
         sols=list(data.rglob("*.sol"))

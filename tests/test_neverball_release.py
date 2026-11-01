@@ -58,6 +58,38 @@ class NeverballReleaseTests(unittest.TestCase):
         self.assertIn('cd "$PKG"', text)
         self.assertIn("mv .SHA256SUMS.tmp SHA256SUMS", text)
 
+    def test_68040_build_hardening_and_stack_contract(self):
+        build = (ROOT / "ports" / "neverball" / "build.sh").read_text()
+        patch = (
+            ROOT
+            / "ports"
+            / "neverball"
+            / "patches"
+            / "0004-openup-68040-performance-profile.patch"
+        ).read_text()
+        self.assertIn("-m$CPU -m68881", build)
+        self.assertIn("-fno-tree-loop-distribute-patterns", build)
+        self.assertIn("check_m68040_fpcr.py", build)
+        self.assertIn(" D ___stack$", build)
+        self.assertIn("unsigned long __stack = 1024UL * 1024UL", patch)
+
+    def test_performance_profile_preserves_one_binary_fallback(self):
+        build = (ROOT / "ports" / "neverball" / "build.sh").read_text()
+        patch = (
+            ROOT
+            / "ports"
+            / "neverball"
+            / "patches"
+            / "0004-openup-68040-performance-profile.patch"
+        ).read_text()
+        self.assertIn('SDL_getenv("NEVERBALL_PROFILE")', patch)
+        self.assertIn('strcmp(profile, "68040")', patch)
+        self.assertIn("GL.module automatically chooses its CPU softpipe", build)
+        self.assertIn("OpenMulticore is deliberately not a hard dependency", build)
+
+    def test_verifier_requires_performance_contract(self):
+        self.assertIn("OPENUP-PERFORMANCE.txt", VERIFY.REQUIRED)
+
 
 if __name__ == "__main__":
     unittest.main()
