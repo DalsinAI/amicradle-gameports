@@ -21,13 +21,13 @@ Exact artifact hashes, log hashes, runtime module identities and gate states are
 
 The HUNK linker warned that `stream::getchar`, `putchar` and `putstring` were emitted with different size/content in different object files. Inspecting the target disassembly showed translation-unit-specific devirtualisation: one copy used a normal virtual call, another added a speculative check against the default `read` implementation. The linker warning is not, by itself, proof that the generated methods are semantically wrong.
 
-[Patch 0003](../../ports/assaultcube/patches/0003-amiga-stream-single-definition.patch) gives these three methods a single out-of-line definition on AmigaOS only. Non-Amiga builds retain their original inline definitions. Existing optimisation flags are unchanged and no diagnostics are suppressed. The original binaries and disassembly were retained; [before disassembly](stream-getchar-before.txt) records the differing target code.
+[Patch 0003](https://github.com/DalsinAI/amigaassaultcube/blob/main/patches/0003-amiga-stream-single-definition.patch) gives these three methods a single out-of-line definition on AmigaOS only. Non-Amiga builds retain their original inline definitions. Existing optimisation flags are unchanged and no diagnostics are suppressed. The original binaries and disassembly were retained; [before disassembly](stream-getchar-before.txt) records the differing target code.
 
 Both build entry points apply or reverse-check the patch and reject unexpected source drift. Full rebuilt logs after this change are `assaultcube-*-single-definition-build.txt`; final logs include the subsequent small allocation fix.
 
 ### Match array allocation with array deletion
 
-GCC identified a genuine allocation mismatch in `gmode_parse`: `newstring` allocates with `new char[]`, but the buffer was freed with scalar `delete`. [Patch 0004](../../ports/assaultcube/patches/0004-match-mode-buffer-array-delete.patch) changes exactly that statement to `delete[] buf` without altering protocol parsing or gameplay.
+GCC identified a genuine allocation mismatch in `gmode_parse`: `newstring` allocates with `new char[]`, but the buffer was freed with scalar `delete`. [Patch 0004](https://github.com/DalsinAI/amigaassaultcube/blob/main/patches/0004-match-mode-buffer-array-delete.patch) changes exactly that statement to `delete[] buf` without altering protocol parsing or gameplay.
 
 The final server and client links exit 0, with zero occurrences of the previous duplicate-section warnings and no `mismatched-new-delete` warning. This does **not** mean every warning in the project has been eliminated: earlier full compile logs retain volatile deprecation, potentially uninitialised data, overlapping-copy and other diagnostics requiring review.
 

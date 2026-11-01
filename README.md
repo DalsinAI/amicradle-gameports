@@ -81,34 +81,25 @@ See [retained results and risks](evidence/open2-20261012/README.md) and
 now honours `STOVE`, preventing an accidental fallback to an older compiler.
 The OpenGPU SDK archives remain explicitly recorded reused dependencies.
 
-## Current port state
+## Current intake state
 
 | Port | Build state | Runtime state | Target / notes |
 |---|---|---|---|
-| The Ur-Quan Masters 0.8.0 | COMPILED open3 | TESTING | Native paths and zipped content fixed; menu/New Game/Sol and exit 0 observed muted. Audio, persistence and clean-ROM repeat remain. |
-| Chocolate Doom | COMPILED | PENDING | m68k / 68040 |
-| SDLPoP | COMPILED | PENDING | m68k / 68040 |
-| OpenJazz | COMPILED | PENDING | m68k / 68040 |
-| NXEngine-evo | COMPILED | PENDING | m68k / 68040 |
-| AssaultCube | CLIENT + SERVER COMPILED | PENDING | OpenGPU first-light client; audio still stubbed for initial bring-up |
-| Warzone 2100 | SOURCE PINNED | NOT STARTED | later large 3D/application stress target |
-| Doom 3 | SOURCE PINNED | NOT STARTED | long-range renderer/engine stress target |
 | OpenLara | SOURCE PINNED | NOT STARTED | 3D engine / OpenGPU target |
 | OpenTTD | SOURCE PINNED | NOT STARTED | large C++/SDL application target |
 | The Battle for Wesnoth | SOURCE PINNED | NOT STARTED | large C++/SDL strategy target |
 | The Dark Mod | SOURCE PINNED | NOT STARTED | long-range idTech 4-derived stretch target |
 | Hedgewars | SOURCE PINNED | NOT STARTED | SDL/audio/networking/physics target |
 
-See [PORT_STATUS.md](PORT_STATUS.md) and the individual files under `ports/` for exact source pins, hashes, content boundaries and test gates.
+Implemented ports live in their standalone repositories below. GamePorts now
+retains only the five intake pins above plus historical programme evidence.
 
 ## Repository layout
 
 - `scripts/` — source preparation, build orchestration and field-test staging code.
 - `port-layer/acgame/` — AmigaChrome AGA presentation code, smoke test and unit tests.
-- `port-layer/uqm/` — UQM AROS bootstrap patcher and port notes.
-- `ports/*/` — per-port build recipes, patches, release notes and qualification gates.
 - `toolchain/aros-local/` — the AROS m68k toolchain bootstrap recovered from the AmigaChrome worktree.
-- `gameports/catalog.json` — exact upstream source pins and content policy.
+- `gameports/catalog.json` — exact upstream pins and content policy for intake-only candidates.
 
 See [BUILDING.md](BUILDING.md) for the rebuild path.
 
@@ -139,14 +130,6 @@ No upstream game engine source is committed here. Prepared sources live outside 
 
 | Port | Upstream | Licence / data boundary |
 |---|---|---|
-| The Ur-Quan Masters 0.8.0 | https://sc2.sourceforge.net/ | GPL-2.0-or-later code; content packages separate |
-| Chocolate Doom | https://github.com/chocolate-doom/chocolate-doom | GPL-2.0-or-later; IWAD external |
-| SDLPoP | https://github.com/NagyD/SDLPoP | GPL-3.0-or-later; commercial game data external |
-| OpenJazz | https://github.com/AlisterT/openjazz | GPL-2.0-or-later; Jazz data external |
-| NXEngine-evo | https://github.com/nxengine/nxengine-evo | GPL-3.0; Cave Story data external |
-| AssaultCube | https://github.com/assaultcube/AC | zlib-like engine source; media licences reviewed separately |
-| Warzone 2100 | https://github.com/Warzone2100/warzone2100 | GPL-2.0 project plus third-party/submodule notices |
-| Doom 3 | https://github.com/id-Software/DOOM-3 | GPL-3.0 source; original game data external |
 | OpenLara | https://github.com/XProger/OpenLara | engine source only for intake; original Tomb Raider data external |
 | OpenTTD | https://github.com/OpenTTD/OpenTTD | preserve upstream and third-party notices; runtime asset packs reviewed separately |
 | The Battle for Wesnoth | https://github.com/wesnoth/wesnoth | preserve upstream code/data/translation licensing |
@@ -172,3 +155,19 @@ source pins, recipes or integration pointers in GamePorts:
 - [AmigaNeverBall](https://github.com/DalsinAI/amiganeverball)
 - [Amiga OpenLoco](https://github.com/DalsinAI/amigaopenloco)
 - [OpenSeriousSam](https://github.com/DalsinAI/openserioussam)
+- [Amiga AssaultCube](https://github.com/DalsinAI/amigaassaultcube)
+- [Amiga AstroMenace](https://github.com/DalsinAI/amigaastromenace)
+- [Amiga C-Dogs](https://github.com/DalsinAI/amigacdogs)
+- [Amiga Chocolate Doom](https://github.com/DalsinAI/amigachocolatedoom)
+- [Amiga Doom 3](https://github.com/DalsinAI/amigadoom3)
+- [Amiga Enigma](https://github.com/DalsinAI/amigaenigma)
+- [Amiga LBA2](https://github.com/DalsinAI/amigalba2)
+- [Amiga NXEngine-evo](https://github.com/DalsinAI/amiganxengine)
+- [Amiga OpenJazz](https://github.com/DalsinAI/amigaopenjazz)
+- [Amiga OpenOMF](https://github.com/DalsinAI/amigaopenomf)
+- [Amiga OpenTyrian](https://github.com/DalsinAI/amigaopentyrian)
+- [Amiga SDL2 demos](https://github.com/DalsinAI/amigasdl2demos)
+- [Amiga SDLPoP](https://github.com/DalsinAI/amigasdlpop)
+- [Amiga SWIV](https://github.com/DalsinAI/amigaswiv)
+- [Amiga UQM](https://github.com/DalsinAI/amigauqm)
+- [Amiga Warzone 2100](https://github.com/DalsinAI/amigawarzone2100)

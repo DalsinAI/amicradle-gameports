@@ -1,5 +1,9 @@
 # Building ports with OpenAmigaGCC 16.2.0-open2
 
+> Historical document: the commands below record the former monorepo layout.
+> The maintained recipes now live in the standalone repositories linked from
+> the root `README.md`; run builds from those repository roots instead.
+
 Canonical target: **AmigaOS 3.x, AC090, 68040 + FPU, libnix**. Do not confuse this with the older AROS build instructions in BUILDING.md.
 
 The published Open2 toolchain contains the newer C++/libpthread/libnix fixes. Its GCC banner still reads `16.2.0b`, so the banner alone cannot distinguish old and fixed installations. Verify the release archive and retain its provenance.

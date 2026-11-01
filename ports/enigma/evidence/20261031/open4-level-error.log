@@ -1,3 +1,0 @@
-terminate called after throwing an instance of 'enigma::XLevelRuntime'
-  what():  Assert(object != nullptr) at /enigma-build/source/src/world.cc:2496: MakeObject() failed - MakeObject: unknown object name `st_inkwell_black'
-

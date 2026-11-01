@@ -1,5 +1,9 @@
 # Unified Game Port Backlog
 
+Implemented ports named in this historical programme now live in the standalone
+repositories linked from `README.md`. GamePorts retains only intake research and
+the five exact candidate pins in `gameports/catalog.json`.
+
 **Current execution checkpoint:** see the
 [1 November Neverball consolidation](evidence/neverball-open3-20261101/README.md),
 [13 October review fixes](evidence/open2-20261013-resume/README.md) and
@@ -69,8 +73,8 @@ the normal clean-build, provenance, packaging and AC090 runtime gates.
 | KeeperFX | CANDIDATE | SDL / OpenGPU | TBD | Older engine architecture and strong game value; review low-level assumptions/data. |
 | Dune II The Maker | CANDIDATE | ACGame / SDL | TBD | Old-school RTS workload with modest rendering; review upstream age/portability. |
 | Freeciv | CANDIDATE | SDL / OpenGPU | TBD | Mature C and useful networking stress; choose a lightweight client frontend. |
-| Civilization IV BTS | SOURCE REVIEWED - research | Scalar C++ core / Python / native UI and OpenAudio | P2 | Cv4MiniEngine supplies a standalone terminal engine beyond the SDK; current x86 SIMD/C++26/Python2.7 and native-byte serialisation require work. Deterministic tiny-map turn/save first, then native frontend. No build/play claim. See [review](docs/CIVILIZATION_ALPHA_PORT_REVIEW_20261024.md). |
-| Civilization III | SOURCE REVIEWED - research | Native engine rewrite or Godot/.NET runtime project | P3 | OpenCiv3 is pre-alpha Godot4/.NET8; C3X still injects into the PC executable. Inventory data readers/rules before choosing a large rewrite or runtime port. See [review](docs/CIVILIZATION_ALPHA_PORT_REVIEW_20261024.md). |
+| Civilization IV BTS | SOURCE REVIEWED - research | Scalar C++ core / Python / native UI and OpenAudio | P2 | Cv4MiniEngine supplies a standalone terminal engine beyond the SDK; current x86 SIMD/C++26/Python2.7 and native-byte serialisation require work. Deterministic tiny-map turn/save first, then native frontend. No build/play claim. See the [archived review in OpenAlphaC](https://github.com/DalsinAI/openalphac/blob/main/docs/CIVILIZATION_ALPHA_PORT_REVIEW_20261024.md). |
+| Civilization III | SOURCE REVIEWED - research | Native engine rewrite or Godot/.NET runtime project | P3 | OpenCiv3 is pre-alpha Godot4/.NET8; C3X still injects into the PC executable. Inventory data readers/rules before choosing a large rewrite or runtime port. See the [archived review in OpenAlphaC](https://github.com/DalsinAI/openalphac/blob/main/docs/CIVILIZATION_ALPHA_PORT_REVIEW_20261024.md). |
 | Open Golf | CANDIDATE | SDL / OpenGPU | TBD | Small C 3D title; useful early GL/OpenGPU exercise. |
 | AstroMenace | SOURCE PINNED / INTAKE | SDL / OpenGPU / OpenAudio | P1 | Official `viewizard/astromenace` pinned at `bbdb3ac5af2774c92b85c4d9b2a238f606911e66` (6 Aug 2026), whose latest fix specifically resolves a GCC 16 startup hang. GPL-3.0-or-later source; SDL2/OpenGL/OpenAL/ALUT/Ogg/Vorbis/FreeType dependency surface. First gate: dependency audit against OpenGPU/OpenAudio/Open-family libraries, then clean AC090 build. |
 | JFShadowWarrior | CANDIDATE | SDL / OpenGPU | TBD | Build-engine sibling to JFDuke3D; commercial data external. |
@@ -127,8 +131,8 @@ the normal clean-build, provenance, packaging and AC090 runtime gates.
 ## Older Amiga port revival - 24 October 2026
 
 Owner-selected intake: **OpenTyrian and Enigma**. Source pins, build/configure
-helpers and exact limits are in [OpenTyrian](ports/opentyrian/README.md) and
-[Enigma](ports/enigma/README.md). These SDL2 targets do not wait for OpenAL.
+helpers and exact limits are in [Amiga OpenTyrian](https://github.com/DalsinAI/amigaopentyrian) and
+[Amiga Enigma](https://github.com/DalsinAI/amigaenigma). These SDL2 targets do not wait for OpenAL.
 Old OS4/MorphOS binaries are precedent; AC090 needs a fresh m68k source build.
 
 | Priority | Target | Current state / next gate | Data boundary |
@@ -163,13 +167,13 @@ SDL3 candidates do not automatically depend on OpenAL.
 | P1 active follow-up | OpenOMF, C-Dogs | Resume current build/runtime blockers after the P0 finish queue. |
 | P1 SDL3 intake | DevilutionX -> ScummVM -> xrick -> Frozen Bubble -> Freeserf -> Street Rod 1/2 -> DOSBox-X SDL3 | Accept into the live programme now. First pin and audit source/licence/dependencies/data, then add a build recipe and reach the target-specific interactive gate in the review. |
 | P1 lab | Space Invaders SDL3, Dinosaur SDL3, sdl3-gl | Small audio/input and OpenGPU regression targets; qualify independently of flagship ports. |
-| P2 | Remaining accepted SDL3 targets below; Warzone 2100, OpenLara, OpenTTD | Planned intake after the active finish queue. OpenAL progress alone does not clear architecture, renderer or data gates. |
+| P2 | Remaining accepted SDL3 targets below; OpenLara, OpenTTD | Planned intake after the active finish queue. OpenAL progress alone does not clear architecture, renderer or data gates. |
 | P3 / PARK | Heavy modern renderers, toolchains and emulators listed below | Research only until their independent platform blockers are addressed. |
 
-The SDL3 entries below are live **INTAKE** work (or **ACTIVE** for the two
-existing ports). New candidates are not build-enabled by their inclusion:
-`gameports/catalog.json` remains the exact-pinned fetch/build catalogue and gains
-entries only after the source, licence, dependency and runtime-data audit.
+The SDL3 entries below preserve the programme order at the time of review.
+New candidates are not build-enabled by their inclusion:
+`gameports/catalog.json` is now an intake-only exact-pinned catalogue and gains
+entries only for source, licence and dependency research.
 No compiler, build, PLAYABLE or RELEASE result is inferred from a priority.
 
 ## SDL3 programme - 24 October 2026

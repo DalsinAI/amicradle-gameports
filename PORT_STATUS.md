@@ -2,6 +2,10 @@
 
 Latest review update: **1 November 2026 (local time)**. Earlier dated snapshots below are preserved as history.
 
+All implemented ports described below have moved to the standalone repositories
+linked from `README.md`. This file is retained as historical qualification
+evidence and is not a current GamePorts build inventory.
+
 Primary target: **AmigaChrome AC090 / AmigaOS 3.x / 68040 + FPU**
 
 **DONE means RELEASE.** A successful compile is intermediate evidence, not a release result.
@@ -35,7 +39,7 @@ builds from separate exports produce identical binaries. This advances OpenJazz
 to TESTING; process exit and pointer targeting remain open failures, alongside
 audio, save/load and the other release gates. Instance-32 was untouched.
 
-[Recipe, evidence and precise limits](ports/openjazz/GAMEPLAY.md).
+[Recipe, evidence and precise limits](https://github.com/DalsinAI/amigaopenjazz/blob/main/GAMEPLAY.md).
 
 ## Post-merge checks - 13 October 2026
 
@@ -126,8 +130,8 @@ valid engineering work unless a fixed-stove A/B test shows otherwise.
 | Chocolate Doom | COMPILED; pristine rebuild PASS | PENDING | Exact pinned source rebuilt locally with no network. Provisional old-stove SHA-256 `d3ae7440920fe9bc2213a945c5aeec3576f7a4405147d86f9774d654a63b16b0`; runtime requires an authorised compatible IWAD and fixed-stove rebuild. |
 | OpenJazz | COMPILED; pristine rebuild PASS | PENDING | Exact pinned source + checked portability patch rebuilt locally with no network. Provisional old-stove SHA-256 `c6f48d76e5c42fc264e134cef0d41d2b6769fc2dbb0448429bff1aad311a934e`; runtime data remains external and fixed-stove rebuild is mandatory. |
 | SDLPoP | COMPILED; pristine rebuild PASS | PENDING | Exact pinned source + checked Amiga portability patch rebuilt locally with no network. Provisional old-stove SHA-256 `51097f931538140895659af40f021d58ff20c348751c174bd093881c23600f6a`; fixed-stove runtime qualification remains. |
-| UQM 0.8.0 | COMPILED open3 | TESTING | Native volume paths and packaged-content ZIP I/O fixed. Exact open3 binary reached menu, New Game and Sol, then RC 0 in a muted isolated lab. Conversation, graphics warnings, persistence, audio and intended-ROM repeat remain; see `ports/uqm/evidence/runtime-20261024.json`. |
-| NXEngine-evo | COMPILED open3 | TESTING | Clean 68040/FPU portable build; safe local-data importer restores upstream music names by size/CRC. Fresh binary reached Start Point with movement/jump, saved, exited RC 0, restored the saved position in a fresh process, and exited RC 0 again. Audio, wider input and clean-ROM gates remain; see `ports/nxengine-evo/evidence/runtime-20261024.json`. |
+| UQM 0.8.0 | MOVED | TESTING | Canonical recipe and runtime evidence now live in [amigauqm](https://github.com/DalsinAI/amigauqm). |
+| NXEngine-evo | MOVED | TESTING | Canonical recipe and runtime evidence now live in [amiganxengine](https://github.com/DalsinAI/amiganxengine). |
 | AssaultCube | Client + server COMPILED | PENDING | OpenGPU client bring-up work is preserved. Clean fixed-stove rebuild, audio integration and AC090 runtime qualification remain. |
 | Warzone 2100 | SOURCE PINNED | NOT STARTED | Large 3D/application stress target. |
 | Doom 3 GPL source | SOURCE PINNED | NOT STARTED | Long-range renderer/engine stress target. |
