@@ -1,0 +1,72 @@
+; $VER: Install-OpenLoco 26.09-rc1 (1.11.2026)
+; Native Amiga Installer script for the OpenUp 68040 engineering package.
+
+(set @app-name "OpenLoco")
+(set @default-dest "SYS:Games")
+
+(onerror
+    (message (cat "OpenLoco installation was not completed.\n\n"
+                  @error-msg
+                  "\n\nFiles already copied may remain in the destination.")))
+
+(if (< @installer-version 2818051)
+    (abort "This installation requires Installer 43.3 or newer."))
+
+(set #source-root (pathonly (expandpath @icon)))
+(if (<> (exists (tackon #source-root "OpenLoco")) 1)
+    (abort "Run Install-OpenLoco from inside the unpacked OpenLoco drawer."))
+(if (<> (exists (tackon #source-root "SDL3.module")) 1)
+    (abort "SDL3.module is missing from this package."))
+(if (<> (exists (tackon #source-root "OpenAL.module")) 1)
+    (abort "OpenAL.module is missing from this package."))
+(if (<> (exists (tackon #source-root "data")) 2)
+    (abort "The OpenLoco data drawer is missing from this package."))
+
+(welcome
+    "Install OpenLoco 26.09 RC1 for AmigaOS 3.x, 68040 + FPU.")
+
+(set #base
+    (askdir
+        (prompt "Choose the parent drawer for the OpenLoco game drawer.")
+        (help "The Installer creates or updates an OpenLoco drawer here. It does not include or delete commercial Locomotion data.")
+        (default (if (exists "Work:" (noreq)) "Work:" "SYS:"))))
+(set #dest (tackon #base "OpenLoco"))
+
+(if (< (getdiskspace #base) 16000000)
+    (abort "The selected disk needs at least 16 MB free, plus space for your Locomotion data."))
+
+(makedir #dest)
+(copyfiles
+    (prompt "Copying OpenLoco")
+    (help @copyfiles-help)
+    (source #source-root)
+    (dest #dest)
+    (all)
+    (optional "force" "fail"))
+
+(set #install-openal
+    (askbool
+        (prompt (if (exists "LIBS:OpenGPU/OpenAL.module")
+                    "Replace the installed LIBS:OpenGPU/OpenAL.module with this package version?"
+                    "Install OpenAL.module in LIBS:OpenGPU?"))
+        (help "OpenLoco needs the matching OpenRTG OpenAL module. Declining leaves any shared system module untouched; the packaged copy remains in the game drawer.")
+        (default (if (exists "LIBS:OpenGPU/OpenAL.module") 0 1))))
+
+(if #install-openal
+    (
+        (makedir "LIBS:OpenGPU")
+        (copyfiles
+            (prompt "Installing OpenAL.module")
+            (help @copyfiles-help)
+            (source (tackon #source-root "OpenAL.module"))
+            (dest "LIBS:OpenGPU")
+            (optional "force" "fail"))))
+
+(set @default-dest #dest)
+(complete 100)
+(if @pretend
+    (message "Simulation completed. No files were installed.")
+    (message (cat "OpenLoco is installed in " #dest
+                  ".\n\nCopy your lawfully owned Locomotion files into "
+                  (tackon #dest "Locomotion") ".")))
+(exit (quiet))

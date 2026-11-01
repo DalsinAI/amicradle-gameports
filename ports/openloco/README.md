@@ -43,6 +43,11 @@ codec inventory, exports source and applies checked patches without editing
 caches, and records logs and a receipt. Existing SDK/codec binaries are imported,
 not newly source-rebuilt or runtime-qualified.
 
+The packaged Amiga drawer includes `Install-OpenLoco`. The native Installer
+copies the game to a chosen destination and, with an explicit prompt, can install
+the shared `OpenAL.module` into `LIBS:OpenGPU`. Manual installation remains
+documented in the package README.
+
 The current platform input is OpenRTG
 `8b6d09ff1023edc3fb1e62e3db0490ec385820b2`, SDL 3.4.14 and SDL3_68k
 `c82dea042718200eea401e7ed62d88b997bc9fd9`. New platform work is a separate

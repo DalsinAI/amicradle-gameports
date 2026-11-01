@@ -57,6 +57,14 @@ class NeverballReleaseTests(unittest.TestCase):
         self.assertIn('git -C "$SRC" rev-parse HEAD', text)
         self.assertIn('cd "$PKG"', text)
         self.assertIn("mv .SHA256SUMS.tmp SHA256SUMS", text)
+        self.assertIn('cp "$HERE/Install-Neverball"', text)
+
+    def test_installer_is_a_required_package_file(self):
+        self.assertIn("Install-Neverball", VERIFY.REQUIRED)
+        installer = (ROOT / "ports" / "neverball" / "Install-Neverball").read_text()
+        self.assertIn("@installer-version", installer)
+        self.assertIn("(askdir", installer)
+        self.assertIn("(copyfiles", installer)
 
     def test_68040_build_hardening_and_stack_contract(self):
         build = (ROOT / "ports" / "neverball" / "build.sh").read_text()

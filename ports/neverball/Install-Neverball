@@ -1,0 +1,51 @@
+; $VER: Install-Neverball 1.6.0 (1.11.2026)
+; Native Amiga Installer script for the OpenUp 68040 package.
+
+(set @app-name "Neverball / Neverputt")
+(set @default-dest "SYS:Games")
+
+(onerror
+    (message (cat "Neverball installation was not completed.\n\n"
+                  @error-msg
+                  "\n\nFiles already copied may remain in the destination.")))
+
+(if (< @installer-version 2818051)
+    (abort "This installation requires Installer 43.3 or newer."))
+
+(set #source-root (pathonly (expandpath @icon)))
+(if (<> (exists (tackon #source-root "Neverball")) 1)
+    (abort "Run Install-Neverball from inside the unpacked Neverball drawer."))
+(if (<> (exists (tackon #source-root "Neverputt")) 1)
+    (abort "The Neverputt executable is missing from this package."))
+(if (<> (exists (tackon #source-root "data")) 2)
+    (abort "The Neverball data drawer is missing from this package."))
+
+(welcome
+    "Install Neverball and Neverputt 1.6.0 for AmigaOS 3.2, 68040 + FPU.")
+
+(set #base
+    (askdir
+        (prompt "Choose the parent drawer for the Neverball game drawer.")
+        (help "The Installer creates or updates a Neverball drawer here. It does not delete existing user data.")
+        (default (if (exists "Work:" (noreq)) "Work:" "SYS:"))))
+(set #dest (tackon #base "Neverball"))
+
+(if (< (getdiskspace #base) 85000000)
+    (abort "The selected disk needs at least 85 MB free."))
+
+(makedir #dest)
+(copyfiles
+    (prompt "Copying Neverball and Neverputt")
+    (help @copyfiles-help)
+    (source #source-root)
+    (dest #dest)
+    (all)
+    (optional "force" "fail"))
+
+(set @default-dest #dest)
+(complete 100)
+(if @pretend
+    (message "Simulation completed. No files were installed.")
+    (message (cat "Neverball and Neverputt are installed in " #dest
+                  ".\n\nOpenGPU SDL2, GL.module and their OpenUp dependencies must already be installed.")))
+(exit (quiet))

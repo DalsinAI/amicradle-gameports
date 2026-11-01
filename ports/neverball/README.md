@@ -69,7 +69,9 @@ The result is `build/neverball-release/package/Neverball/`. The package carries
 its own `SHA256SUMS`; `scripts/verify_neverball_release.py` checks that every
 other file is listed exactly once and that every digest matches. It also carries
 `OPENUP-PERFORMANCE.txt`, which documents accelerated, diagnostic, and forced
-68040 runtime controls.
+68040 runtime controls. The Amiga archive includes `Install-Neverball`, a native
+Installer script that copies the complete package to the user's chosen drawer;
+manual drawer copying remains supported.
 
 This directory is the canonical Neverball recipe. The consolidated runtime and
 build record is in

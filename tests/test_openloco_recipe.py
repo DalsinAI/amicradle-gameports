@@ -42,6 +42,14 @@ class OpenLocoRecipeTests(unittest.TestCase):
         self.assertIn("(ULONG (*)())al_vhook_stub", openrtg_patch)
         self.assertIn("(ULONG (*)())fn", openrtg_patch)
 
+    def test_package_entry_point_includes_native_installer(self):
+        script = (PORT / "build-amiga.sh").read_text()
+        installer = (PORT / "Install-OpenLoco").read_text()
+        self.assertIn('cp "$HERE/Install-OpenLoco" "$OUT/Install-OpenLoco"', script)
+        self.assertIn("@installer-version", installer)
+        self.assertIn("LIBS:OpenGPU/OpenAL.module", installer)
+        self.assertIn("(askbool", installer)
+
 
 if __name__ == "__main__":
     unittest.main()

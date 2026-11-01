@@ -114,6 +114,7 @@ PY
     cp "$BIN" "$OUT/OpenLoco"
     cp "$SDL3_SDK/SDL3.module" "$OUT/SDL3.module"
     cp "$WORK/OpenAL.module" "$OUT/OpenAL.module"
+    cp "$HERE/Install-OpenLoco" "$OUT/Install-OpenLoco"
     cp "$WORK/tree/receipt.json" "$OUT/receipt.json"
     cp -r "$WORK/tree/source/data" "$OUT/data"
     tail -n 30 "$WORK/build.log" > "$OUT/build-tail.log"

@@ -117,6 +117,7 @@ for f in authors.txt manual.txt release-notes.md; do
     [ ! -f "$SRC/doc/$f" ] || cp "$SRC/doc/$f" "$PKG/doc/"
 done
 [ ! -d "$SRC/doc/legal" ] || cp -R "$SRC/doc/legal" "$PKG/doc/legal"
+cp "$HERE/Install-Neverball" "$PKG/Install-Neverball"
 
 cat > "$PKG/OPENUP-RELEASE.txt" <<EOF
 Neverball / Neverputt for OpenUp
@@ -131,6 +132,7 @@ Keyboard/mouse: OpenGPU SDL2 native Amiga backend
 68040 fallback: the same binary uses GL.module softpipe, native input and AHI/Paula
 Runtime dependencies: opengpu.library + SDL2.module + GL.module
 Optional acceleration: virgl/OpenGPU, OpenInput and host-mixed AHI when installed
+Installer: run Install-Neverball with SYS:System/Installer
 EOF
 
 cat > "$PKG/OPENUP-PERFORMANCE.txt" <<'EOF'

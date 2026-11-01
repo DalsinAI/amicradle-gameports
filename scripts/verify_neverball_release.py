@@ -15,6 +15,7 @@ REQUIRED = (
     "LICENSE.md",
     "OPENUP-RELEASE.txt",
     "OPENUP-PERFORMANCE.txt",
+    "Install-Neverball",
     "data",
     "doc",
 )
