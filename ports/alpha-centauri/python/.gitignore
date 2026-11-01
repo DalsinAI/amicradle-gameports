@@ -1,5 +1,0 @@
-alpha_smac/libasmac.so
-alpha_smac/libasmac.so.tmp.*
-__pycache__/
-*.pyc
-.pytest_cache/
