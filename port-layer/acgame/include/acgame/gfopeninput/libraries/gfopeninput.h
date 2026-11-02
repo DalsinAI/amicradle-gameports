@@ -1,8 +1,8 @@
-/* Copyright (c) 2026 AmigaChrome Team. OpenInput, MIT licence (LICENSE).
+/* Copyright (c) 2026 AmiCradle Team. GFOpenInput, MIT licence (LICENSE).
  * SPDX-License-Identifier: MIT
  *
  * gfopeninput.library: one way for Amiga programs to get game controllers
- * (Design-OpenInput.md). Version 1.
+ * (Design-GFOpenInput.md). Version 1.
  *
  * FROZEN for 0.1 on 8 October 2026: from here on this file changes only
  * by adding (new names, new flags, new tags, new functions at the end of
@@ -37,6 +37,9 @@
  * that needs a working library checks lib_Version > 1, or lib_Version 1
  * and lib_Revision >= OPENINPUT_REVISION_CORE. */
 #define OPENINPUT_REVISION_CORE 2
+/* Revision 3 (1.3, 17 October 2026) adds the driver calls (OIN_AddDriverPad,
+ * OIN_DriverPadRaw, OIN_RemDriverPad): check lib_Revision >= 3 before them. */
+#define OPENINPUT_REVISION_DRIVER 3
 
 /* ---- The standard layout ----------------------------------------------------
  * Button numbers are SDL_GameControllerButton's, axis numbers
@@ -79,8 +82,9 @@
 
 /* ---- Where a controller comes from (oci_Source) ---------------------------- */
 #define OISRC_AMIGAPORT    1    /* an Amiga joystick port, read as lowlevel.library does */
-#define OISRC_POSEIDON     2    /* a USB HID pad through Poseidon (GFOpenUSB) */
-#define OISRC_AMICRADLE    3    /* a pad on AmiCradle's x86 or ARM64 cores, mapped there */
+#define OISRC_POSEIDON     2    /* a USB HID pad, from GFOpenUSB's HID class (gfopenusbhid.class); the name is
+                                   the first plan's (Poseidon), kept */
+#define OISRC_AMICRADLE  3    /* a pad on AmiCradle's x86 or ARM64 cores, mapped there */
 #define OISRC_PISTORMPORT  4    /* the A1200's own port, read by the core under a PiStorm */
 
 /* ---- What it is (oci_Type) -------------------------------------------------- */
@@ -228,6 +232,15 @@ struct OIMessage {
  * OIN_GetLegacyPort(port, lp, size)    what feeds Amiga port 0..3
  * OIN_SetLegacyPortA(port, id, tags)   make pad id (0: none) feed the port; OIERR_OFF on a
  *                                      real Amiga until the ReadJoyPort feed is switched on
+ * For drivers outside the library, from revision 3 (OPENINPUT_REVISION_DRIVER):
+ * a driver that finds pads itself (GFOpenUSB's HID class) lists them here.
+ * OIN_AddDriverPad(info, size)         a pad: oci_Type, oci_Flags, oci_GUID, oci_Vendor,
+ *                                      oci_Product, oci_Version, the counts and oci_Name
+ *                                      from info (the library sets oci_ID, oci_Source
+ *                                      OISRC_POSEIDON and oci_Player); its handle, or NULL
+ * OIN_DriverPadRaw(pad, raw, size)     its new raw state; the library maps it through
+ *                                      the pad's mapping, as any source's
+ * OIN_RemDriverPad(pad)                it has gone (OIMC_REMOVED); NULL is allowed
  * Every function may be called from any task, never from an interrupt. */
 
 /* ---- Tags ------------------------------------------------------------------- */
