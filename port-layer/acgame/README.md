@@ -17,9 +17,9 @@ The first rule is architectural: Fast RAM is the workspace; Chip RAM is the pres
 
 Gameplay should normally use indexed 256-colour AGA. HAM8 is intended for title art, portraits, briefings, loading screens and other static or slowly changing presentation where horizontal dependency is acceptable.
 
-This copy (amigachrome-guest `gameports/acgame/`) is the one the game ports
-build from: amigachrome-gameports' `scripts/build_game_ports_job.py` and the
-OpenOMF profile take ACGame from here. amigachrome-gameports
+This copy (amicradle-guest `gameports/acgame/`) is the one the game ports
+build from: amicradle-gameports' `scripts/build_game_ports_job.py` and the
+OpenOMF profile take ACGame from here. amicradle-gameports
 `port-layer/acgame/` holds the same files.
 
 ## Still to come
@@ -37,7 +37,7 @@ The backend opens AGA and RTG screens on OS 3.2.3 and reads pads through GFOpenI
 
 ## Canonical copy
 
-The canonical ACGame source currently lives in `DalsinAI/amigachrome-guest/gameports/acgame/`.
+The canonical ACGame source currently lives in `DalsinAI/amicradle-guest/gameports/acgame/`.
 This copy is kept as a synchronized mirror for the game-ports repository. The Kitchen build job
 and the OpenOMF AGA profile consume the guest copy at the pinned `GUEST_PORT_COMMIT`; changes
 must land there first so the two trees do not become independent implementations.

@@ -54,7 +54,7 @@ the cores and the GPU where the system offers it.
   the keyboard's `UP`, `DOWN`, `LEFT`, `RIGHT`, `FIRE1`, `FIRE2`, `FIRE3` and
   `START`, so a game that reads only `key[]` gets the pad too.
 - GFOpenInput's frozen header is copied unchanged into
-  `include/acgame/gfopeninput/` (from openamigainput `include/`), so ACGame
+  `include/acgame/gfopeninput/` (from gfopeninput `include/`), so ACGame
   builds with nothing else installed. The library bases have ACGame's own
   names (`acgame_LowLevelBase`, `acgame_OpenInputBase`, `acgame_OpenGPUBase`),
   so a game that also links SDL 2 has no clash.

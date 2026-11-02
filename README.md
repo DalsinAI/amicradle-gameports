@@ -1,7 +1,7 @@
 # AmiCradle Game Ports
 
 
-**[Unified Port Atlas](https://github.com/DalsinAI/amigachrome/tree/main/docs/porting)** — searchable cross-programme game/application catalogue with existing Amiga-port evidence, source/rights assessment and proposed GFOpen-family acceleration or development benefit. This does not replace the local source pins, build notes or qualification gates.
+**[Unified Port Atlas](https://github.com/DalsinAI/amicradle/tree/main/docs/porting)** — searchable cross-programme game/application catalogue with existing Amiga-port evidence, source/rights assessment and proposed GFOpen-family acceleration or development benefit. This does not replace the local source pins, build notes or qualification gates.
 
 Open-source game-port and compatibility work for **m68k AROS**, **AmigaOS 3.x** and **AmiCradle**.
 

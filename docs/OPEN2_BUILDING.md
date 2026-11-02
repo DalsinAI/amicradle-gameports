@@ -93,8 +93,8 @@ The newer review pass includes 113 files in this inventory. See
 Run the proof scripts from the exact Open2 source release, not an arbitrary newer branch:
 
 ```sh
-bash /path/to/openamigagcc/tests/repro/prove.sh "$STOVE/prefix/bin"
-bash /path/to/openamigagcc/tests/baserel/eh-check.sh "$STOVE/prefix"
+bash /path/to/gfopengcc/tests/repro/prove.sh "$STOVE/prefix/bin"
+bash /path/to/gfopengcc/tests/baserel/eh-check.sh "$STOVE/prefix"
 ```
 
 The first combines code checks with focused `qemu-m68k` reproducers. The second is static link/archive validation; it does **not** run an AmigaOS game or demonstrate multithreaded application correctness. Note their different argument shapes: `bin` versus `prefix`.
