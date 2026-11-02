@@ -40,7 +40,7 @@
 #include <string.h>
 #include <sys/time.h>
 
-/* GFOpenInput's frozen header (openamigainput include/, copied unchanged into
+/* GFOpenInput's frozen header (gfopeninput include/, copied unchanged into
  * include/acgame/gfopeninput so ACGame builds with nothing else installed). */
 #ifndef ACGAME_OPENINPUT
 #define ACGAME_OPENINPUT 1

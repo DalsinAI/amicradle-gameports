@@ -21,7 +21,7 @@ Quiet. The README lists each port's upstream licence (#1) and CONTRIBUTORS.md is
 
 ## Next step
 
-1. When unparked: rebuild the ports against openamigasdl (SDL 2) and ACGame from amigachrome-guest #23.
+1. When unparked: rebuild the ports against gfopensdl (SDL 2) and ACGame from amicradle-guest #23.
 
 ## Waiting on @SacredTrees
 
@@ -33,8 +33,8 @@ No active thread (Thufir's sprint; Gamepad thread for pads).
 
 ## Capsules
 
-Restart capsules for this repo's workstreams, in amigachrome's `capjumps/` shelf:
+Restart capsules for this repo's workstreams, in amicradle's `capjumps/` shelf:
 
-- [`20261006_AmigaChrome_Pause_Restart_Capsule.zip`](https://github.com/DalsinAI/amigachrome/tree/main/capjumps)
+- [`20261006_AmigaChrome_Pause_Restart_Capsule.zip`](https://github.com/DalsinAI/amicradle/tree/main/capjumps)
 
 Team rules that still hold: commits as SacredTrees with no co-author lines; third-party code only on "yes with review" (licence checked, commit and sha256 pinned, fetched at build, never committed); deploys with deploy_dev.py only, on a typed line.

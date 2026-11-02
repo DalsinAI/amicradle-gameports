@@ -11,7 +11,7 @@ the five exact candidate pins in `gameports/catalog.json`.
 Keep the plain-68040 software-2D qualification lane separate from AssaultCube's
 GFOpenGPU-dependent client. No untested target is promoted by these updates.
 
-**[Unified Port Atlas](https://github.com/DalsinAI/amigachrome/tree/main/docs/porting)** — searchable cross-programme game/application catalogue with existing Amiga-port evidence, source/rights assessment and proposed GFOpen-family acceleration or development benefit. This does not replace the local source pins, build notes or qualification gates.
+**[Unified Port Atlas](https://github.com/DalsinAI/amicradle/tree/main/docs/porting)** — searchable cross-programme game/application catalogue with existing Amiga-port evidence, source/rights assessment and proposed GFOpen-family acceleration or development benefit. This does not replace the local source pins, build notes or qualification gates.
 
 Live programme updated: **1 November 2026**. The older port table below is historical;
 the execution order and SDL3 intake sections take precedence.
