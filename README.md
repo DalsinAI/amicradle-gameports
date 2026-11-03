@@ -176,3 +176,4 @@ source pins, recipes or integration pointers in GamePorts:
 - [Amiga Omnispeak (Commander Keen)](https://github.com/DalsinAI/amigaomnispeak)
 - [Amiga REminiscence (Flashback)](https://github.com/DalsinAI/amigareminiscence)
 - [Amiga Zod Engine](https://github.com/DalsinAI/amigazodengine)
+- [Amiga Blues Brothers](https://github.com/DalsinAI/amigablues)
