@@ -178,3 +178,4 @@ source pins, recipes or integration pointers in GamePorts:
 - [Amiga Zod Engine](https://github.com/DalsinAI/amigazodengine)
 - [Amiga Blues Brothers](https://github.com/DalsinAI/amigablues)
 - [Amiga Heart of Darkness](https://github.com/DalsinAI/amigahode)
+- [Amiga OpenDUNE](https://github.com/DalsinAI/amigaopendune)
