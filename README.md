@@ -177,3 +177,4 @@ source pins, recipes or integration pointers in GamePorts:
 - [Amiga REminiscence (Flashback)](https://github.com/DalsinAI/amigareminiscence)
 - [Amiga Zod Engine](https://github.com/DalsinAI/amigazodengine)
 - [Amiga Blues Brothers](https://github.com/DalsinAI/amigablues)
+- [Amiga Heart of Darkness](https://github.com/DalsinAI/amigahode)
