@@ -62,7 +62,7 @@ the normal clean-build, provenance, packaging and AC090 runtime gates.
 | Julius | CANDIDATE | ACGame / SDL | TBD | Caesar III reimplementation; mature software 2D workload. Original game data external. |
 | VVVVVV | CANDIDATE | SDL / GFOpenGPU | TBD | Mature SDL code and modest 2D workload. Review data packaging. |
 | Wolf4SDL | CANDIDATE | ACGame / SDL | TBD | Classic software renderer. Original Wolfenstein data external. |
-| Omnispeak | CANDIDATE | ACGame / SDL | TBD | Commander Keen reimplementation with a light software workload. |
+| Omnispeak | TESTING | ACGame / SDL (acsdl12) | P1 | In its own repository, [Amiga Omnispeak](https://github.com/DalsinAI/amigaomnispeak): Keen 4 on AGA and RTG, packaged as an LhA drawer. Original Keen data external. |
 | Fallout Community Edition | CANDIDATE | SDL / GFOpenGPU | TBD | Constrained 2D workload and strong game value. Original Fallout data required. |
 | OpenXcom | CANDIDATE | SDL / GFOpenGPU | TBD | Mature turn-based 2D engine; dependency/YAML review required. |
 | JFDuke3D | CANDIDATE | SDL / GFOpenGPU | TBD | Mature Build-engine port and useful 040 stress case; commercial data external. |
@@ -141,7 +141,7 @@ Old OS4/MorphOS binaries are precedent; AC090 needs a fresh m68k source build.
 | P1 active, blocked | Enigma | Source pinned; target SDK gate identifies missing Xerces-C and curl archives/headers. Existing OpenAmigaCurl is the curl integration route, not a new curl port. No engine build/runtime pass. | Normal levels in source; audit asset notices before bundling. No retail Oxyd upload needed. |
 | P1 next revival | FooBillard | Audit the small 3.0a baseline before considering FooBillard++; GFOpenGPU fixed-function compatibility first. | Review bundled assets/notices. |
 | P2 revival | LinCity-NG | Audit current source and dependency size against the older OS4 port; reach city UI and save/load. | Review included data. |
-| P2 revival | REminiscence | Pin modern source; the old MorphOS port is useful precedent. Input, palette, save/load and exit gates. | Original Flashback data external. |
+| P2 testing | REminiscence | In its own repository, [Amiga REminiscence](https://github.com/DalsinAI/amigareminiscence): ACGame on AGA and RTG, the PC demo and CD data, save/load, packaged as an LhA drawer. Music next. | Original Flashback data external. |
 | P2 revival | Cannonball | Renderer/SDL/endian audit, then race and controls on AC090. | User-owned OutRun ROM data external. |
 | P2 integration | Descent / DXX-Rebirth | Compare current maintained Amiga builds first; avoid duplicating working D1X/D2X ports. | Original Descent data or authorised demo external. |
 | P2 existing candidate | Stratagus / Wargus | Keep the existing engine/module rows; audit Lua, networking and import workflow against the old OS4 port. | Warcraft II data external; never bundle extraction output. |

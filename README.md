@@ -171,3 +171,8 @@ source pins, recipes or integration pointers in GamePorts:
 - [Amiga SWIV](https://github.com/DalsinAI/amigaswiv)
 - [Amiga UQM](https://github.com/DalsinAI/amigauqm)
 - [Amiga Warzone 2100](https://github.com/DalsinAI/amigawarzone2100)
+- [Amiga Angband](https://github.com/DalsinAI/amigaangband)
+- [Amiga BurgerSpace](https://github.com/DalsinAI/amigaburgerspace)
+- [Amiga Omnispeak (Commander Keen)](https://github.com/DalsinAI/amigaomnispeak)
+- [Amiga REminiscence (Flashback)](https://github.com/DalsinAI/amigareminiscence)
+- [Amiga Zod Engine](https://github.com/DalsinAI/amigazodengine)
