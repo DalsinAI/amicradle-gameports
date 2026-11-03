@@ -179,3 +179,4 @@ source pins, recipes or integration pointers in GamePorts:
 - [Amiga Blues Brothers](https://github.com/DalsinAI/amigablues)
 - [Amiga Heart of Darkness](https://github.com/DalsinAI/amigahode)
 - [Amiga OpenDUNE](https://github.com/DalsinAI/amigaopendune)
+- [Amiga Fish Fillets NG](https://github.com/DalsinAI/amigafishfilletsng)
